@@ -1,0 +1,109 @@
+
+
+### SRI Endpoints Test
+### Generate SRI Invoice
+POST {{host}}/api/sri/generateInvoice
+Content-Type: application/json
+
+{
+    "infoTributaria": {
+        "ambiente": 1,
+        "tipoEmision": 1,
+        "razonSocial": "Distribuidora de Suministros Nacional S.A.",
+        "nombreComercial": "Empresa Importadora y Exportadora de Piezas",
+        "ruc": "1792146739001",
+        "claveAcceso": "2110201101179214673900110020010000000011234567813",
+        "codDoc": "01",
+        "estab": "002",
+        "ptoEmi": "001",
+        "secuencial": "000000001",
+        "dirMatriz": "Enrique Guerrero Portilla OE1-34 AV. Galo Plaza Lasso"
+    },
+    "infoFactura": {
+        "fechaEmision" : "",
+        "dirEstablecimiento" : "Sebastian Moreno S/N Franciso Garcia",
+        "contribuyenteEspecial" : "5368",
+        "obligadoContabilidad" : "SI",
+        "tipoIdentificacionComprador" : "05",
+        "guiaRemision" : "001-002-000000123",
+        "razonSocialComprador" : "Juan Carlos Perez Lopez",
+        "identificacionComprador" : "1719923456",
+        "direccionComprador" : "Av. Amazonas N34-567 y Av. Colon",
+        "totalSinImpuestos" : 9.00,
+        "totalDescuento" : 0.00,
+        "totalConImpuestos": [
+                {
+                    "codigo": "3",
+                    "codigoPorcentaje": "3072",
+                    "baseImponible": 9.00,
+                    "valor": 1.08
+                },
+                {
+                    "codigo": "2",
+                    "codigoPorcentaje": "2",
+                    "baseImponible": 0.00,
+                    "valor": 0.00
+                }
+            
+        ],
+        "propina" : 0.00,
+        "importeTotal" : 10.08,
+        "moneda" : "DOLAR",
+        "pagos" : [
+            {
+                "formaPago" : "01",
+                "total" : 10.08,
+                "plazo" : "30",
+                "unidadTiempo" : "DIA"
+            }
+        ],
+        "valorRetIva" : 0.00,
+        "valorRetRenta" : 0.00
+    },
+    "detalles": [
+        {
+            "codigoPrincipal": "125BJC-01",
+            "codigoAuxiliar": "1234D56789-A",
+            "descripcion": "Bujia de encendido para motor 1.8L",
+            "precioUnitario": 4.50,
+            "descuento": 0.00,
+            "precioTotalSinImpuesto": 9.00,
+            "detallesAdicionales": [
+                {
+                    "nombre": "Marca",
+                    "valor": "Bosch"
+                },
+                {
+                    "nombre": "Modelo",
+                    "valor": "X123YZ45"
+                }
+            ],
+            "impuestos": [
+                {
+                    "codigo": "3",
+                    "codigoPorcentaje": "3072",
+                    "tarifa": 5,
+                    "baseImponible": 9.00,
+                    "valor": 1.08
+                },
+                {
+                    "codigo": "2",
+                    "codigoPorcentaje": "2",
+                    "tarifa": 12,
+                    "baseImponible": 0.00,
+                    "valor": 0.00
+                }
+            ]
+        }
+    ],
+    "infoAdicional": [
+        {
+            "nombre": "Contacto",
+            "valor": "Juan Perez"
+        },
+        {
+            "nombre": "Email",
+            "valor": "juan.perez@example.com"
+        }
+    ]    
+}
