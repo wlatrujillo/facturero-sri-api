@@ -1,5 +1,11 @@
 
 import { XmlParser } from './xmlparser.js';
+import type { InfoTributaria } from '../models/info-tributaria.js';
+import type { InfoFactura } from '../models/info-factura.js';
+import type { Impuesto } from '../models/impuesto.js';
+import type { Pago } from '../models/pago.js';
+import type { Detalle } from '../models/detalle.js';
+import type { Invoice } from '@facturero-sri-signer/models/invoice.js';
 
 export class InvoiceGenerator {
 
@@ -11,10 +17,8 @@ export class InvoiceGenerator {
 
     }
 
-    generateInvoice(data: any): string {
+    generateXmlInvoice(data: Invoice): string {
         // Lógica para generar una factura electrónica según los requisitos del SRI
-
-
 
 
         let jsonObject: any = {
@@ -25,71 +29,92 @@ export class InvoiceGenerator {
             factura: {
                 "@_id": "comprobante",
                 "@_version": "1.0.0",
-                infoTributaria: {
-                    ambiente: data.infoTributaria.ambiente,
-                    tipoEmision: data.infoTributaria.tipoEmision,
-                    razonSocial: data.infoTributaria.razonSocial,
-                    nombreComercial: data.infoTributaria.nombreComercial,
-                    ruc: data.infoTributaria.ruc,
-                    claveAcceso: data.infoTributaria.claveAcceso,
-                    codDoc: data.infoTributaria.codDoc,
-                    estab: data.infoTributaria.estab,
-                    ptoEmi: data.infoTributaria.ptoEmi,
-                    secuencial: data.infoTributaria.secuencial,
-                    dirMatriz: data.infoTributaria.dirMatriz
-                },
-                infoFactura: {
-                    fechaEmision: data.infoFactura.fechaEmision,
-                    dirEstablecimiento: data.infoFactura.dirEstablecimiento,
-                    contribuyenteEspecial: data.infoFactura.contribuyenteEspecial,
-                    obligadoContabilidad: data.infoFactura.obligadoContabilidad,
-                    tipoIdentificacionComprador: data.infoFactura.tipoIdentificacionComprador,
-                    guiaRemision: data.infoFactura.guiaRemision,
-                    razonSocialComprador: data.infoFactura.razonSocialComprador,
-                    identificacionComprador: data.infoFactura.identificacionComprador,
-                    totalSinImpuestos: data.infoFactura.totalSinImpuestos,
-                    totalDescuento: data.infoFactura.totalDescuento,
-                    totalConImpuestos: [] as any[],
-                    propina: data.infoFactura.propina,
-                    importeTotal: data.infoFactura.importeTotal,
-                    moneda: data.infoFactura.moneda,
-                    pagos: [] as any[],
-                    valorRetIva: data.infoFactura.valorRetIva,
-                    valorRetRenta: data.infoFactura.valorRetRenta
-                },
-                detalles: [] as any[],
-                infoAdicional: [] as any[]
+                infoTributaria: this.generateInfoTributaria(data.infoTributaria),
+                infoFactura: this.generateInfoFactura(data.infoFactura),
+                detalles: this.generateDetalles(data.detalles),
+                infoAdicional: this.generateInfoAdicional(data.infoAdicional)
             }
 
         };
 
-        // Agregar detalles de impuestos
-        data.infoFactura.totalConImpuestos.forEach((impuesto: any) => {
-            jsonObject.factura.infoFactura.totalConImpuestos.push({
+
+
+        return this.xmlParserService.parseJsonToXml(jsonObject);
+    }
+
+    private generateInfoTributaria(data: InfoTributaria): InfoTributaria {
+        // Lógica para generar la sección de InfoTributaria
+        let infoTributaria: InfoTributaria =
+        {
+            ambiente: data.ambiente,
+            tipoEmision: data.tipoEmision,
+            razonSocial: data.razonSocial,
+            nombreComercial: data.nombreComercial,
+            ruc: data.ruc,
+            claveAcceso: data.claveAcceso,
+            codDoc: data.codDoc,
+            estab: data.estab,
+            ptoEmi: data.ptoEmi,
+            secuencial: data.secuencial,
+            dirMatriz: data.dirMatriz
+        }
+
+        return infoTributaria;
+    }
+
+    private generateInfoFactura(data: InfoFactura): any {
+        // Lógica para generar la sección de InfoFactura
+
+        let totalConImpuestos: any[] = data
+            .totalConImpuestos
+            .map((impuesto: Impuesto) => ({
                 totalImpuesto: {
                     codigo: impuesto.codigo,
                     codigoPorcentaje: impuesto.codigoPorcentaje,
                     baseImponible: impuesto.baseImponible,
                     valor: impuesto.valor
                 }
-            });
-        });
+            }));
 
-        // Agregar detalles de pagos
-        data.infoFactura.pagos.forEach((pago: any) => {
-            jsonObject.factura.infoFactura.pagos.push({
+        let pagos: any[] = data.pagos
+            .map((pago: Pago) => ({
                 pago: {
                     formaPago: pago.formaPago,
                     total: pago.total,
                     plazo: pago.plazo,
                     unidadTiempo: pago.unidadTiempo
                 }
-            });
-        });
+            }));
 
-        // Agregar detalles de la factura
-        data.detalles.forEach((detalle: any) => {
-            jsonObject.factura.detalles.push({
+
+        let infoFactura: InfoFactura = {
+            fechaEmision: data.fechaEmision,
+            dirEstablecimiento: data.dirEstablecimiento,
+            contribuyenteEspecial: data.contribuyenteEspecial,
+            obligadoContabilidad: data.obligadoContabilidad,
+            tipoIdentificacionComprador: data.tipoIdentificacionComprador,
+            guiaRemision: data.guiaRemision,
+            razonSocialComprador: data.razonSocialComprador,
+            identificacionComprador: data.identificacionComprador,
+            totalSinImpuestos: data.totalSinImpuestos,
+            totalDescuento: data.totalDescuento,
+            totalConImpuestos: totalConImpuestos,
+            propina: data.propina,
+            importeTotal: data.importeTotal,
+            moneda: data.moneda,
+            pagos: pagos,
+            valorRetIva: data.valorRetIva,
+            valorRetRenta: data.valorRetRenta
+        };
+
+        return infoFactura;
+    }
+
+    private generateDetalles(detalles: Detalle[]): any[] {
+        // Lógica para generar la sección de Detalles
+
+        let detallesXml: any[] = detalles
+            .map((detalle: Detalle) => ({
                 detalle: {
                     codigoPrincipal: detalle.codigoPrincipal,
                     descripcion: detalle.descripcion,
@@ -98,7 +123,7 @@ export class InvoiceGenerator {
                     descuento: detalle.descuento,
                     precioTotalSinImpuesto: detalle.precioTotalSinImpuesto,
                     detallesAdicionales: detalle.detallesAdicionales
-                        .map((adicional: any) => ({
+                        .map((adicional: { nombre: string; valor: string }) => ({
                             detAdicional: {
                                 "@_nombre": adicional.nombre,
                                 "@_valor": adicional.valor,
@@ -106,7 +131,7 @@ export class InvoiceGenerator {
                             }
                         }))
                     ,
-                    impuestos: detalle.impuestos.map((impuesto: any) => ({
+                    impuestos: detalle.impuestos.map((impuesto: Impuesto) => ({
                         impuesto: {
                             codigo: impuesto.codigo,
                             codigoPorcentaje: impuesto.codigoPorcentaje,
@@ -116,24 +141,26 @@ export class InvoiceGenerator {
                         }
                     }))
                 }
-            });
-        });
+            }));
+        return detallesXml;
+    }
 
-        // Agregar información adicional
-        data.infoAdicional.forEach((info: any) => {
-            jsonObject.factura.infoAdicional.push({
+    private generateInfoAdicional(infoAdicional: { nombre: string; valor: string }[]): any[] {
+        // Lógica para generar la sección de InfoAdicional
+
+
+        if (infoAdicional === undefined) {
+            infoAdicional = [];
+        }
+
+        let infoAdicionalXml: any[] = infoAdicional
+            .map((info: { nombre: string; valor: string }) => ({
                 campoAdicional: {
                     "@_nombre": info.nombre,
                     "#text": info.valor
                 }
-            });
-        });
-
-        let xmlString = this.xmlParserService.parseJsonToXml(jsonObject);
-
-        // Aquí se podría agregar la lógica para firmar el XML y enviarlo al SRI
-
-        return xmlString;
+            }));
+        return infoAdicionalXml;
     }
 
 }

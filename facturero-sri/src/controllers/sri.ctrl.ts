@@ -4,6 +4,7 @@ import type { Request, Response } from 'express';
 import log4js from 'log4js';
 
 import { InvoiceGenerator } from '@facturero-sri-signer/index.js';
+import type { Invoice } from '@facturero-sri-signer/models/invoice.js';
 
 const logger = log4js.getLogger("SriController");
 
@@ -21,8 +22,11 @@ class SriController {
 
            logger.info('generateInvoice called with body:', req.body);
 
-           const xmlData = await this.invoiceGenerator.generateInvoice(req.body);
+           const invoice: Invoice = req.body as Invoice;
 
+           const xmlData = await this.invoiceGenerator.generateXmlInvoice(invoice);
+
+           
            res.status(200).json({ xmlData });
 
         } catch (error) {
