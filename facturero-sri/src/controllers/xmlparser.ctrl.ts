@@ -2,7 +2,7 @@
 import type { Request, Response } from 'express';
 import log4js from 'log4js';
 
-import {  XmlParser }  from '../../../facturero-sri-signer/lib/index.js';
+import {  XmlParser }  from '@facturero-sri-signer/index.js';
 
 
 const logger = log4js.getLogger("XmlParserController");

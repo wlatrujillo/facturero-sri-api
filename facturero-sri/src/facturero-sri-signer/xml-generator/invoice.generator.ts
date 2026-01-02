@@ -1,7 +1,7 @@
 
-import { XmlParser } from '@facturero-sri-signer/index.js';
+import { XmlParser } from './xmlparser.js';
 
-class SriService {
+export class InvoiceGenerator {
 
     private xmlParserService: XmlParser;
 
@@ -11,10 +11,11 @@ class SriService {
 
     }
 
-
     generateInvoice(data: any): string {
         // Lógica para generar una factura electrónica según los requisitos del SRI
-        //
+
+
+
 
         let jsonObject: any = {
             "?xml": {
@@ -135,27 +136,4 @@ class SriService {
         return xmlString;
     }
 
-    generateDebitNote(data: any): string {
-        // Lógica para generar una nota de débito electrónica según los requisitos del SRI
-        return "Nota de débito generada con éxito";
-    }
-
-    generateCreditNote(data: any): string {
-        // Lógica para generar una nota de crédito electrónica según los requisitos del SRI
-        return "Nota de crédito generada con éxito";
-    }
-
-    generateShippingGuide(data: any): string {
-        // Lógica para generar una guía de remisión electrónica según los requisitos del SRI
-        return "Guía de remisión generada con éxito";
-    }
-
-    generateWithholdingReceipt(data: any): string {
-        // Lógica para generar un comprobante de retención electrónica según los requisitos del SRI
-        return "Comprobante de retención generado con éxito";
-    }
-
-
 }
-
-export default SriService;

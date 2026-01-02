@@ -41,11 +41,9 @@
     "paths": {
       "@controllers/*": ["controllers/*"],
       "@services/*": ["services/*"],
-      "@routes/*": ["routes/*"]
+      "@routes/*": ["routes/*"],
+      "@facturero-sri-signer/*": ["facturero-sri-signer/*"]
     }
   },
-  "exclude": ["node_modules", "dist"],
-  "references": [
-    { "path": "../facturero-sri-signer"}
-  ]
+  "exclude": ["node_modules", "dist"]
 }
