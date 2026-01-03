@@ -1,138 +1,39 @@
+import fs from 'node:fs';
 
-import { XmlParser } from '@facturero-sri-signer/index.js';
+import { InvoiceGenerator } from '@facturero-sri-signer/index.js';
+import { ReceptionService } from '@facturero-sri-signer/index.js';
+import type { Invoice } from '@facturero-sri-signer/models/invoice.js';
 
 class SriService {
 
-    private xmlParserService: XmlParser;
+    private invoiceGenerator: InvoiceGenerator;
+    private receptionService: ReceptionService;
 
     constructor() {
 
-        this.xmlParserService = new XmlParser();
-
+        this.invoiceGenerator = new InvoiceGenerator();
+        this.receptionService = new ReceptionService();
     }
 
 
-    generateInvoice(data: any): string {
+    async generateInvoice(data: Invoice): Promise<string> {
         // Lógica para generar una factura electrónica según los requisitos del SRI
         //
 
-        let jsonObject: any = {
-            "?xml": {
-                "@_version": "1.0",
-                "@_encoding": "UTF-8"
-            },
-            factura: {
-                "@_id": "comprobante",
-                "@_version": "1.0.0",
-                infoTributaria: {
-                    ambiente: data.infoTributaria.ambiente,
-                    tipoEmision: data.infoTributaria.tipoEmision,
-                    razonSocial: data.infoTributaria.razonSocial,
-                    nombreComercial: data.infoTributaria.nombreComercial,
-                    ruc: data.infoTributaria.ruc,
-                    claveAcceso: data.infoTributaria.claveAcceso,
-                    codDoc: data.infoTributaria.codDoc,
-                    estab: data.infoTributaria.estab,
-                    ptoEmi: data.infoTributaria.ptoEmi,
-                    secuencial: data.infoTributaria.secuencial,
-                    dirMatriz: data.infoTributaria.dirMatriz
-                },
-                infoFactura: {
-                    fechaEmision: data.infoFactura.fechaEmision,
-                    dirEstablecimiento: data.infoFactura.dirEstablecimiento,
-                    contribuyenteEspecial: data.infoFactura.contribuyenteEspecial,
-                    obligadoContabilidad: data.infoFactura.obligadoContabilidad,
-                    tipoIdentificacionComprador: data.infoFactura.tipoIdentificacionComprador,
-                    guiaRemision: data.infoFactura.guiaRemision,
-                    razonSocialComprador: data.infoFactura.razonSocialComprador,
-                    identificacionComprador: data.infoFactura.identificacionComprador,
-                    totalSinImpuestos: data.infoFactura.totalSinImpuestos,
-                    totalDescuento: data.infoFactura.totalDescuento,
-                    totalConImpuestos: [] as any[],
-                    propina: data.infoFactura.propina,
-                    importeTotal: data.infoFactura.importeTotal,
-                    moneda: data.infoFactura.moneda,
-                    pagos: [] as any[],
-                    valorRetIva: data.infoFactura.valorRetIva,
-                    valorRetRenta: data.infoFactura.valorRetRenta
-                },
-                detalles: [] as any[],
-                infoAdicional: [] as any[]
-            }
 
-        };
-
-        // Agregar detalles de impuestos
-        data.infoFactura.totalConImpuestos.forEach((impuesto: any) => {
-            jsonObject.factura.infoFactura.totalConImpuestos.push({
-                totalImpuesto: {
-                    codigo: impuesto.codigo,
-                    codigoPorcentaje: impuesto.codigoPorcentaje,
-                    baseImponible: impuesto.baseImponible,
-                    valor: impuesto.valor
-                }
-            });
-        });
-
-        // Agregar detalles de pagos
-        data.infoFactura.pagos.forEach((pago: any) => {
-            jsonObject.factura.infoFactura.pagos.push({
-                pago: {
-                    formaPago: pago.formaPago,
-                    total: pago.total,
-                    plazo: pago.plazo,
-                    unidadTiempo: pago.unidadTiempo
-                }
-            });
-        });
-
-        // Agregar detalles de la factura
-        data.detalles.forEach((detalle: any) => {
-            jsonObject.factura.detalles.push({
-                detalle: {
-                    codigoPrincipal: detalle.codigoPrincipal,
-                    descripcion: detalle.descripcion,
-                    cantidad: detalle.cantidad,
-                    precioUnitario: detalle.precioUnitario,
-                    descuento: detalle.descuento,
-                    precioTotalSinImpuesto: detalle.precioTotalSinImpuesto,
-                    detallesAdicionales: detalle.detallesAdicionales
-                        .map((adicional: any) => ({
-                            detAdicional: {
-                                "@_nombre": adicional.nombre,
-                                "@_valor": adicional.valor,
-                                "#text": ""
-                            }
-                        }))
-                    ,
-                    impuestos: detalle.impuestos.map((impuesto: any) => ({
-                        impuesto: {
-                            codigo: impuesto.codigo,
-                            codigoPorcentaje: impuesto.codigoPorcentaje,
-                            tarifa: impuesto.tarifa,
-                            baseImponible: impuesto.baseImponible,
-                            valor: impuesto.valor
-                        }
-                    }))
-                }
-            });
-        });
-
-        // Agregar información adicional
-        data.infoAdicional.forEach((info: any) => {
-            jsonObject.factura.infoAdicional.push({
-                campoAdicional: {
-                    "@_nombre": info.nombre,
-                    "#text": info.valor
-                }
-            });
-        });
-
-        let xmlString = this.xmlParserService.parseJsonToXml(jsonObject);
+        let xmlString = await this.invoiceGenerator.generateXmlInvoice(data);
 
         // Aquí se podría agregar la lógica para firmar el XML y enviarlo al SRI
 
+        fs.writeFileSync(`${data.infoTributaria.secuencial}.xml`, xmlString);
+
         return xmlString;
+    }
+
+    async validateInvoice(xmlString: string): Promise<boolean> {
+        // Lógica para validar una factura electrónica contra los requisitos del SRI
+        await this.receptionService.validateXml(1, xmlString);
+        return true;
     }
 
     generateDebitNote(data: any): string {

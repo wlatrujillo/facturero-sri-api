@@ -25,12 +25,10 @@ export class XmlParser {
     }
 
     parseXmlToJson(xmlString: string): any {
-        console.log("Parsing XML string:", xmlString);
         return this.parser.parse(xmlString);
     }
 
     parseJsonToXml(jsonObj: any): any {
-        console.log("Parsing json:", jsonObj);
         return this.builder.build(jsonObj);
     }
 }

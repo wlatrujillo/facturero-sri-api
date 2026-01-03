@@ -24,7 +24,6 @@ export class InvoiceGenerator {
     async generateXmlInvoice(data: Invoice): Promise<string> {
         // Lógica para generar una factura electrónica según los requisitos del SRI
 
-
         let jsonObject: any = {
             "?xml": {
                 "@_version": "1.0",
@@ -168,17 +167,6 @@ export class InvoiceGenerator {
                 }
             }));
         return infoAdicionalXml;
-    }
-
-    private formatDate(date: Date): string {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    private formatNumber(num: number): string {
-        return num.toFixed(2);
     }
 
 }

@@ -3,7 +3,7 @@
 import type { Request, Response } from 'express';
 import log4js from 'log4js';
 
-import { InvoiceGenerator } from '@facturero-sri-signer/index.js';
+import SriService from '@services/sri.srv.js';
 import type { Invoice } from '@facturero-sri-signer/models/invoice.js';
 
 const logger = log4js.getLogger("SriController");
@@ -11,20 +11,22 @@ const logger = log4js.getLogger("SriController");
 class SriController {
 
 
-    private invoiceGenerator: InvoiceGenerator;
+    private sriService: SriService;
 
     constructor() {
-        this.invoiceGenerator = new InvoiceGenerator();
+        this.sriService = new SriService();
     }
 
     generateInvoice = async (req: Request, res: Response): Promise<void> => {
         try {
 
-           logger.info('generateInvoice called with body:', req.body);
+           logger.info('generateInvoice called');
 
            const invoice: Invoice = req.body as Invoice;
 
-           const xmlData = await this.invoiceGenerator.generateXmlInvoice(invoice);
+           invoice.infoFactura.fechaEmision = new Date();
+
+           const xmlData = await this.sriService.generateInvoice(invoice);
 
            
            res.status(200).json({ xmlData });

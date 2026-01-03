@@ -7,7 +7,7 @@ export class AccessKeyGenerator {
 
         const PAD_FILLER = '0';
 
-        const fechaEmision = this.formatDateDDMMYY(issueDate);
+        const fechaEmision = this.formatDateDDMMYYYY(issueDate);
         const codDoc = this.padLeft(infoTributaria.codDoc, 2, PAD_FILLER);
         const ruc = this.padLeft(infoTributaria.ruc, 13, PAD_FILLER);
         const ambiente = this.padLeft(infoTributaria.ambiente, 1, PAD_FILLER);
@@ -16,7 +16,7 @@ export class AccessKeyGenerator {
         const secuencial = this.padLeft(infoTributaria.secuencial, 9, PAD_FILLER);
 
         
-        const codigoNumerico = String(issueDate.getDay()).padStart(2, '0') +
+        const codigoNumerico = String(issueDate.getDate()).padStart(2, '0') +
             String(issueDate.getMonth() + 1).padStart(2, '0') + 
             this.randomNumericString().padStart(4, '0');
 
@@ -38,15 +38,15 @@ export class AccessKeyGenerator {
         return strValue;
     }
 
-    private formatDateDDMMYY(date: Date): string {
+    private formatDateDDMMYYYY(date: Date): string {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDay()).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
         return `${day}${month}${year}`;
     }
 
     private randomNumericString(): string {
-       return  Math.floor(Math.random() * 90000).toString();
+       return  Math.floor(Math.random() * 9000).toString();
     }
 
     private calculateDigitVerifierModulo11(rawKey: string): string {
