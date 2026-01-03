@@ -12,7 +12,6 @@ Content-Type: application/json
         "razonSocial": "Distribuidora de Suministros Nacional S.A.",
         "nombreComercial": "Empresa Importadora y Exportadora de Piezas",
         "ruc": "1792146739001",
-        "claveAcceso": "2110201101179214673900110020010000000011234567813",
         "codDoc": "01",
         "estab": "002",
         "ptoEmi": "001",

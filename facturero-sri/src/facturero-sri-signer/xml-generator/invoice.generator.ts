@@ -5,19 +5,23 @@ import type { InfoFactura } from '../models/info-factura.js';
 import type { Impuesto } from '../models/impuesto.js';
 import type { Pago } from '../models/pago.js';
 import type { Detalle } from '../models/detalle.js';
-import type { Invoice } from '@facturero-sri-signer/models/invoice.js';
+import type { Invoice } from '../models/invoice.js';
+import { AccessKeyGenerator } from './access-key.generator.js';
 
 export class InvoiceGenerator {
 
     private xmlParserService: XmlParser;
 
+    private accessKeyGenerator: AccessKeyGenerator;
+
     constructor() {
 
         this.xmlParserService = new XmlParser();
+        this.accessKeyGenerator = new AccessKeyGenerator();
 
     }
 
-    generateXmlInvoice(data: Invoice): string {
+    async generateXmlInvoice(data: Invoice): Promise<string> {
         // Lógica para generar una factura electrónica según los requisitos del SRI
 
 
@@ -29,7 +33,7 @@ export class InvoiceGenerator {
             factura: {
                 "@_id": "comprobante",
                 "@_version": "1.0.0",
-                infoTributaria: this.generateInfoTributaria(data.infoTributaria),
+                infoTributaria: this.generateInfoTributaria(data.infoTributaria, data.infoFactura.fechaEmision),
                 infoFactura: this.generateInfoFactura(data.infoFactura),
                 detalles: this.generateDetalles(data.detalles),
                 infoAdicional: this.generateInfoAdicional(data.infoAdicional)
@@ -42,16 +46,19 @@ export class InvoiceGenerator {
         return this.xmlParserService.parseJsonToXml(jsonObject);
     }
 
-    private generateInfoTributaria(data: InfoTributaria): InfoTributaria {
+    private generateInfoTributaria(data: InfoTributaria, issueDate: Date): any {
         // Lógica para generar la sección de InfoTributaria
-        let infoTributaria: InfoTributaria =
+        
+        let accessKey = data.claveAcceso || this.accessKeyGenerator.generateAccessKey(data, issueDate || new Date());
+
+        let infoTributaria: any =
         {
             ambiente: data.ambiente,
             tipoEmision: data.tipoEmision,
             razonSocial: data.razonSocial,
             nombreComercial: data.nombreComercial,
             ruc: data.ruc,
-            claveAcceso: data.claveAcceso,
+            claveAcceso: accessKey,
             codDoc: data.codDoc,
             estab: data.estab,
             ptoEmi: data.ptoEmi,
@@ -161,6 +168,17 @@ export class InvoiceGenerator {
                 }
             }));
         return infoAdicionalXml;
+    }
+
+    private formatDate(date: Date): string {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    private formatNumber(num: number): string {
+        return num.toFixed(2);
     }
 
 }

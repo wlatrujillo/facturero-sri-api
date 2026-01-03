@@ -7,6 +7,6 @@ export interface Invoice {
     infoTributaria: InfoTributaria;
     infoFactura: InfoFactura;
     detalles: Detalle[];
-    infoAdicional: any[];
+    infoAdicional: { nombre: string, valor: string }[];
 
 }

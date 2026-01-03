@@ -4,7 +4,7 @@ import type { Pago } from './pago.js';
 
 export interface InfoFactura {
 
-    fechaEmision: string;
+    fechaEmision: Date;
     dirEstablecimiento: string;
     contribuyenteEspecial: string;
     obligadoContabilidad: string;

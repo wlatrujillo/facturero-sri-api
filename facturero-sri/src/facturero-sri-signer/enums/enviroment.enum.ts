@@ -1,4 +1,4 @@
 export enum ENVIRONMENT {
-  TEST = 1,
-  PROD = 2,
+  PRUEBAS = 1,
+  PRODUCCION = 2,
 }
