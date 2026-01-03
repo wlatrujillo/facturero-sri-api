@@ -6,14 +6,6 @@ import { SRI_ENDPOINTS } from '../utils/sri.endopoints.js';
 
 export class ReceptionService {
 
-
-
-    constructor() {
-
-
-    }
-
-
     async validateXml(env: ENVIRONMENT, xml: string): Promise<any> {
 
         const URL_SRI_WSDL = env == ENVIRONMENT.PRUEBAS ?
@@ -59,18 +51,20 @@ export class ReceptionService {
         const mensajes = comprobante?.mensajes;
         console.log('Mensajes del SRI: ', mensajes);
 
-        mensajes?.forEach((msg: any) => {
+        if (mensajes && Array.isArray(mensajes.mensaje)) {
+            mensajes?.forEach((msg: any) => {
+                console.log(`Mensaje SRI - Identificador: ${msg.identificador}, Mensaje: ${msg.mensaje}, Informacion Adicional: ${msg.informacionAdicional}, tipo: ${msg.tipo}`);
+            });
+        } else if (mensajes) {
+            const msg = mensajes.mensaje;
             console.log(`Mensaje SRI - Identificador: ${msg.identificador}, Mensaje: ${msg.mensaje}, Informacion Adicional: ${msg.informacionAdicional}, tipo: ${msg.tipo}`);
-        });
+        }
 
 
         if (response?.estado === 'RECIBIDA') {
             console.log('XML recibido correctamente por el SRI.');
         } else {
             console.error('Error en la recepción del XML: ', response);
-
-
-            console.log('Detalles de error: ');
         }
 
         return response;

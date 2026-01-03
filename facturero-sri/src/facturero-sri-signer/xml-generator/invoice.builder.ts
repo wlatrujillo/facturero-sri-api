@@ -10,18 +10,14 @@ import { ENVIRONMENT } from "@facturero-sri-signer/enums/enviroment.enum.js";
 
 export class InvoiceBuilder {
 
-
-
-
     private infoTributaria!: any;
     private infoFactura!: any;
     private detalles!: any[];
     private infoAdicional!: any;
 
+    private issueDate: Date = new Date();
 
-
-
-    withInfoTributaria(data: InfoTributaria): InvoiceBuilder {
+    withInfoTributaria(data: InfoTributaria): this {
 
         this.infoTributaria = {
             ambiente: data.ambiente || ENVIRONMENT.PRUEBAS,
@@ -29,20 +25,26 @@ export class InvoiceBuilder {
             razonSocial: data.razonSocial,
             nombreComercial: data.nombreComercial,
             ruc: data.ruc,
+            claveAcceso: data.claveAcceso,
             codDoc: data.codDoc,
             estab: data.estab,
             ptoEmi: data.ptoEmi,
             secuencial: data.secuencial,
-            dirMatriz: data.dirMatriz,
-            claveAcceso: data.claveAcceso
+            dirMatriz: data.dirMatriz
         }
         return this;
     }
 
     withInfoFactura(data: InfoFactura): any {
         // Lógica para generar la sección de InfoFactura
+        data.totalConImpuestos ??= [];
+        data.pagos ??= [];
 
-        let issueDate = data.fechaEmision || new Date();
+        if (data.fechaEmision) {
+            this.issueDate = data.fechaEmision instanceof Date
+                ? data.fechaEmision
+                : new Date(data.fechaEmision);
+        }
 
         let totalConImpuestos: any[] = data
             .totalConImpuestos
@@ -67,7 +69,7 @@ export class InvoiceBuilder {
 
 
         this.infoFactura = {
-            fechaEmision: DateFormat.formatDate(issueDate),
+            fechaEmision: DateFormat.formatDate(this.issueDate),
             dirEstablecimiento: data.dirEstablecimiento,
             contribuyenteEspecial: data.contribuyenteEspecial,
             obligadoContabilidad: data.obligadoContabilidad,
@@ -90,8 +92,11 @@ export class InvoiceBuilder {
     }
 
 
-    withDetalles(detalles: Detalle[]): InvoiceBuilder {
+    withDetalles(detalles: Detalle[]): this {
         // Lógica para generar la sección de Detalles
+
+        detalles ??= [];
+        
 
         this.detalles = detalles
             .map((detalle: Detalle) => ({
@@ -126,13 +131,10 @@ export class InvoiceBuilder {
     }
 
 
-    withInfoAdicional(infoAdicional: { nombre: string; valor: string }[]): InvoiceBuilder {
+    withInfoAdicional(infoAdicional: { nombre: string; valor: string }[]): this {
         // Lógica para generar la sección de InfoAdicional
 
-
-        if (infoAdicional === undefined) {
-            infoAdicional = [];
-        }
+        infoAdicional ??= [];
 
         this.infoAdicional = infoAdicional
             .map((info: { nombre: string; valor: string }) => ({
@@ -148,10 +150,9 @@ export class InvoiceBuilder {
 
     build(): any {
 
+        if (!this.infoTributaria.claveAcceso || this.infoTributaria.claveAcceso.trim() === '') {
 
-
-        if (!this.infoTributaria.claveAcceso) {
-            let accessKey = AccessKeyGenerator.generateAccessKey(this.infoFactura.fechaEmision,
+            let accessKey = AccessKeyGenerator.generateAccessKey(this.issueDate,
                 this.infoTributaria.codDoc,
                 this.infoTributaria.ruc,
                 this.infoTributaria.ambiente,
@@ -159,7 +160,8 @@ export class InvoiceBuilder {
                 this.infoTributaria.ptoEmi,
                 this.infoTributaria.secuencial,
                 this.infoTributaria.tipoEmision);
-            this.infoFactura.claveAcceso = accessKey;
+
+            this.infoTributaria.claveAcceso = accessKey;
 
         }
 
