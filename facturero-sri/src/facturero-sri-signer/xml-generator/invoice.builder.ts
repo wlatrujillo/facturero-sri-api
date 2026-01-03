@@ -6,7 +6,7 @@ import type { Impuesto } from "@facturero-sri-signer/models/impuesto.js";
 import type { Pago } from "@facturero-sri-signer/models/pago.js";
 import { DateFormat } from "@facturero-sri-signer/utils/date.format.js";
 import type { Detalle } from "@facturero-sri-signer/models/detalle.js";
-import { ENVIRONMENT } from "@facturero-sri-signer/enums/enviroment.enum.js";
+import { ENVIRONMENT } from "@facturero-sri-signer/enums/index.js";
 
 export class InvoiceBuilder {
 

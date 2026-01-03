@@ -1,6 +1,6 @@
 import { Client, createClientAsync } from 'soap';
 
-import { ENVIRONMENT } from '../enums/enviroment.enum.js';
+import { ENVIRONMENT } from '../enums/index.js';
 import { SRI_ENDPOINTS } from '../utils/sri.endopoints.js';
 
 
