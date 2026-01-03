@@ -1,12 +1,12 @@
 
-import type { InfoTributaria } from "@facturero-sri-signer/models/info-tributaria.js";
+import type { InfoTributaria } from "../models/info-tributaria.js";
 import { AccessKeyGenerator } from "./access-key.generator.js";
-import type { InfoFactura } from "@facturero-sri-signer/models/info-factura.js";
-import type { Impuesto } from "@facturero-sri-signer/models/impuesto.js";
-import type { Pago } from "@facturero-sri-signer/models/pago.js";
-import { DateFormat } from "@facturero-sri-signer/utils/date.format.js";
-import type { Detalle } from "@facturero-sri-signer/models/detalle.js";
-import { ENVIRONMENT } from "@facturero-sri-signer/enums/index.js";
+import type { InfoFactura } from "../models/info-factura.js";
+import type { Impuesto } from "../models/impuesto.js";
+import type { Pago } from "../models/pago.js";
+import { DateFormat } from "../utils/date.format.js";
+import type { Detalle } from "../models/detalle.js";
+import { ENVIRONMENT } from "../enums/index.js";
 
 export class InvoiceBuilder {
 
