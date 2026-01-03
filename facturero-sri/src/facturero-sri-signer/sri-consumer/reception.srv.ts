@@ -24,18 +24,56 @@ export class ReceptionService {
         let result: any;
 
         try {
+
+            console.log('Validando XML en el SRI...');
+            console.log('WSDL URL: ', URL_SRI_WSDL);
+
+
             const client: Client = await createClientAsync(URL_SRI_WSDL);
-            const [result] = await client.validarDocumentoAsync({ xml });
+
+            const xmlBase64 = Buffer.from(xml, 'utf-8').toString('base64');
+
+            console.log('XML Base64: ', xmlBase64);
+
+            [result] = await client.validarComprobanteAsync({ xml: xmlBase64 });
 
         } catch (error) {
+            console.error('Error al validar el XML en el SRI: ', error);
             throw error;
         }
 
-        console.log('Respuesta SRI Recepcion: ', result);
+
 
         const response = result?.RespuestaRecepcionComprobante;
 
-        return result;
+        if (!response) {
+            throw new Error(
+                "Respuesta inválida del SRI (sin 'respuestaRecepcionComprobante')"
+            );
+        }
+
+        const comprobante = Array.isArray(response.comprobantes?.comprobante)
+            ? response.comprobantes.comprobante[0]
+            : response.comprobantes?.comprobante;
+
+        const mensajes = comprobante?.mensajes;
+        console.log('Mensajes del SRI: ', mensajes);
+
+        mensajes?.forEach((msg: any) => {
+            console.log(`Mensaje SRI - Identificador: ${msg.identificador}, Mensaje: ${msg.mensaje}, Informacion Adicional: ${msg.informacionAdicional}, tipo: ${msg.tipo}`);
+        });
+
+
+        if (response?.estado === 'RECIBIDA') {
+            console.log('XML recibido correctamente por el SRI.');
+        } else {
+            console.error('Error en la recepción del XML: ', response);
+
+
+            console.log('Detalles de error: ');
+        }
+
+        return response;
 
     }
 

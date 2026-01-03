@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-import { InvoiceGenerator } from '@facturero-sri-signer/index.js';
+import { ENVIRONMENT, InvoiceGenerator } from '@facturero-sri-signer/index.js';
 import { ReceptionService } from '@facturero-sri-signer/index.js';
 import type { Invoice } from '@facturero-sri-signer/models/invoice.js';
 
@@ -27,12 +27,18 @@ class SriService {
 
         fs.writeFileSync(`${data.infoTributaria.secuencial}.xml`, xmlString);
 
+        let xml = fs.readFileSync(`./${data.infoTributaria.secuencial}.xml`, 'utf-8');
+        await this.receptionService.validateXml(ENVIRONMENT.PRUEBAS, xml);
+
+
         return xmlString;
     }
 
-    async validateInvoice(xmlString: string): Promise<boolean> {
+    async validateInvoice(secuencial: string | undefined): Promise<boolean> {
         // Lógica para validar una factura electrónica contra los requisitos del SRI
-        await this.receptionService.validateXml(1, xmlString);
+
+        let xml = fs.readFileSync(`./${secuencial}.xml`, 'utf-8');
+        await this.receptionService.validateXml(ENVIRONMENT.PRUEBAS, xml);
         return true;
     }
 

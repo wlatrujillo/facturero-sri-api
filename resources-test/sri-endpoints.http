@@ -28,30 +28,25 @@ Content-Type: application/json
         "razonSocialComprador" : "Juan Carlos Perez Lopez",
         "identificacionComprador" : "1719923456",
         "direccionComprador" : "Av. Amazonas N34-567 y Av. Colon",
-        "totalSinImpuestos" : 9.00,
+        "totalSinImpuestos" : 10.00,
         "totalDescuento" : 0.00,
         "totalConImpuestos": [
-                {
-                    "codigo": "3",
-                    "codigoPorcentaje": "3072",
-                    "baseImponible": 9.00,
-                    "valor": 1.08
-                },
+               
                 {
                     "codigo": "2",
                     "codigoPorcentaje": "2",
                     "baseImponible": 0.00,
-                    "valor": 0.00
+                    "valor": 1.50
                 }
             
         ],
         "propina" : 0.00,
-        "importeTotal" : 10.08,
+        "importeTotal" : 11.50,
         "moneda" : "DOLAR",
         "pagos" : [
             {
                 "formaPago" : "01",
-                "total" : 10.08,
+                "total" : 11.50,
                 "plazo" : "30",
                 "unidadTiempo" : "DIA"
             }
@@ -64,7 +59,8 @@ Content-Type: application/json
             "codigoPrincipal": "125BJC-01",
             "codigoAuxiliar": "1234D56789-A",
             "descripcion": "Bujia de encendido para motor 1.8L",
-            "precioUnitario": 4.50,
+            "precioUnitario": 10.00,
+            "cantidad": 1,
             "descuento": 0.00,
             "precioTotalSinImpuesto": 9.00,
             "detallesAdicionales": [
@@ -78,19 +74,13 @@ Content-Type: application/json
                 }
             ],
             "impuestos": [
-                {
-                    "codigo": "3",
-                    "codigoPorcentaje": "3072",
-                    "tarifa": 5,
-                    "baseImponible": 9.00,
-                    "valor": 1.08
-                },
+               
                 {
                     "codigo": "2",
                     "codigoPorcentaje": "2",
-                    "tarifa": 12,
+                    "tarifa": 15.00,
                     "baseImponible": 0.00,
-                    "valor": 0.00
+                    "valor": 1.50
                 }
             ]
         }

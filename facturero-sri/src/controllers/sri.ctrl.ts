@@ -36,6 +36,27 @@ class SriController {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     }
+
+
+
+    validateInvoice = async (req: Request, res: Response): Promise<void> => {
+        try {
+
+           logger.info('validateInvoice called');
+
+           const { secuencial } = req.params;
+
+           const isValid = await this.sriService.validateInvoice(secuencial);
+
+           res.status(200).json({ isValid });
+
+
+
+        } catch (error) {
+            logger.error('validateInvoice error:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }
     
 }
 

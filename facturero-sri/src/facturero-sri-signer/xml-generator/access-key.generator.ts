@@ -1,4 +1,5 @@
 import type { InfoTributaria } from "../models/info-tributaria.js";
+import { DateFormat } from "../utils/date.format.js";
 
 export class AccessKeyGenerator {
 
@@ -7,7 +8,7 @@ export class AccessKeyGenerator {
 
         const PAD_FILLER = '0';
 
-        const fechaEmision = this.formatDateDDMMYYYY(issueDate);
+        const fechaEmision = DateFormat.formatDateDDMMYYYY(issueDate);
         const codDoc = this.padLeft(infoTributaria.codDoc, 2, PAD_FILLER);
         const ruc = this.padLeft(infoTributaria.ruc, 13, PAD_FILLER);
         const ambiente = this.padLeft(infoTributaria.ambiente, 1, PAD_FILLER);
@@ -38,12 +39,6 @@ export class AccessKeyGenerator {
         return strValue;
     }
 
-    private formatDateDDMMYYYY(date: Date): string {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${day}${month}${year}`;
-    }
 
     private randomNumericString(): string {
        return  Math.floor(Math.random() * 9000).toString();

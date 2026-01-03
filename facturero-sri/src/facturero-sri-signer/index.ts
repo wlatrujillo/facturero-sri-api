@@ -3,4 +3,7 @@ export * from "./xml-generator/invoice.generator.js";
 export * from "./xml-generator/credit-note.generator.js";
 export * from "./xml-generator/debit-note.generator.js";
 
+
+export * from "./enums/enviroment.enum.js";
+
 export * from "./sri-consumer/reception.srv.js";

@@ -7,6 +7,7 @@ import type { Pago } from '../models/pago.js';
 import type { Detalle } from '../models/detalle.js';
 import type { Invoice } from '../models/invoice.js';
 import { AccessKeyGenerator } from './access-key.generator.js';
+import { DateFormat } from '../utils/date.format.js';
 
 export class InvoiceGenerator {
 
@@ -93,8 +94,8 @@ export class InvoiceGenerator {
             }));
 
 
-        let infoFactura: InfoFactura = {
-            fechaEmision: data.fechaEmision,
+        let infoFactura: any = {
+            fechaEmision: DateFormat.formatDate(data.fechaEmision),
             dirEstablecimiento: data.dirEstablecimiento,
             contribuyenteEspecial: data.contribuyenteEspecial,
             obligadoContabilidad: data.obligadoContabilidad,
