@@ -1,29 +1,37 @@
-import type { InfoTributaria } from "../models/info-tributaria.js";
+
 import { DateFormat } from "../utils/date.format.js";
 
 export class AccessKeyGenerator {
 
 
-    generateAccessKey(infoTributaria: InfoTributaria, issueDate: Date): string {
+    static generateAccessKey(fechaEmision: Date, 
+        codDoc: string, 
+        ruc: string, 
+        ambiente: number,
+        estab: string,
+        ptoEmi: string,
+        secuencial: string,
+        tipoEmision: number
+    ): string {
 
         const PAD_FILLER = '0';
 
-        const fechaEmision = DateFormat.formatDateDDMMYYYY(issueDate);
-        const codDoc = this.padLeft(infoTributaria.codDoc, 2, PAD_FILLER);
-        const ruc = this.padLeft(infoTributaria.ruc, 13, PAD_FILLER);
-        const ambiente = this.padLeft(infoTributaria.ambiente, 1, PAD_FILLER);
-        const estab = this.padLeft(infoTributaria.estab, 3, PAD_FILLER);
-        const ptoEmi = this.padLeft(infoTributaria.ptoEmi, 3, PAD_FILLER);
-        const secuencial = this.padLeft(infoTributaria.secuencial, 9, PAD_FILLER);
+        const issueDate = DateFormat.formatDateDDMMYYYY(fechaEmision);
+        const documentType = this.padLeft(codDoc, 2, PAD_FILLER);
+        const identification = this.padLeft(ruc, 13, PAD_FILLER);
+        const env = this.padLeft(ambiente, 1, PAD_FILLER);
+        const establishment = this.padLeft(estab, 3, PAD_FILLER);
+        const branch = this.padLeft(ptoEmi, 3, PAD_FILLER);
+        const sequential = this.padLeft(secuencial, 9, PAD_FILLER);
 
         
-        const codigoNumerico = String(issueDate.getDate()).padStart(2, '0') +
-            String(issueDate.getMonth() + 1).padStart(2, '0') + 
+        const codigoNumerico = String(fechaEmision.getDate()).padStart(2, '0') +
+            String(fechaEmision.getMonth() + 1).padStart(2, '0') + 
             this.randomNumericString().padStart(4, '0');
 
-        const tipoEmision = this.padLeft(infoTributaria.tipoEmision, 1, PAD_FILLER);
+        const emissionType = this.padLeft(tipoEmision, 1, PAD_FILLER);
 
-        const rawKey = `${fechaEmision}${codDoc}${ruc}${ambiente}${estab}${ptoEmi}${secuencial}${codigoNumerico}${tipoEmision}`;
+        const rawKey = `${issueDate}${documentType}${identification}${env}${establishment}${branch}${sequential}${codigoNumerico}${emissionType}`;
 
         const digitVerifier = this.calculateDigitVerifierModulo11(rawKey); 
 
@@ -31,7 +39,7 @@ export class AccessKeyGenerator {
     }
 
 
-    private padLeft(value: number | string, length: number, padChar: string): string {
+    private static padLeft(value: number | string, length: number, padChar: string): string {
         let strValue = value.toString();
         while (strValue.length < length) {
             strValue = strValue.padStart(length, padChar);
@@ -40,11 +48,11 @@ export class AccessKeyGenerator {
     }
 
 
-    private randomNumericString(): string {
+    private static randomNumericString(): string {
        return  Math.floor(Math.random() * 9000).toString();
     }
 
-    private calculateDigitVerifierModulo11(rawKey: string): string {
+    private static calculateDigitVerifierModulo11(rawKey: string): string {
         // calcular digito modulo 11 segun reglas del SRI
 
         if (!/^\d{48}$/.test(rawKey)) return '-1';

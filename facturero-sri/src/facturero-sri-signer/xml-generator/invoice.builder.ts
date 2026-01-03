@@ -1,76 +1,48 @@
 
-import { XmlParser } from './xmlparser.js';
-import type { InfoTributaria } from '../models/info-tributaria.js';
-import type { InfoFactura } from '../models/info-factura.js';
-import type { Impuesto } from '../models/impuesto.js';
-import type { Pago } from '../models/pago.js';
-import type { Detalle } from '../models/detalle.js';
-import type { Invoice } from '../models/invoice.js';
-import { AccessKeyGenerator } from './access-key.generator.js';
-import { DateFormat } from '../utils/date.format.js';
+import type { InfoTributaria } from "@facturero-sri-signer/models/info-tributaria.js";
+import { AccessKeyGenerator } from "./access-key.generator.js";
+import type { InfoFactura } from "@facturero-sri-signer/models/info-factura.js";
+import type { Impuesto } from "@facturero-sri-signer/models/impuesto.js";
+import type { Pago } from "@facturero-sri-signer/models/pago.js";
+import { DateFormat } from "@facturero-sri-signer/utils/date.format.js";
+import type { Detalle } from "@facturero-sri-signer/models/detalle.js";
+import { ENVIRONMENT } from "@facturero-sri-signer/enums/enviroment.enum.js";
 
-export class InvoiceGenerator {
-
-    private xmlParserService: XmlParser;
-
-    private accessKeyGenerator: AccessKeyGenerator;
-
-    constructor() {
-
-        this.xmlParserService = new XmlParser();
-        this.accessKeyGenerator = new AccessKeyGenerator();
-
-    }
-
-    async generateXmlInvoice(data: Invoice): Promise<string> {
-        // Lógica para generar una factura electrónica según los requisitos del SRI
-
-        let jsonObject: any = {
-            "?xml": {
-                "@_version": "1.0",
-                "@_encoding": "UTF-8"
-            },
-            factura: {
-                "@_id": "comprobante",
-                "@_version": "1.0.0",
-                infoTributaria: this.generateInfoTributaria(data.infoTributaria, data.infoFactura.fechaEmision),
-                infoFactura: this.generateInfoFactura(data.infoFactura),
-                detalles: this.generateDetalles(data.detalles),
-                infoAdicional: this.generateInfoAdicional(data.infoAdicional)
-            }
-
-        };
+export class InvoiceBuilder {
 
 
 
-        return this.xmlParserService.parseJsonToXml(jsonObject);
-    }
 
-    private generateInfoTributaria(data: InfoTributaria, issueDate: Date): any {
-        // Lógica para generar la sección de InfoTributaria
-        
-        let accessKey = data.claveAcceso || this.accessKeyGenerator.generateAccessKey(data, issueDate || new Date());
+    private infoTributaria!: any;
+    private infoFactura!: any;
+    private detalles!: any[];
+    private infoAdicional!: any;
 
-        let infoTributaria: any =
-        {
-            ambiente: data.ambiente,
-            tipoEmision: data.tipoEmision,
+
+
+
+    withInfoTributaria(data: InfoTributaria): InvoiceBuilder {
+
+        this.infoTributaria = {
+            ambiente: data.ambiente || ENVIRONMENT.PRUEBAS,
+            tipoEmision: data.tipoEmision || 1,
             razonSocial: data.razonSocial,
             nombreComercial: data.nombreComercial,
             ruc: data.ruc,
-            claveAcceso: accessKey,
             codDoc: data.codDoc,
             estab: data.estab,
             ptoEmi: data.ptoEmi,
             secuencial: data.secuencial,
-            dirMatriz: data.dirMatriz
+            dirMatriz: data.dirMatriz,
+            claveAcceso: data.claveAcceso
         }
-
-        return infoTributaria;
+        return this;
     }
 
-    private generateInfoFactura(data: InfoFactura): any {
+    withInfoFactura(data: InfoFactura): any {
         // Lógica para generar la sección de InfoFactura
+
+        let issueDate = data.fechaEmision || new Date();
 
         let totalConImpuestos: any[] = data
             .totalConImpuestos
@@ -94,8 +66,8 @@ export class InvoiceGenerator {
             }));
 
 
-        let infoFactura: any = {
-            fechaEmision: DateFormat.formatDate(data.fechaEmision),
+        this.infoFactura = {
+            fechaEmision: DateFormat.formatDate(issueDate),
             dirEstablecimiento: data.dirEstablecimiento,
             contribuyenteEspecial: data.contribuyenteEspecial,
             obligadoContabilidad: data.obligadoContabilidad,
@@ -114,13 +86,14 @@ export class InvoiceGenerator {
             valorRetRenta: data.valorRetRenta
         };
 
-        return infoFactura;
+        return this;
     }
 
-    private generateDetalles(detalles: Detalle[]): any[] {
+
+    withDetalles(detalles: Detalle[]): InvoiceBuilder {
         // Lógica para generar la sección de Detalles
 
-        let detallesXml: any[] = detalles
+        this.detalles = detalles
             .map((detalle: Detalle) => ({
                 detalle: {
                     codigoPrincipal: detalle.codigoPrincipal,
@@ -149,10 +122,11 @@ export class InvoiceGenerator {
                     }))
                 }
             }));
-        return detallesXml;
+        return this;
     }
 
-    private generateInfoAdicional(infoAdicional: { nombre: string; valor: string }[]): any[] {
+
+    withInfoAdicional(infoAdicional: { nombre: string; valor: string }[]): InvoiceBuilder {
         // Lógica para generar la sección de InfoAdicional
 
 
@@ -160,14 +134,50 @@ export class InvoiceGenerator {
             infoAdicional = [];
         }
 
-        let infoAdicionalXml: any[] = infoAdicional
+        this.infoAdicional = infoAdicional
             .map((info: { nombre: string; valor: string }) => ({
                 campoAdicional: {
                     "@_nombre": info.nombre,
                     "#text": info.valor
                 }
             }));
-        return infoAdicionalXml;
+        return this;
+    }
+
+
+
+    build(): any {
+
+
+
+        if (!this.infoTributaria.claveAcceso) {
+            let accessKey = AccessKeyGenerator.generateAccessKey(this.infoFactura.fechaEmision,
+                this.infoTributaria.codDoc,
+                this.infoTributaria.ruc,
+                this.infoTributaria.ambiente,
+                this.infoTributaria.estab,
+                this.infoTributaria.ptoEmi,
+                this.infoTributaria.secuencial,
+                this.infoTributaria.tipoEmision);
+            this.infoFactura.claveAcceso = accessKey;
+
+        }
+
+        return {
+            "?xml": {
+                "@_version": "1.0",
+                "@_encoding": "UTF-8"
+            },
+            factura: {
+                "@_id": "comprobante",
+                "@_version": "1.0.0",
+                infoTributaria: this.infoTributaria,
+                infoFactura: this.infoFactura,
+                detalles: this.detalles,
+                infoAdicional: this.infoAdicional
+            }
+
+        }
     }
 
 }
