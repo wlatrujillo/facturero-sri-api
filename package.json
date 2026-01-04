@@ -30,6 +30,7 @@
     "express": "^5.2.1",
     "express-handlebars": "^8.0.4",
     "facturero-sri-signer": "file:../facturero-sri-signer",
-    "log4js": "^6.9.1"
+    "log4js": "^6.9.1",
+    "mongoose": "^9.1.1"
   }
 }

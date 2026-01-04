@@ -42,6 +42,8 @@
       "@controllers/*": ["controllers/*"],
       "@services/*": ["services/*"],
       "@routes/*": ["routes/*"],
+      "@model/*": ["model/*"],
+      "@repository/*": ["repository/*"],
       "@facturero-sri-signer/*": ["facturero-sri-signer/*"]
     }
   },
