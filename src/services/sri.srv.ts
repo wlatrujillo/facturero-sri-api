@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 
-import { ENVIRONMENT, InvoiceGenerator } from '@facturero-sri-signer/index.js';
-import { ReceptionService } from '@facturero-sri-signer/index.js';
-import type { Invoice } from '@facturero-sri-signer/models/invoice.js';
-import { XmlSigner } from '@facturero-sri-signer/xml-signer/xmlsigner.js';
+import { ENVIRONMENT, InvoiceGenerator } from 'facturero-sri-signer';
+import { ReceptionService } from 'facturero-sri-signer';
+import type { Invoice } from 'facturero-sri-signer';
+import { XmlSigner } from 'facturero-sri-signer';
 
 class SriService {
 

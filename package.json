@@ -35,6 +35,7 @@
     "log4js": "^6.9.1",
     "node-forge": "^1.3.3",
     "soap": "^1.6.1",
-    "xmldom": "^0.6.0"
+    "xmldom": "^0.6.0",
+    "facturero-sri-signer": "file:../facturero-sri-signer"
   }
 }

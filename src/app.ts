@@ -13,7 +13,6 @@ import Log4js from 'log4js';
 //Routes
 import CalcRoutes from './routes/calc.route.js';
 import CountryRoutes from './routes/country.route.js';
-import XmlParserRoutes from './routes/xmlparser.route.js';
 import SriRoutes from './routes/sri.route.js';
 
 class App {
@@ -32,7 +31,6 @@ class App {
         this.app.get("/", (req, res) => res.render("index", { layout: false, link: "https://facturero-digital.com" }));
         this.app.use('/api/calc', new CalcRoutes().router);
         this.app.use('/api/country', new CountryRoutes().router);
-        this.app.use('/api/xmlparser', new XmlParserRoutes().router);
         this.app.use('/api/sri', new SriRoutes().router);
 
     }
