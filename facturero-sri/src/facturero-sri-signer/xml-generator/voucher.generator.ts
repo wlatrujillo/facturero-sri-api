@@ -22,8 +22,13 @@ export class InvoiceGenerator {
             .withInfoAdicional(data.infoAdicional)
             .build();
 
+        
+        
+
         return this.xmlParserService.parseJsonToXml(jsonObject);
     }
+
+    
 
     async generateCreditNote(data: any): Promise<string> {
         // Lógica para generar una nota de crédito electrónica según los requisitos del SRI

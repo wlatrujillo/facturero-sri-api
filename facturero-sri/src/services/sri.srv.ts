@@ -3,16 +3,19 @@ import fs from 'node:fs';
 import { ENVIRONMENT, InvoiceGenerator } from '@facturero-sri-signer/index.js';
 import { ReceptionService } from '@facturero-sri-signer/index.js';
 import type { Invoice } from '@facturero-sri-signer/models/invoice.js';
+import { XmlSigner } from '@facturero-sri-signer/xml-signer/xmlsigner.js';
 
 class SriService {
 
     private invoiceGenerator: InvoiceGenerator;
     private receptionService: ReceptionService;
+    private xmlSigner: XmlSigner;
 
     constructor() {
 
         this.invoiceGenerator = new InvoiceGenerator();
         this.receptionService = new ReceptionService();
+        this.xmlSigner = new XmlSigner();
     }
 
 
@@ -25,10 +28,17 @@ class SriService {
 
         // Aquí se podría agregar la lógica para firmar el XML y enviarlo al SRI
 
-        fs.writeFileSync(`${data.infoTributaria.secuencial}.xml`, xmlString);
+        fs.writeFileSync(`./vouchers/${data.infoTributaria.secuencial}.xml`, xmlString);
 
-        let xml = fs.readFileSync(`./${data.infoTributaria.secuencial}.xml`, 'utf-8');
-        await this.receptionService.validateXml(ENVIRONMENT.PRUEBAS, xml);
+        let xmlBuffer = fs.readFileSync(`./vouchers/${data.infoTributaria.secuencial}.xml`, 'utf-8');
+
+        const p12Buffer = fs.readFileSync('./certs/certificate.p12');
+
+        let signedXml = this.xmlSigner.signXml(p12Buffer, 'T818gar005', xmlBuffer);
+
+        fs.writeFileSync(`./vouchers/${data.infoTributaria.secuencial}-signed.xml`, signedXml);
+
+        await this.receptionService.validateXml(ENVIRONMENT.PRUEBAS, signedXml);
 
 
         return xmlString;

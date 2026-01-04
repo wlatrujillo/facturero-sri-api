@@ -7,4 +7,4 @@ export const SRI_ENDPOINTS = {
         RECEPTION: 'https://celcer.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl',
         AUTHORIZATION: 'https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl',
     }
-};
+} as const;
