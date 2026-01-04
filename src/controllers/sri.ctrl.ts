@@ -8,7 +8,7 @@ import type { Invoice } from 'facturero-sri-signer';
 
 const logger = log4js.getLogger("SriController");
 
-class SriController {
+export class SriController {
 
 
     private sriService: SriService;
@@ -59,5 +59,3 @@ class SriController {
     }
     
 }
-
-export default SriController;

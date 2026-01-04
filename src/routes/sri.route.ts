@@ -1,7 +1,7 @@
 
 
 import {Router} from 'express';
-import SriController from '../controllers/sri.ctrl.js';
+import {SriController} from '@controllers/index.js';
 
 export class SriRoutes {
     
