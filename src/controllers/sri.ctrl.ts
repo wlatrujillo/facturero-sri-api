@@ -4,7 +4,7 @@ import type { Request, Response } from 'express';
 import log4js from 'log4js';
 
 import SriService from '@services/sri.srv.js';
-import type { Invoice } from '@facturero-sri-signer/models/invoice.js';
+import type { Invoice } from 'facturero-sri-signer';
 
 const logger = log4js.getLogger("SriController");
 
