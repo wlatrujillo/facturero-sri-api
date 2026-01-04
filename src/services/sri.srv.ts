@@ -1,42 +1,50 @@
 import fs from 'node:fs';
 
+
 import { ENVIRONMENT, InvoiceGenerator } from 'facturero-sri-signer';
 import { ReceptionService } from 'facturero-sri-signer';
 import type { Invoice } from 'facturero-sri-signer';
 import { XmlSigner } from 'facturero-sri-signer';
+
+import { StorageService } from '@services/storage.srv.js';
+
+const BUCKET_NAME = process.env.BUCKET_NAME || 'dev-facturero-storage';
 
 class SriService {
 
     private invoiceGenerator: InvoiceGenerator;
     private receptionService: ReceptionService;
     private xmlSigner: XmlSigner;
+    private storageService: StorageService;
 
     constructor() {
 
         this.invoiceGenerator = new InvoiceGenerator();
         this.receptionService = new ReceptionService();
         this.xmlSigner = new XmlSigner();
+        this.storageService = new StorageService();
+    }
+
+    async generateInvoice(data: Invoice): Promise<string> {
+        return await this.invoiceGenerator.generateXmlInvoice(data);
     }
 
 
-    async generateInvoice(data: Invoice): Promise<string> {
-        // Lógica para generar una factura electrónica según los requisitos del SRI
-        //
+    async generateInvoiceSigned(data: Invoice, companyIdentifier: string): Promise<string> {
 
 
-        let xmlString = await this.invoiceGenerator.generateXmlInvoice(data);
+        const xmlString = await this.invoiceGenerator.generateXmlInvoice(data);
 
-        // Aquí se podría agregar la lógica para firmar el XML y enviarlo al SRI
+        const p12Buffer = await this.storageService.getFileBuffer(BUCKET_NAME, 'certs', `${companyIdentifier}.p12`);
 
-        fs.writeFileSync(`./vouchers/${data.infoTributaria.secuencial}.xml`, xmlString);
+        const password = 'T818gar005';
 
-        let xmlBuffer = fs.readFileSync(`./vouchers/${data.infoTributaria.secuencial}.xml`, 'utf-8');
+        let signedXml = this.xmlSigner.signXml(p12Buffer, password, xmlString);
 
-        const p12Buffer = fs.readFileSync('./certs/certificate.p12');
-
-        let signedXml = this.xmlSigner.signXml(p12Buffer, 'T818gar005', xmlBuffer);
-
-        fs.writeFileSync(`./vouchers/${data.infoTributaria.secuencial}-signed.xml`, signedXml);
+        this.storageService.uploadFile(BUCKET_NAME, 
+            companyIdentifier, 
+            `${data.infoTributaria.secuencial}-signed.xml`, 
+            Buffer.from(signedXml));
 
         await this.receptionService.validateXml(ENVIRONMENT.PRUEBAS, signedXml);
 

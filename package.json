@@ -24,11 +24,12 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.962.0",
     "body-parser": "^2.2.1",
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "express-handlebars": "^8.0.4",
-    "log4js": "^6.9.1",
-    "facturero-sri-signer": "file:../facturero-sri-signer"
+    "facturero-sri-signer": "file:../facturero-sri-signer",
+    "log4js": "^6.9.1"
   }
 }

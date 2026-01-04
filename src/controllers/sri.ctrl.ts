@@ -26,7 +26,7 @@ export class SriController {
 
            invoice.infoFactura.fechaEmision = new Date();
 
-           const xmlData = await this.sriService.generateInvoice(invoice);
+           const xmlData = await this.sriService.generateInvoiceSigned(invoice, invoice.infoTributaria.ruc);
 
            
            res.status(200).json({ xmlData });
