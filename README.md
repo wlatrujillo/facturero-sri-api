@@ -27,24 +27,24 @@ npx tsc --init
 ## Install dependencies
 
 ```
-npm install express express-handlebars body-parser log4js 
+npm install
 ```
 
-## Install dev dependencies
+## Enviroment variables
+
+.env
 
 ```
-npm install --save-dev @types/node @types/express @types/body-parser
-```
-
-## Add script to package.json
+PORT=3000
+MONGO_URL=mongodb+srv://user:password@host/?appName=bddName
 
 ```
-"start": "tsc && node dist/index.js"
-```
+
 
 ## Rest Client
 
-### Config variables
+
+### Config variables for VSCode
 
 Add this in vscode user or workspace settings.json 
 
@@ -60,6 +60,9 @@ Add this in vscode user or workspace settings.json
         }
     }
 ```
+
+
+
 
 ##### References
 

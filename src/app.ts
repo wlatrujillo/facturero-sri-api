@@ -8,10 +8,14 @@ import type { Application } from 'express';
 import bodyParser from 'body-parser';
 import { engine } from 'express-handlebars';
 import cors from 'cors';
+import mongoose from 'mongoose';
 import Log4js from 'log4js';
 
 //Routes
 import SriRoutes from './routes/sri.route.js';
+import CompanyRoutes from '@routes/company.route.js';
+import { checkApiKey } from '@controllers/api-key.ctrl.js';
+
 
 class App {
 
@@ -19,15 +23,18 @@ class App {
 
     constructor() {
         this.app = express();
+        this.setMongoConfig();
         this.logConfig();
         this.serverConfig();
         this.routes();
     }
 
     private routes(): void {
-        
+
         this.app.get("/", (req, res) => res.render("index", { layout: false, link: "https://facturero-digital.com" }));
-        this.app.use('/api/sri', new SriRoutes().router);
+        this.app.get("/health", (req, res) => res.status(200).send("OK"));
+        this.app.use('/api/company', new CompanyRoutes().router);
+        this.app.use('/api/sri', [checkApiKey], new SriRoutes().router);
 
     }
 
@@ -73,6 +80,22 @@ class App {
             res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count');
             next();
         });
+    }
+
+    //Conexión a MongoDB database
+    private setMongoConfig() {
+        mongoose.Promise = global.Promise;
+        mongoose.set('strictQuery', false);
+        let mongoUrl = process.env.MONGO_URL || `mongodb://localhost:27017/facturero_sri_api`;
+        console.info('Start trying connection MongoDB url:', mongoUrl);
+        mongoose.connect(mongoUrl, {})
+            .then(success => {
+                console.info("MongoDB connection established successfully host", success.connections[0]?.host);
+            })
+            .catch(error => {
+                console.error("Error connecting to the MongoDB", error);
+                process.exit();
+            });
     }
 
 }

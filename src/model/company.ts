@@ -36,7 +36,7 @@ let CompanySchema = new Schema(
         active: {
             type: Boolean,
             required: true,
-            default: false
+            default: true
         },
         name: {
             type: String,

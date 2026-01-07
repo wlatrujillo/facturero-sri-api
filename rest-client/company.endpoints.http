@@ -1,0 +1,15 @@
+
+
+### Register Company
+POST {{host}}/api/company
+Content-Type: application/json
+
+{
+
+    "ruc": "1792146739001",
+    "name": "Distribuidora de Suministros Nacional S.A.",
+    "address": "Enrique Guerrero Portilla OE1-34 AV. Galo Plaza Lasso",
+    "phone": "022345678",
+    "email": "contacto@distribuidorasuministros.com",
+    "signaturePassword": "securepassword123"
+}

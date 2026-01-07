@@ -1,9 +1,11 @@
 
 
+
 ### SRI Endpoints Test
 ### Generate SRI Invoice
 POST {{host}}/api/sri/generateInvoice
 Content-Type: application/json
+X-API-Key: 1792146739001_live_sit19MdYmSsAtAtoTWTQbMhHFPR6paWf
 
 {
     "infoTributaria": {

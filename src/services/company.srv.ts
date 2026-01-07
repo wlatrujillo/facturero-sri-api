@@ -18,11 +18,7 @@ export class CompanyService {
         return this.companyRepository.retrieve({ ruc });
     }
 
-    registerCompany = async (companyData: any) => {
-
-        let company = {
-            ...companyData
-        };
+    registerCompany = async (company: any) => {
 
         const newApiKey  = this.generateApiKey(company.ruc);
 
@@ -44,7 +40,7 @@ export class CompanyService {
         return newApiKey;
     }
 
-    generateApiKey(ruc: string , env = 'live') {
+    private generateApiKey(ruc: string , env = 'live') {
         const random = crypto.randomBytes(24).toString('base64url');
         return `${ruc}_${env}_${random}`;
     }
