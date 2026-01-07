@@ -29,7 +29,7 @@ export class SriController {
            const xmlData = await this.sriService.generateInvoiceSigned(invoice, invoice.infoTributaria.ruc);
 
            
-           res.status(200).json({ xmlData });
+           res.status(200).json({ status: 'success', message: 'Comprobante recibido correctamente por el SRI' });
 
         } catch (error) {
             logger.error('generateInvoice error:', error);

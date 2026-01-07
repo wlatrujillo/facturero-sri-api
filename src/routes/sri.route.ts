@@ -16,7 +16,10 @@ export class SriRoutes {
 
     routes() {
 
-        this.router.route('/generateInvoice')
+         this.router.route('/invoice')
+            .post(this.ctrl.generateInvoice);
+
+        this.router.route('/test/invoice')
             .post(this.ctrl.generateInvoice);
 
     }
