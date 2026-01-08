@@ -10,7 +10,7 @@ import { InvoiceMapper } from '@mappers/invoice.mapper.js';
 
 export class InvoiceSriService {
 
-    private readonly logger = log4js.getLogger('SriController');
+    private readonly logger = log4js.getLogger('InvoiceSriService');
     private readonly inputDir = 'generados';
     private readonly signedDir = 'firmados';
     private readonly authorizedDir = 'autorizados';
@@ -53,11 +53,13 @@ export class InvoiceSriService {
 
             const p12File = await this._storageService.readFile('certs', `${companyId}.p12`);
 
+            const xmlBuffer = await this._storageService.readFile(`${companyId}/${this.inputDir}`, `${claveAcceso}.xml`);
+
             // === 2. Firmar XML ===
             const signedXml = await this._xmlProccessService.signXML({
                 p12Buffer: p12File,
                 password: password,
-                xmlBuffer: await this._storageService.readFile(`${companyId}/${this.inputDir}`, `${claveAcceso}.xml`),
+                xmlBuffer: xmlBuffer
             });
             await this._storageService.writeFile(`${companyId}/${this.signedDir}`, `${claveAcceso}.xml`, Buffer.from(signedXml));
             this.logger.info(`🔏 XML firmado correctamente: ${this.signedDir}/${claveAcceso}.xml`);
