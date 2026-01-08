@@ -5,7 +5,7 @@ Parameters:
   Module:
     Type: String
     Description: The module name to deploy. 
-    Default: facturero
+    Default: facturero-sri
   EnvironmentId:
     Type: String
     Description: The environment to deploy the stack to. 
