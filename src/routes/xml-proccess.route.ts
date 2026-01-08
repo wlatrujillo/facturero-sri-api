@@ -1,11 +1,11 @@
 
 
-import {Router} from 'express';
-import {SriController} from '@controllers/index.js';
+import { SriController } from '@controllers/index.js';
+import { Router } from 'express';
 
 export class SriRoutes {
-    
-    router: Router; 
+
+    router: Router;
     ctrl: SriController;
 
     constructor() {
@@ -16,7 +16,7 @@ export class SriRoutes {
 
     routes() {
 
-         this.router.route('/invoice')
+        this.router.route('/invoice')
             .post(this.ctrl.generateInvoice);
 
         this.router.route('/test/invoice')

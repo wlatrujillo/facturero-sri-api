@@ -1,7 +1,7 @@
 
 
 import { Router } from 'express';
-import { CompanyController } from '@controllers/companyy.ctrl.js';
+import { CompanyController } from '@controllers/index.js';
 
 export class CompanyRoutes {
 

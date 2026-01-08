@@ -18,6 +18,7 @@ export const checkApiKey = async (req: Request, res: Response, next: NextFunctio
         if (apiKey === key.keyHash) {
             key.lastUsedAt = new Date();
             await key.save();
+            res.locals.companyId = companyId;
             return next();
         }
     }

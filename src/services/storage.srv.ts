@@ -1,6 +1,7 @@
 
 import { S3Client, ListBucketsCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 
+const BUCKET_NAME = process.env.BUCKET_NAME || "dev-facturero-storage";
 export class StorageService {
 
     private s3Client: S3Client;
@@ -27,11 +28,11 @@ export class StorageService {
         // Implementation for creating a folder goes here
     }
 
-    public async uploadFile(bucketName: string, folderName: string, fileName: string, fileContent: Buffer): Promise<void> {
+    public async writeFile(folderName: string, fileName: string, fileContent: Buffer): Promise<void> {
         // Implementation for uploading a file goes here
         try {
             const command = new PutObjectCommand({
-                Bucket: bucketName,
+                Bucket: BUCKET_NAME,
                 Key: `${folderName}/${fileName}`,
                 Body: fileContent
             });
@@ -41,11 +42,11 @@ export class StorageService {
         }
     }
 
-    public async getFileBuffer(bucketName: string, folderName: string, fileName: string): Promise<Buffer<ArrayBuffer>> {
+    public async readFile(folderName: string, fileName: string): Promise<Buffer<ArrayBuffer>> {
         // Implementation for getting a file goes here
         try {
             const command = new GetObjectCommand({
-                Bucket: bucketName,
+                Bucket: BUCKET_NAME,
                 Key: `${folderName}/${fileName}`
             });
             const response = await this.s3Client.send(command);

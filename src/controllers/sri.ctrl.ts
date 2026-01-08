@@ -1,61 +1,60 @@
 
-
 import type { Request, Response } from 'express';
+
+import { InvoiceSriService } from '@services/invoice.sri.srv.js';
+import { StorageService } from '@services/storage.srv.js';
+import { XmlProccessService } from '@services/xml-proccess.srv.js';
+
 import log4js from 'log4js';
 
-import SriService from '@services/sri.srv.js';
-import type { Invoice } from 'facturero-sri-signer';
-
-const logger = log4js.getLogger("SriController");
-
+/**
+ * Controlador responsable de generar, firmar, validar y autorizar un comprobante XML.
+ * Esta clase sirve como ejemplo principal de uso de la librería de firmado SRI.
+ */
 export class SriController {
 
 
-    private sriService: SriService;
+  private readonly logger = log4js.getLogger('SriController');
 
-    constructor() {
-        this.sriService = new SriService();
+  private _invoiceSriService: InvoiceSriService;
+
+  constructor() { 
+    this._invoiceSriService = new InvoiceSriService(new XmlProccessService(), new StorageService());
+  }
+
+
+  generateTestInvoice = async (req: Request, res: Response): Promise<void> => {
+    try {
+
+      const companyId = res.locals.companyId;
+
+      const invoiceData = req.body;
+
+      this._invoiceSriService.executeInvoice(companyId, 'test', invoiceData);
+      res.status(200).send("Test invoice processed successfully");
+    } catch (error) {
+      this.logger.error("❌ Error durante el proceso:", error);
+      res.status(500).send("Error processing invoice");
     }
+  }
 
-    generateInvoice = async (req: Request, res: Response): Promise<void> => {
-        try {
+  generateInvoice = async (req: Request, res: Response): Promise<void> => {
+    try {
 
-           logger.info('generateInvoice called');
+      const companyId = res.locals.companyId;
 
-           const invoice: Invoice = req.body as Invoice;
+      const invoiceData = req.body;
 
-           invoice.infoFactura.fechaEmision = new Date();
+      this._invoiceSriService.executeInvoice(companyId, 'prod', invoiceData);
+      res.status(200).send("Invoice processed successfully");
 
-           const xmlData = await this.sriService.generateInvoiceSigned(invoice, invoice.infoTributaria.ruc);
-
-           
-           res.status(200).json({ status: 'success', message: 'Comprobante recibido correctamente por el SRI' });
-
-        } catch (error) {
-            logger.error('generateInvoice error:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
+    } catch (error) {
+      this.logger.error("❌ Error durante el proceso:", error);
+      res.status(500).send("Error processing invoice");
     }
+  }
 
 
+  
 
-    validateInvoice = async (req: Request, res: Response): Promise<void> => {
-        try {
-
-           logger.info('validateInvoice called');
-
-           const { secuencial } = req.params;
-
-           const isValid = await this.sriService.validateInvoice(secuencial);
-
-           res.status(200).json({ isValid });
-
-
-
-        } catch (error) {
-            logger.error('validateInvoice error:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-    }
-    
 }
