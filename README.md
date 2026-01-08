@@ -50,17 +50,23 @@ Add this in vscode user or workspace settings.json
 
 ```json
   "rest-client.environmentVariables": {
-        "development": {
-            "host": "http://localhost:3000",
+        "dev": {
+            "host": "http://localhost:8080",
             "api_key": "dev_key_secret"
         },
-        "production": {
+        "prd": {
             "host": "https://api.myproduct.com",
             "api_key": "prod_key_secret"
         }
     }
 ```
 
+
+## Generate docker image
+
+```
+docker build -t facturero-sri-api:1.0.0 .
+```
 
 
 

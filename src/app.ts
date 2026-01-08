@@ -32,7 +32,7 @@ class App {
     private routes(): void {
 
         this.app.get("/", (req, res) => res.render("index", { layout: false, link: "https://facturero-digital.com" }));
-        this.app.get("/health", (req, res) => res.status(200).send("OK"));
+        this.app.get("/api/health", (req, res) => res.status(200).send("OK"));
         this.app.use('/api/company', new CompanyRoutes().router);
         this.app.use('/api/sri', [checkApiKey], new SriRoutes().router);
 

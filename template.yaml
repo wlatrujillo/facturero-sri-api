@@ -1,0 +1,351 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: The template used to create an ECS Service from the ECS Console.
+
+Parameters:
+  Module:
+    Type: String
+    Description: The module name to deploy. 
+    Default: facturero
+  EnvironmentId:
+    Type: String
+    Description: The environment to deploy the stack to. 
+    Default: dev
+    ConstraintDescription: Must specify dev, qa, or prod.
+    AllowedValues:
+      - dev
+      - qa
+      - prod
+  SSLCertificateArn:
+    Type: String
+    Description: The ARN of the certificate to use for HTTPS. 
+    Default: arn:aws:acm:us-east-1:030608081964:certificate/52ccb8f9-3d4a-4a2b-9111-0985d5030f0a
+  SubnetIDs:
+    Type: String
+    Default: subnet-874d6fa6,subnet-dd577682,subnet-942f319a,subnet-c65773a0,subnet-69a7cf58,subnet-8f6a9ec3
+  VpcID:
+    Type: String
+    Default: vpc-f104748c
+  TaskDefinitionCpu:
+    Type: String
+    Description: The number of cpu units used by the task. 
+    Default: 256
+    AllowedValues:
+      - 256
+      - 512
+      - 1024
+      - 2048
+  TaskDefinitionMemory:
+    Type: String
+    Description: The amount of memory (in MiB) to present to the container. 
+    Default: 512
+    AllowedValues:
+      - 256
+      - 512
+      - 1024
+      - 2048
+  ReadonlyRootFilesystem:
+    Type: String
+    Default: "true"
+    AllowedValues: [ "true" , "false" ]
+  EcrRepositoryName:
+    Type: String
+    Description: The name of the ECR repository to use. 
+    Default: facturero-sri-api
+  EcrRepositoryVersion:
+    Type: String
+    Description: The version of the ECR repository to use. 
+    Default: 1.0.0
+  ProjectExposedPort:
+    Type: String
+    Description: The port number on the container that is bound to the user-specified or automatically assigned host port. 
+    Default: 8080
+  ProjectListeningPort:
+    Type: String
+    Description: The port number on the container that is bound to the user-specified or automatically assigned host port. 
+    Default: 8080 
+  MongoUrl:
+    Type: String
+    Description: The MongoDB server host.
+
+Resources:
+
+  ExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Join
+        - ""
+        - - !Ref EnvironmentId
+          - "-" 
+          - !Ref Module
+          - "-ECSRole"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - ecs-tasks.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: /
+      Policies:
+        - PolicyName: !Sub "${EnvironmentId}-policy_allow_ecr_operations"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+        - PolicyName: !Sub "${EnvironmentId}-policy_allow_sessionmanagement"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: "*"
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+        - "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+        - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy" 
+
+  ALBSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+        GroupName: !Sub "${EnvironmentId}-${Module}-alb-sg"
+        GroupDescription: "security group for ALB"
+        Tags: 
+          - Key: "GROUP"
+            Value: !Sub "${AWS::StackName}"
+        VpcId: !Ref VpcID
+        SecurityGroupIngress: 
+          - CidrIp: "0.0.0.0/0"
+            FromPort: !Ref ProjectListeningPort
+            IpProtocol: "tcp"
+            ToPort: !Ref ProjectListeningPort
+          - CidrIp: "0.0.0.0/0"
+            FromPort: 443
+            IpProtocol: "tcp"
+            ToPort: 443
+
+  ECSSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+        GroupName: !Sub "${EnvironmentId}-${Module}-ecs-sg"
+        GroupDescription: "security group for ECS"
+        Tags: 
+          - Key: "GROUP"
+            Value: !Sub "${AWS::StackName}" 
+        VpcId: !Ref VpcID
+        SecurityGroupIngress: 
+          - SourceSecurityGroupId: !Ref ALBSecurityGroup
+            FromPort: !Ref ProjectListeningPort
+            IpProtocol: "tcp"
+            ToPort: !Ref ProjectListeningPort
+          - SourceSecurityGroupId: !Ref ALBSecurityGroup
+            FromPort: 443
+            IpProtocol: "tcp"
+            ToPort: 443
+    DependsOn:
+    - ALBSecurityGroup
+    
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Type: application
+      Name: !Sub "${EnvironmentId}-${Module}-alb"
+      SecurityGroups:
+        - !Ref ALBSecurityGroup 
+      Subnets:
+          Fn::Split:
+            - ','
+            - Ref: SubnetIDs
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+    DependsOn:
+    - ALBSecurityGroup
+        
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckEnabled: true
+      HealthCheckPath: "/api/health"
+      HealthCheckIntervalSeconds: 120
+      HealthCheckPort: !Ref ProjectListeningPort
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 10
+      Name: !Sub "${EnvironmentId}-${Module}-target-group"
+      Port: !Ref ProjectListeningPort
+      Protocol: HTTP
+      TargetType: ip
+      VpcId:
+        Ref: VpcID
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+        
+  HTTPSlistener:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    DependsOn: ApplicationLoadBalancer
+    Properties:
+      DefaultActions:
+        - Type: forward
+          ForwardConfig:
+            TargetGroups:
+              - TargetGroupArn: !Ref TargetGroup
+                Weight: 1
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: '443'
+      Protocol: HTTPS
+      SslPolicy: "ELBSecurityPolicy-2016-08"
+      Certificates:
+        - CertificateArn: !Ref SSLCertificateArn
+
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub "${EnvironmentId}-${Module}-cluster"
+      CapacityProviders:
+      - FARGATE
+      - FARGATE_SPOT
+      ClusterSettings:
+      - Name: containerInsights
+        Value: disabled
+      Configuration:
+        ExecuteCommandConfiguration:
+          Logging: DEFAULT
+      ServiceConnectDefaults:
+        Namespace: "com.amazonaws.ecs"
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+  
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/ecs/${EnvironmentId}-${Module}-server-log
+      RetentionInDays: 7
+  
+  ECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ExecutionRoleArn: !Ref ExecutionRole
+      TaskRoleArn: !Ref ExecutionRole
+      Family: !Sub "${EnvironmentId}-${Module}-task-definition"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: !Ref TaskDefinitionCpu
+      Memory: !Ref TaskDefinitionMemory
+      Volumes:
+        - Name: "tmp"
+        - Name: init
+      ContainerDefinitions:
+        - Name: !Sub ${EnvironmentId}-${Module}-taskcontainer
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EcrRepositoryName}:${EcrRepositoryVersion}"
+          Memory: !Ref TaskDefinitionMemory
+          ReadonlyRootFilesystem: !Ref ReadonlyRootFilesystem
+          MountPoints:
+            - ReadOnly: false
+              SourceVolume: tmp
+              ContainerPath: /tmp
+          PortMappings:
+            - ContainerPort: !Ref ProjectExposedPort
+              HostPort: !Ref ProjectListeningPort
+          LogConfiguration:
+            LogDriver: "awslogs"
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref LogGroup
+              awslogs-stream-prefix: !Sub "${EnvironmentId}-${Module}-server-log"
+          Essential: true
+          Environment:
+            - Name: NODE_ENV
+              Value: !Ref EnvironmentId
+            - Name: port
+              Value: !Ref ProjectExposedPort
+            - Name: LOG_LEVEL
+              Value: "DEBUG"
+            - Name: MONGO_URL
+              Value: !Ref MongoUrl
+
+  ECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref ECSTaskDefinition
+      ServiceName: !Sub "${EnvironmentId}-${Module}-service"
+      LaunchType: FARGATE
+      DesiredCount: 1
+      LoadBalancers:
+      - ContainerName: !Sub ${EnvironmentId}-${Module}-taskcontainer
+        ContainerPort: !Ref ProjectExposedPort
+        TargetGroupArn: !Ref TargetGroup
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !Ref ECSSecurityGroup
+          Subnets:
+            Fn::Split:
+              - ','
+              - Ref: SubnetIDs
+      SchedulingStrategy: REPLICA
+      PlatformVersion: LATEST
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+      DeploymentController:
+        Type: ECS
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+      EnableECSManagedTags: true
+    DependsOn:
+    - ECSCluster
+    - ECSTaskDefinition
+    - HTTPSlistener
+    - ECSSecurityGroup
+    - TargetGroup
+
+Outputs:
+
+  ECSCluster:
+    Description: The created cluster.
+    Value:
+      Ref: ECSCluster
+  ECSService:
+    Description: The created service.
+    Value:
+      Ref: ECSService
+  ApplicationLoadBalancer:
+    Description: The created load balancer.
+    Value:
+      Ref: ApplicationLoadBalancer
+  LoadBalancerDNSName:
+    Description: The DNSName of the load balancer
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
+  TargetGroup:
+    Description: The created target group.
+    Value:
+      Ref: TargetGroup
