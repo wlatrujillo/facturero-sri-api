@@ -6,7 +6,7 @@ export class InvoiceMapper {
         const invoiceModel = new ComprobanteModel();
         invoiceModel.infoTributaria = this.toInfoTributaria(invoiceData.infoTributaria);
         invoiceModel.infoFactura = this.toInfoFactura(invoiceData.infoFactura);
-        invoiceModel.detalles = { detalle: this.toDetalles(invoiceData.detalles) };
+        invoiceModel.detalles = this.toDetalles(invoiceData.detalles);
         invoiceModel.infoAdicional = this.toInfoAdicional(invoiceData.infoAdicional);
         return invoiceModel;
     }
@@ -70,29 +70,29 @@ export class InvoiceMapper {
 
     static toDetalles(detalles: any): any {
 
-
-        return detalles.map((detalle: any) => ({
-            codigoPrincipal: detalle.codigoPrincipal,
-            descripcion: detalle.descripcion,
-            cantidad: detalle.cantidad,
-            precioUnitario: detalle.precioUnitario,
-            descuento: detalle.descuento,
-            precioTotalSinImpuesto: detalle.precioTotalSinImpuesto,
-            impuestos: {
-                impuesto: detalle.impuestos as TotalImpuesto[] || []
-            },
-            detallesAdicionales: {
-                detAdicional: detalle.detallesAdicionales || []
-            }
-        }));
-
+        return {
+            detalle: detalles.map((detalle: any) => ({
+                codigoPrincipal: detalle.codigoPrincipal,
+                descripcion: detalle.descripcion,
+                cantidad: detalle.cantidad,
+                precioUnitario: detalle.precioUnitario,
+                descuento: detalle.descuento,
+                precioTotalSinImpuesto: detalle.precioTotalSinImpuesto,
+                impuestos: {
+                    impuesto: detalle.impuestos as TotalImpuesto[] || []
+                },
+                detallesAdicionales: {
+                    detAdicional: detalle.detallesAdicionales || []
+                }
+            }))
+        }
 
 
     }
 
-    static toInfoAdicional(data: any): any {
+    static toInfoAdicional(infoAdicional: any): any {
         return {
-            campoAdicional: data.infoAdicional
+            campoAdicional: infoAdicional
         }
     }
 

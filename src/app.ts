@@ -12,7 +12,7 @@ import mongoose from 'mongoose';
 import Log4js from 'log4js';
 
 //Routes
-import SriRoutes from './routes/xml-proccess.route.js';
+import SriRoutes from './routes/sri.route.js';
 import CompanyRoutes from '@routes/company.route.js';
 import { checkApiKey } from '@controllers/api-key.ctrl.js';
 

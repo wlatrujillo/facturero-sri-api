@@ -35,8 +35,8 @@ X-API-Key: 1792146739001_live_sit19MdYmSsAtAtoTWTQbMhHFPR6paWf
         "totalConImpuestos": [
                
                 {
-                    "codigo": "2",
-                    "codigoPorcentaje": "2",
+                    "codigo": 2,
+                    "codigoPorcentaje": 2,
                     "baseImponible": 0.00,
                     "valor": 1.50
                 }
@@ -49,7 +49,7 @@ X-API-Key: 1792146739001_live_sit19MdYmSsAtAtoTWTQbMhHFPR6paWf
             {
                 "formaPago" : "01",
                 "total" : 11.50,
-                "plazo" : "30",
+                "plazo" : 30,
                 "unidadTiempo" : "DIA"
             }
         ],
@@ -78,8 +78,8 @@ X-API-Key: 1792146739001_live_sit19MdYmSsAtAtoTWTQbMhHFPR6paWf
             "impuestos": [
                
                 {
-                    "codigo": "2",
-                    "codigoPorcentaje": "2",
+                    "codigo": 2,
+                    "codigoPorcentaje": 2,
                     "tarifa": 15.00,
                     "baseImponible": 0.00,
                     "valor": 1.50
@@ -90,11 +90,11 @@ X-API-Key: 1792146739001_live_sit19MdYmSsAtAtoTWTQbMhHFPR6paWf
     "infoAdicional": [
         {
             "nombre": "Contacto",
-            "valor": "Juan Perez"
+            "value": "Juan Perez"
         },
         {
             "nombre": "Email",
-            "valor": "juan.perez@example.com"
+            "value": "juan.perez@example.com"
         }
     ]    
 }

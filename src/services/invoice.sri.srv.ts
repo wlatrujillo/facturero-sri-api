@@ -1,12 +1,16 @@
-import fs from 'node:fs';
+import log4js from 'log4js';
+import { ENV_ENUM, type SriAuthorizationResponse } from 'osodreamer-sri-xml-signer';
+
 
 import { XmlProccessService } from "@services/xml-proccess.srv.js";
 import { StorageService } from "@services/storage.srv.js";
-import { ENV_ENUM, type SriAuthorizationResponse } from 'osodreamer-sri-xml-signer';
-import { InvoiceMapper } from 'mappers/invoice.mapper.js';
+import { InvoiceMapper } from '@mappers/invoice.mapper.js';
+
+
 
 export class InvoiceSriService {
 
+    private readonly logger = log4js.getLogger('SriController');
     private readonly inputDir = 'generados';
     private readonly signedDir = 'firmados';
     private readonly authorizedDir = 'autorizados';
@@ -45,7 +49,7 @@ export class InvoiceSriService {
             await this._storageService.writeFile(`${companyId}/${this.inputDir}`,
                 `${claveAcceso}.xml`,
                 Buffer.from(generatedXml));
-            console.log(`📄 XML generado correctamente:`);
+            this.logger.info(`📄 XML generado correctamente: ${this.inputDir}/${claveAcceso}.xml`);
 
             const p12File = await this._storageService.readFile('certs', `${companyId}.p12`);
 
@@ -56,14 +60,14 @@ export class InvoiceSriService {
                 xmlBuffer: await this._storageService.readFile(`${companyId}/${this.inputDir}`, `${claveAcceso}.xml`),
             });
             await this._storageService.writeFile(`${companyId}/${this.signedDir}`, `${claveAcceso}.xml`, Buffer.from(signedXml));
-            console.log(`🔏 XML firmado correctamente: ${this.signedDir}/${claveAcceso}.xml`);
+            this.logger.info(`🔏 XML firmado correctamente: ${this.signedDir}/${claveAcceso}.xml`);
 
             // === 3. Validar XML firmado ===
             const validationResult = await this._xmlProccessService.validateXML(
                 await this._storageService.readFile(`${companyId}/${this.signedDir}`, `${claveAcceso}.xml`),
                 "test"
             );
-            console.log("✅ Validación completada:", validationResult);
+            this.logger.info(`✅ XML validado correctamente: ${this.signedDir}/${claveAcceso}.xml`);
 
             // === 4. Autorizar comprobante ===
             const authorization: SriAuthorizationResponse = await this._xmlProccessService.authorizeXML(
@@ -74,11 +78,11 @@ export class InvoiceSriService {
             await this._storageService.writeFile(`${companyId}/${this.authorizedDir}`,
                 `${claveAcceso}.xml`,
                 Buffer.from(authorization.comprobante));
-            console.log(`🧾 Comprobante autorizado: ${this.authorizedDir}/${claveAcceso}.xml`);
+            this.logger.info(`🧾 Comprobante autorizado correctamente: ${this.authorizedDir}/${claveAcceso}.xml`);
 
-            console.log("🎉 Proceso completado con éxito.");
+            this.logger.info("🎉 Proceso completado con éxito.");
         } catch (error) {
-            console.error("❌ Error durante el proceso:", error);
+            throw error;
         }
     }
 

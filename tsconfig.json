@@ -44,7 +44,7 @@
       "@routes/*": ["routes/*"],
       "@model/*": ["model/*"],
       "@repository/*": ["repository/*"],
-      "@facturero-sri-signer/*": ["facturero-sri-signer/*"]
+      "@mappers/*": ["mappers/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

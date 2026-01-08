@@ -1,11 +1,12 @@
 
 import type { Request, Response } from 'express';
 
+import log4js from 'log4js';
+
 import { InvoiceSriService } from '@services/invoice.sri.srv.js';
 import { StorageService } from '@services/storage.srv.js';
 import { XmlProccessService } from '@services/xml-proccess.srv.js';
 
-import log4js from 'log4js';
 
 /**
  * Controlador responsable de generar, firmar, validar y autorizar un comprobante XML.
@@ -18,7 +19,7 @@ export class SriController {
 
   private _invoiceSriService: InvoiceSriService;
 
-  constructor() { 
+  constructor() {
     this._invoiceSriService = new InvoiceSriService(new XmlProccessService(), new StorageService());
   }
 
@@ -30,11 +31,20 @@ export class SriController {
 
       const invoiceData = req.body;
 
-      this._invoiceSriService.executeInvoice(companyId, 'test', invoiceData);
-      res.status(200).send("Test invoice processed successfully");
-    } catch (error) {
+      await this._invoiceSriService.executeInvoice(companyId, 'test', invoiceData);
+
+      res.status(200).send({
+        status: "success",
+        message: "Test invoice processed successfully"
+      });
+
+    } catch (error: any) {
       this.logger.error("❌ Error durante el proceso:", error);
-      res.status(500).send("Error processing invoice");
+      res.status(500).send({
+        status: "error",
+        message: error instanceof Error ? error.message : String(error),
+        errors: error.errors ? error.errors : undefined
+      });
     }
   }
 
@@ -45,16 +55,24 @@ export class SriController {
 
       const invoiceData = req.body;
 
-      this._invoiceSriService.executeInvoice(companyId, 'prod', invoiceData);
-      res.status(200).send("Invoice processed successfully");
+      await this._invoiceSriService.executeInvoice(companyId, 'prod', invoiceData);
 
-    } catch (error) {
+      res.status(200).send({
+        message: "Invoice processed successfully",
+        status: "success"
+      });
+
+    } catch (error: any) {
       this.logger.error("❌ Error durante el proceso:", error);
-      res.status(500).send("Error processing invoice");
+      res.status(500).send({
+        status: "error",
+        message: error instanceof Error ? error.message : String(error),
+        errors: error.errors ? error.errors : undefined
+      });
     }
   }
 
 
-  
+
 
 }

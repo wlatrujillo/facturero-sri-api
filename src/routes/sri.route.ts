@@ -20,7 +20,7 @@ export class SriRoutes {
             .post(this.ctrl.generateInvoice);
 
         this.router.route('/test/invoice')
-            .post(this.ctrl.generateInvoice);
+            .post(this.ctrl.generateTestInvoice);
 
     }
 }
