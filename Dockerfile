@@ -1,7 +1,7 @@
 # =========================
 # Stage 1: Build
 # =========================
-FROM --platform=linux/amd64 node:lts-slim AS builder
+FROM node:lts-slim AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY src/views ./dist/views
 # =========================
 # Stage 2: Runtime
 # =========================
-FROM --platform=linux/amd64 node:22-alpine AS final
+FROM node:22-alpine AS final
 
 RUN addgroup app && adduser -S -G app app
 WORKDIR /app
