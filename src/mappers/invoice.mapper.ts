@@ -4,8 +4,8 @@ export class InvoiceMapper {
 
     static toInvoiceSriModel(invoiceData: any): ComprobanteModel {
         const invoiceModel = new ComprobanteModel();
-        invoiceModel.infoTributaria = this.toInfoTributaria(invoiceData.infoTributaria);
-        invoiceModel.infoFactura = this.toInfoFactura(invoiceData.infoFactura);
+        invoiceModel.infoTributaria = this.toInfoTributaria(invoiceData.factura);
+        invoiceModel.infoFactura = this.toInfoFactura(invoiceData.factura);
         invoiceModel.detalles = this.toDetalles(invoiceData.detalles);
         invoiceModel.infoAdicional = this.toInfoAdicional(invoiceData.infoAdicional);
         return invoiceModel;

@@ -32,10 +32,12 @@ export class InvoiceSriService {
 
         try {
 
-            invoiceData.infoTributaria.tipoEmision = '1';
-            invoiceData.infoFactura.ambiente = env === 'prod' ? ENV_ENUM.PROD : ENV_ENUM.TEST;
+            invoiceData.factura.ambiente = env === 'prod' ? ENV_ENUM.PROD : ENV_ENUM.TEST;
+            invoiceData.factura.tipoEmision = '1';
+            invoiceData.factura.ruc = companyId;            
+            invoiceData.factura.codDoc = "01"
 
-            const password = 'T818gar005';
+            const password = invoiceData.factura.signature;
 
             const invoice = InvoiceMapper.toInvoiceSriModel(invoiceData);
 
@@ -51,13 +53,13 @@ export class InvoiceSriService {
                 Buffer.from(generatedXml));
             this.logger.info(`📄 XML generado correctamente: ${this.inputDir}/${claveAcceso}.xml`);
 
-            const p12File = await this._storageService.readFile('certs', `${companyId}.p12`);
+            const p12Buffer = await this._storageService.readFile('certs', `${companyId}.p12`);
 
             const xmlBuffer = await this._storageService.readFile(`${companyId}/${this.inputDir}`, `${claveAcceso}.xml`);
 
             // === 2. Firmar XML ===
             const signedXml = await this._xmlProccessService.signXML({
-                p12Buffer: p12File,
+                p12Buffer: p12Buffer,
                 password: password,
                 xmlBuffer: xmlBuffer
             });

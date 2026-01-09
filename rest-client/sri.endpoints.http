@@ -8,19 +8,14 @@ Content-Type: application/json
 X-API-Key: 1792146739001_live_RxSX-AjWjUdoYEaWf-9gtSqlJQ2j_pJD
 
 {
-    "infoTributaria": {
-        "ambiente": 1,
-        "tipoEmision": 1,
+    "factura": {
+        "signature":"T818gar005",
         "razonSocial": "Distribuidora de Suministros Nacional S.A.",
         "nombreComercial": "Empresa Importadora y Exportadora de Piezas",
-        "ruc": "1792146739001",
-        "codDoc": "01",
+        "dirMatriz": "Enrique Guerrero Portilla OE1-34 AV. Galo Plaza Lasso",
         "estab": "002",
         "ptoEmi": "001",
         "secuencial": "000000001",
-        "dirMatriz": "Enrique Guerrero Portilla OE1-34 AV. Galo Plaza Lasso"
-    },
-    "infoFactura": {
         "fechaEmision" : "",
         "dirEstablecimiento" : "Sebastian Moreno S/N Franciso Garcia",
         "contribuyenteEspecial" : "5368",
