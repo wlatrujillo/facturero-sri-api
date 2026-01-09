@@ -108,6 +108,27 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: "*"
+        - PolicyName: !Sub "${EnvironmentId}-policy_allow_dynamo_write"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItems
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                Resource: "*"
+        - PolicyName: !Sub "${EnvironmentId}-policy_allow_s3_access"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource: "*"
       Tags:
         - Key: "GROUP"
           Value: !Sub "${AWS::StackName}"
