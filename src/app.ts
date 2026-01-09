@@ -8,7 +8,6 @@ import type { Application } from 'express';
 import bodyParser from 'body-parser';
 import { engine } from 'express-handlebars';
 import cors from 'cors';
-import mongoose from 'mongoose';
 import Log4js from 'log4js';
 
 //Routes
@@ -23,7 +22,6 @@ class App {
 
     constructor() {
         this.app = express();
-        this.setMongoConfig();
         this.logConfig();
         this.serverConfig();
         this.routes();
@@ -82,21 +80,6 @@ class App {
         });
     }
 
-    //Conexión a MongoDB database
-    private setMongoConfig() {
-        mongoose.Promise = global.Promise;
-        mongoose.set('strictQuery', false);
-        let mongoUrl = process.env.MONGO_URL || `mongodb://localhost:27017/facturero_sri_api`;
-        console.info('Start trying connection MongoDB url:', mongoUrl);
-        mongoose.connect(mongoUrl, {})
-            .then(success => {
-                console.info("MongoDB connection established successfully host", success.connections[0]?.host);
-            })
-            .catch(error => {
-                console.error("Error connecting to the MongoDB", error);
-                process.exit();
-            });
-    }
 
 }
 

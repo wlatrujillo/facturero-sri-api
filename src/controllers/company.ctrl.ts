@@ -20,30 +20,44 @@ export class CompanyController {
         const ruc = req.params.ruc;
         try {
 
-            
+
             if (!ruc) {
-                return res.status(400).json({ error: 'RUC is required' });
+                return res.status(400).json({
+                    status: "error",
+                    message: 'RUC is required'
+                });
             }
 
 
-            const companyInfo = await this.companyService.returnCompanyInfo(ruc);
+            const companyInfo = await this.companyService.find(ruc);
+
             if (!companyInfo) {
-                return res.status(404).json({ error: 'Company not found' });
+                return res.status(404).json({
+                    status: "error",
+                    message: 'Company not found'
+                });
             }
             return res.status(200).json(companyInfo);
-        } catch (error) {
-            return res.status(500).json({ error: 'Internal server error' });
+        } catch (error: Error | any) {
+            res.status(500).send({
+                status: "error",
+                message: error instanceof Error ? error.message : String(error),
+                errors: error.errors ? error.errors : undefined
+            });
         }
     }
 
     registerCompany = async (req: Request, res: Response) => {
         const companyData = req.body;
         try {
-            const apiKey = await this.companyService.registerCompany(companyData);
+            const apiKey = await this.companyService.insert(companyData);
             return res.status(201).json({ apiKey });
-        } catch (error) {
-            logger.error('Error registering company:', error);
-            return res.status(500).json({ error: 'Internal server error' });
+        } catch (error: Error | any) {
+            res.status(500).send({
+                status: "error",
+                message: error instanceof Error ? error.message : String(error),
+                errors: error.errors ? error.errors : undefined
+            });
         }
     }
 }

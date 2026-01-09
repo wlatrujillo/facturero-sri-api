@@ -39,7 +39,7 @@ export class SriController {
       });
 
     } catch (error: any) {
-      this.logger.error("❌ Error durante el proceso:", error);
+     
       res.status(500).send({
         status: "error",
         message: error instanceof Error ? error.message : String(error),
@@ -62,8 +62,7 @@ export class SriController {
         status: "success"
       });
 
-    } catch (error: any) {
-      this.logger.error("❌ Error durante el proceso:", error);
+    } catch (error: Error | any) {
       res.status(500).send({
         status: "error",
         message: error instanceof Error ? error.message : String(error),

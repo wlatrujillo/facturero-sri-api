@@ -24,13 +24,15 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.965.0",
     "@aws-sdk/client-s3": "^3.962.0",
+    "@aws-sdk/lib-dynamodb": "^3.965.0",
     "body-parser": "^2.2.1",
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "express-handlebars": "^8.0.4",
+    "install": "^0.13.0",
     "log4js": "^6.9.1",
-    "mongoose": "^9.1.1",
     "osodreamer-sri-xml-signer": "^0.1.2"
   }
 }

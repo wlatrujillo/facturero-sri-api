@@ -84,6 +84,7 @@ export class InvoiceSriService {
 
             this.logger.info("🎉 Proceso completado con éxito.");
         } catch (error) {
+            this.logger.error("❌ Error durante el proceso:", error);
             throw error;
         }
     }
