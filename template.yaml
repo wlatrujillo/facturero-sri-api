@@ -62,10 +62,7 @@ Parameters:
   ProjectListeningPort:
     Type: String
     Description: The port number on the container that is bound to the user-specified or automatically assigned host port. 
-    Default: 8080 
-  MongoUrl:
-    Type: String
-    Description: The MongoDB server host.
+    Default: 8080
 
 Resources:
 
@@ -279,12 +276,10 @@ Resources:
           Environment:
             - Name: NODE_ENV
               Value: !Ref EnvironmentId
-            - Name: port
+            - Name: PORT
               Value: !Ref ProjectExposedPort
             - Name: LOG_LEVEL
               Value: "DEBUG"
-            - Name: MONGO_URL
-              Value: !Ref MongoUrl
 
   ECSService:
     Type: AWS::ECS::Service
