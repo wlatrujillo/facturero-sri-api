@@ -1,40 +1,29 @@
 import crypto from 'crypto';
 import log4js from 'log4js';
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import type { IApiKey, ICompany } from '@model/company.js';
 
+import { CompanyRepository } from '../repository/company.repository.js';
 
-const TABLE_NAME = 'facturero-companies';
 
 export class CompanyService {
 
 
     private readonly logger = log4js.getLogger("CompanyService");
-    private client;
-    private docClient;
+    private repository: CompanyRepository;
 
     constructor() {
-        this.client = new DynamoDBClient({ region: "us-east-1" });
-        this.docClient = DynamoDBDocumentClient.from(this.client);
+        this.repository = new CompanyRepository();
     }
 
 
-    find = async (ruc: string) => {
+    findCompany = async (ruc: string) => {
 
-        const getCommand = new GetCommand({
-            TableName: TABLE_NAME,
-            Key: {
-                companyId: ruc
-            }
-        });
-
-        const result = await this.docClient.send(getCommand);
-
-        return result.Item;
+        const key = { companyId: ruc };
+        const result = await this.repository.findById(key);
+        return result;
     }
 
-    insert = async (company: ICompany) => {
+    createCompany = async (company: ICompany) => {
 
         try {
             this.logger.info(`Registering company  ${company}`);
@@ -55,15 +44,7 @@ export class CompanyService {
             company.updatedAt = now;
 
 
-            const putCommand = new PutCommand({
-                TableName: TABLE_NAME,
-                Item: company,
-                ConditionExpression: "attribute_not_exists(companyId)" // Prevent overwriting existing item,
-            });
-
-
-
-            await this.docClient.send(putCommand);
+            await this.repository.insert(company);
             return newApiKeyData;
             
         } catch (error) {
@@ -77,7 +58,7 @@ export class CompanyService {
     checkApiKey = async (apiKey: string) => {
         if (!apiKey) return false;
         const companyId = apiKey.split('_')[0] || '';
-        const company = await this.find(companyId);
+        const company = await this.repository.findById({ companyId });
         if (!company) return false;
         if (company.apiKey.status !== 'ACTIVE') return false;
         const secret = company.apiKey.secret;

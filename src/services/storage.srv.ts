@@ -1,65 +1,73 @@
+import log4js from 'log4js';
+import { Buffer } from 'buffer';
 
-import { S3Client, ListBucketsCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Repository } from "@repository/s3.repository.js";
 
-const BUCKET_NAME = process.env.BUCKET_NAME || "dev-facturero-storage";
+
 export class StorageService {
 
-    private s3Client: S3Client;
+    private readonly logger = log4js.getLogger('InvoiceSriService');
+    private readonly generatedDir = 'generados';
+    private readonly signedDir = 'firmados';
+    private readonly authorizedDir = 'autorizados';
+    private readonly certDir = 'certs';
+    private s3Repository: S3Repository;
 
     constructor() {
-        this.s3Client = new S3Client({ region: "us-east-1" });
+        this.s3Repository = new S3Repository();
     }
 
-    public async listBuckets(): Promise<string[]> {
-        const command = new ListBucketsCommand({});
-        const response = await this.s3Client.send(command);
-        return response.Buckets ? response.Buckets.map(bucket => bucket.Name || "") : [];
-    }
-
-    public async createBucket(bucketName: string): Promise<void> {
-        // Implementation for creating a bucket goes here
-    }
-
-    public async getBucketInfo(bucketName: string): Promise<any> {
-        // Implementation for getting bucket info goes here
-    }
-
-    public async createFolder(bucketName: string, folderName: string): Promise<void> {
-        // Implementation for creating a folder goes here
-    }
-
-    public async writeFile(folderName: string, fileName: string, fileContent: Buffer): Promise<void> {
+    public async readCertificateP12(companyId: string): Promise<Buffer> {
         // Implementation for uploading a file goes here
         try {
-            const command = new PutObjectCommand({
-                Bucket: BUCKET_NAME,
-                Key: `${folderName}/${fileName}`,
-                Body: fileContent
-            });
-            await this.s3Client.send(command);
+            return await this.s3Repository.readFile(this.certDir, `${companyId}.p12`);
         } catch (error) {
             throw new Error(`Error uploading file: ${error}`);
         }
     }
 
-    public async readFile(folderName: string, fileName: string): Promise<Buffer<ArrayBuffer>> {
+    public async writeCertificateP12(companyId: string, fileContent: Buffer): Promise<void> {
+        // Implementation for uploading a file goes here
+        try {
+            await this.s3Repository.writeFile(this.certDir, `${companyId}.p12`, fileContent);
+        } catch (error) {
+            throw new Error(`Error uploading file: ${error}`);
+        }
+    }
+
+    public async writeGeneratedVoucher(companyId: string, accessKey: string, fileContent: Buffer): Promise<void> {
+        // Implementation for uploading a file goes here
+        try {
+            await this.s3Repository.writeFile(`${companyId}/${this.generatedDir}`, `${accessKey}.xml`, fileContent);
+        } catch (error) {
+            throw new Error(`Error uploading file: ${error}`);
+        }
+    }
+
+    public async writeSignedVoucher(companyId: string, accessKey: string, fileContent: Buffer): Promise<void> {
+        // Implementation for uploading a file goes here
+        try {
+            await this.s3Repository.writeFile(`${companyId}/${this.signedDir}`, `${accessKey}.xml`, fileContent);
+        } catch (error) {
+            throw new Error(`Error uploading file: ${error}`);
+        }
+    }
+
+    public async writeAuthorizedVoucher(companyId: string, accessKey: string, fileContent: Buffer): Promise<void> {
+        // Implementation for uploading a file goes here
+        try {
+            await this.s3Repository.writeFile(`${companyId}/${this.authorizedDir}`, `${accessKey}_aut.xml`, fileContent);
+        } catch (error) {
+            throw new Error(`Error uploading file: ${error}`);
+        }
+    }
+
+    public async readGeneratedVoucher(companyId: string, accessKey: string): Promise<Buffer<ArrayBuffer>> {
         // Implementation for getting a file goes here
         try {
-            const command = new GetObjectCommand({
-                Bucket: BUCKET_NAME,
-                Key: `${folderName}/${fileName}`
-            });
-            const response = await this.s3Client.send(command);
-            if (response.Body) {
-                const streamToBuffer = (stream: any): Promise<Buffer<ArrayBuffer>> => {
-                    return new Promise((resolve, reject) => {
-                        const chunks: Uint8Array[] = [];
-                        stream.on("data", (chunk: Uint8Array) => chunks.push(chunk));
-                        stream.on("error", reject);
-                        stream.on("end", () => resolve(Buffer.concat(chunks)));
-                    });
-                };
-                return await streamToBuffer(response.Body);
+            const response = await this.s3Repository.readFile(`${companyId}/${this.generatedDir}`, `${accessKey}.xml`);
+            if (response) {
+                return response;
             } else {
                 throw new Error("File not found");
             }
@@ -67,6 +75,35 @@ export class StorageService {
             throw new Error(`Error getting file: ${error}`);
         }
     }
+
+    public async readSignedVoucher(companyId: string, accessKey: string): Promise<Buffer<ArrayBuffer>> {
+        // Implementation for getting a file goes here
+        try {
+            const response = await this.s3Repository.readFile(`${companyId}/${this.signedDir}`, `${accessKey}.xml`);
+            if (response) {
+                return response;
+            } else {
+                throw new Error("File not found");
+            }
+        } catch (error) {
+            throw new Error(`Error getting file: ${error}`);
+        }
+    }
+
+    public async readAuthorizedVoucher(companyId: string, accessKey: string): Promise<Buffer<ArrayBuffer>> {
+        // Implementation for getting a file goes here
+        try {
+            const response = await this.s3Repository.readFile(`${companyId}/${this.authorizedDir}`, `${accessKey}_aut.xml`);
+            if (response) {
+                return response;
+            } else {
+                throw new Error("File not found");
+            }
+        } catch (error) {
+            throw new Error(`Error getting file: ${error}`);
+        }
+    }
+
 
 
 }

@@ -29,7 +29,7 @@ export class CompanyController {
             }
 
 
-            const companyInfo = await this.companyService.find(ruc);
+            const companyInfo = await this.companyService.findCompany(ruc);
 
             if (!companyInfo) {
                 return res.status(404).json({
@@ -50,7 +50,7 @@ export class CompanyController {
     registerCompany = async (req: Request, res: Response) => {
         const companyData = req.body;
         try {
-            const apiKey = await this.companyService.insert(companyData);
+            const apiKey = await this.companyService.createCompany(companyData);
             return res.status(201).json({ apiKey });
         } catch (error: Error | any) {
             res.status(500).send({
