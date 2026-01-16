@@ -1,9 +1,9 @@
-import { ComprobanteModel, IDENTIFICATION_CODE_ENUM, OBLIGADO_CONTABILIDAD_ENUM, type Pago, type TotalImpuesto } from "osodreamer-sri-xml-signer";
+import { type Invoice, type Impuesto, IDENTIFICATION } from "facturero-sri-signer";
 
 export class InvoiceMapper {
 
-    static toInvoiceSriModel(invoiceData: any): ComprobanteModel {
-        const invoiceModel = new ComprobanteModel();
+    static toInvoiceSriModel(invoiceData: any): Invoice {
+        const invoiceModel = {} as Invoice;
         invoiceModel.infoTributaria = this.toInfoTributaria(invoiceData.factura);
         invoiceModel.infoFactura = this.toInfoFactura(invoiceData.factura);
         invoiceModel.detalles = this.toDetalles(invoiceData.detalles);
@@ -47,8 +47,8 @@ export class InvoiceMapper {
             fechaEmision: issueDate,
             dirEstablecimiento: data.dirEstablecimiento,
             // contribuyenteEspecial: "sd3",
-            obligadoContabilidad: OBLIGADO_CONTABILIDAD_ENUM.NO,
-            tipoIdentificacionComprador: IDENTIFICATION_CODE_ENUM.CEDULA,
+            obligadoContabilidad: "NO",
+            tipoIdentificacionComprador: IDENTIFICATION.CEDULA,
             razonSocialComprador: data.razonSocialComprador,
             identificacionComprador: data.identificacionComprador,
             direccionComprador: data.direccionComprador,
@@ -79,7 +79,7 @@ export class InvoiceMapper {
                 descuento: detalle.descuento,
                 precioTotalSinImpuesto: detalle.precioTotalSinImpuesto,
                 impuestos: {
-                    impuesto: detalle.impuestos as TotalImpuesto[] || []
+                    impuesto: detalle.impuestos as Impuesto[] || []
                 },
                 detallesAdicionales: {
                     detAdicional: detalle.detallesAdicionales || []

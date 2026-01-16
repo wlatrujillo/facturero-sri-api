@@ -5,7 +5,7 @@
 ### Generate SRI Invoice
 POST {{host}}/api/sri/test/invoice
 Content-Type: application/json
-X-API-Key: 1792146739001_live_RxSX-AjWjUdoYEaWf-9gtSqlJQ2j_pJD
+X-API-Key: 1716004948001_live_Aw8P3xGovxKEuC8F-9EMflP9_KWX1w3G
 
 {
     "factura": {

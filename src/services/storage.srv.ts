@@ -3,10 +3,9 @@ import { Buffer } from 'buffer';
 
 import { S3Repository } from "@repository/s3.repository.js";
 
-
+const logger = log4js.getLogger("StorageService");
 export class StorageService {
 
-    private readonly logger = log4js.getLogger('InvoiceSriService');
     private readonly generatedDir = 'generados';
     private readonly signedDir = 'firmados';
     private readonly authorizedDir = 'autorizados';
@@ -19,6 +18,7 @@ export class StorageService {
 
     public async readCertificateP12(companyId: string): Promise<Buffer> {
         // Implementation for uploading a file goes here
+        logger.debug(`Reading certificate P12 for companyId: ${companyId}`);
         try {
             return await this.s3Repository.readFile(this.certDir, `${companyId}.p12`);
         } catch (error) {
@@ -62,7 +62,7 @@ export class StorageService {
         }
     }
 
-    public async readGeneratedVoucher(companyId: string, accessKey: string): Promise<Buffer<ArrayBuffer>> {
+    public async readGeneratedVoucher(companyId: string, accessKey: string): Promise<Buffer> {
         // Implementation for getting a file goes here
         try {
             const response = await this.s3Repository.readFile(`${companyId}/${this.generatedDir}`, `${accessKey}.xml`);
@@ -76,7 +76,7 @@ export class StorageService {
         }
     }
 
-    public async readSignedVoucher(companyId: string, accessKey: string): Promise<Buffer<ArrayBuffer>> {
+    public async readSignedVoucher(companyId: string, accessKey: string): Promise<Buffer> {
         // Implementation for getting a file goes here
         try {
             const response = await this.s3Repository.readFile(`${companyId}/${this.signedDir}`, `${accessKey}.xml`);
@@ -90,7 +90,7 @@ export class StorageService {
         }
     }
 
-    public async readAuthorizedVoucher(companyId: string, accessKey: string): Promise<Buffer<ArrayBuffer>> {
+    public async readAuthorizedVoucher(companyId: string, accessKey: string): Promise<Buffer> {
         // Implementation for getting a file goes here
         try {
             const response = await this.s3Repository.readFile(`${companyId}/${this.authorizedDir}`, `${accessKey}_aut.xml`);

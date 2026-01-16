@@ -1,10 +1,12 @@
 import log4js from 'log4js';
+import fs from 'fs';
 import { ENV_ENUM, type SriAuthorizationResponse } from 'osodreamer-sri-xml-signer';
 
 
 import { XmlProccessService } from "@services/xml-proccess.srv.js";
 import { StorageService } from "@services/storage.srv.js";
 import { InvoiceMapper } from '@mappers/invoice.mapper.js';
+import { ENVIRONMENT } from 'facturero-sri-signer';
 
 
 
@@ -42,16 +44,19 @@ export class InvoiceSriService {
 
 
             // === 1. Generar XML ===
-            const { generatedXml, invoiceJson } =
+            const { xml, jsonObject } =
                 await this._xmlProccessService.generateInvoiceXML(invoice);
-            const claveAcceso = invoiceJson.factura.infoTributaria.claveAcceso;
+            const claveAcceso = jsonObject.infoTributaria.claveAcceso as string;
 
             await this._storageService.writeGeneratedVoucher(companyId,
                 claveAcceso,
-                Buffer.from(generatedXml));
+                Buffer.from(xml));
             this.logger.info(`📄 XML generado correctamente:`);
 
-            const p12Buffer = await this._storageService.readCertificateP12(companyId);
+            this.logger.debug(`reading necessary files for signing and authorization...: claveAcceso: ${claveAcceso}, companyId: ${companyId}`);
+            //const p12Buffer = await this._storageService.readCertificateP12(companyId);
+            const p12Buffer = fs.readFileSync(`./${companyId}.p12`);
+
             const xmlBuffer = await this._storageService.readGeneratedVoucher(companyId, claveAcceso);
 
             // === 2. Firmar XML ===
@@ -63,17 +68,20 @@ export class InvoiceSriService {
             await this._storageService.writeSignedVoucher(companyId, claveAcceso, Buffer.from(signedXml));
             this.logger.info(`🔏 XML firmado correctamente:`);
 
+           
+            const signedXmlBuffer = await this._storageService.readSignedVoucher(companyId, claveAcceso);
+            
             // === 3. Validar XML firmado ===
             const validationResult = await this._xmlProccessService.validateXML(
-                await this._storageService.readSignedVoucher(companyId, claveAcceso),
-                env == "prod" ? "prod" : "test"
+                signedXmlBuffer,
+                env == "prod" ? ENVIRONMENT.PRODUCCION : ENVIRONMENT.PRUEBAS
             );
             this.logger.info(`✅ XML validado correctamente:`);
 
             // === 4. Autorizar comprobante ===
             const authorization: SriAuthorizationResponse = await this._xmlProccessService.authorizeXML(
                 claveAcceso,
-                env == "prod" ? "prod" : "test"
+                env == "prod" ? ENVIRONMENT.PRODUCCION : ENVIRONMENT.PRUEBAS
             );
 
             await this._storageService.writeAuthorizedVoucher(companyId, claveAcceso, Buffer.from(authorization.comprobante));

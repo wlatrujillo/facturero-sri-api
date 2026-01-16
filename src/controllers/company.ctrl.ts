@@ -12,7 +12,7 @@ export class CompanyController {
     private companyService: CompanyService;
 
     constructor() {
-        logger.info('CompanyController initialized');
+        logger.debug('CompanyController initialized');
         this.companyService = new CompanyService();
     }
 

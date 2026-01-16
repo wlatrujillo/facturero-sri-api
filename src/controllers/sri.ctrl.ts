@@ -7,24 +7,23 @@ import { InvoiceSriService } from '@services/invoice.sri.srv.js';
 import { StorageService } from '@services/storage.srv.js';
 import { XmlProccessService } from '@services/xml-proccess.srv.js';
 
-
+const logger = log4js.getLogger("SriController");
 /**
  * Controlador responsable de generar, firmar, validar y autorizar un comprobante XML.
  * Esta clase sirve como ejemplo principal de uso de la librería de firmado SRI.
  */
 export class SriController {
 
-
-  private readonly logger = log4js.getLogger('SriController');
-
   private _invoiceSriService: InvoiceSriService;
 
   constructor() {
+    logger.debug('SriController initialized');
     this._invoiceSriService = new InvoiceSriService(new XmlProccessService(), new StorageService());
   }
 
 
   generateTestInvoice = async (req: Request, res: Response): Promise<void> => {
+    logger.debug('generateTestInvoice called');
     try {
 
       const companyId = res.locals.companyId;
@@ -39,7 +38,7 @@ export class SriController {
       });
 
     } catch (error: any) {
-     
+
       res.status(500).send({
         status: "error",
         message: error instanceof Error ? error.message : String(error),
@@ -49,6 +48,7 @@ export class SriController {
   }
 
   generateInvoice = async (req: Request, res: Response): Promise<void> => {
+    logger.debug('generateInvoice called');
     try {
 
       const companyId = res.locals.companyId;
@@ -70,8 +70,5 @@ export class SriController {
       });
     }
   }
-
-
-
 
 }

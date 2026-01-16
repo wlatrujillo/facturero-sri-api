@@ -50,7 +50,7 @@ class App {
             "categories": {
                 "default": {
                     "appenders": ["out"],
-                    "level": process.env.log_level || "INFO"
+                    "level": process.env.log_level || "DEBUG"
                 }
             }
         });

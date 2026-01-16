@@ -1,5 +1,5 @@
 
-import { S3Client, ListBucketsCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, ListBucketsCommand, GetObjectCommand, PutObjectCommand, type GetObjectCommandOutput } from "@aws-sdk/client-s3";
 
 const BUCKET_NAME = process.env.BUCKET_NAME || "dev-facturero-storage";
 
@@ -43,27 +43,23 @@ export class S3Repository {
         }
     }
 
-    public async readFile(folderName: string, fileName: string): Promise<Buffer<ArrayBuffer>> {
+    public async readFile(folderName: string, fileName: string): Promise<Buffer> {
         // Implementation for getting a file goes here
+        
         try {
             const command = new GetObjectCommand({
                 Bucket: BUCKET_NAME,
                 Key: `${folderName}/${fileName}`
             });
-            const response = await this.s3Client.send(command);
-            if (response.Body) {
-                const streamToBuffer = (stream: any): Promise<Buffer<ArrayBuffer>> => {
-                    return new Promise((resolve, reject) => {
-                        const chunks: Uint8Array[] = [];
-                        stream.on("data", (chunk: Uint8Array) => chunks.push(chunk));
-                        stream.on("error", reject);
-                        stream.on("end", () => resolve(Buffer.concat(chunks)));
-                    });
-                };
-                return await streamToBuffer(response.Body);
-            } else {
+            const response: GetObjectCommandOutput = await this.s3Client.send(command);
+
+            if (!response.Body) {
                 throw new Error("File not found");
             }
+
+            // ✅ AWS SDK v3 helper
+            return Buffer.from(await response.Body.transformToByteArray());
+
         } catch (error) {
             throw new Error(`Error getting file: ${error}`);
         }
