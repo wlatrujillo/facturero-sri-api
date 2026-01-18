@@ -32,17 +32,16 @@ export class InvoiceMapper {
         data.totalConImpuestos ??= [];
         data.pagos ??= [];
 
-        let issueDate: Date;
+        let issueDate: Date = new Date();
+
+        console.log('Fecha Emision:', data.fechaEmision);
+        console.log('Tipo de Fecha Emision:', typeof data.fechaEmision);
 
         if (data.fechaEmision && data.fechaEmision instanceof Date) {
             issueDate = data.fechaEmision;
-        } else if (data.fechaEmision && data.fechaEmision instanceof String && data.fechaEmision.trim() !== "") {
-            issueDate = data.fechaEmision instanceof Date
-                ? data.fechaEmision
-                : new Date(data.fechaEmision);
-        } else {
-            issueDate = new Date();
-        }
+        } else if (data.fechaEmision && typeof data.fechaEmision === "string" && data.fechaEmision.trim() !== "") {
+            issueDate = new Date(data.fechaEmision);
+        } 
 
         return {
             fechaEmision: issueDate,
