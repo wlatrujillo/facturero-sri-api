@@ -15,8 +15,8 @@ X-API-Key: 1792146739001_live_RxSX-AjWjUdoYEaWf-9gtSqlJQ2j_pJD
         "dirMatriz": "Enrique Guerrero Portilla OE1-34 AV. Galo Plaza Lasso",
         "estab": "002",
         "ptoEmi": "001",
-        "secuencial": "000000001",
-        "fechaEmision" : "",
+        "secuencial": "000000004",
+        "fechaEmision" : "2026/01/18",
         "dirEstablecimiento" : "Sebastian Moreno S/N Franciso Garcia",
         "contribuyenteEspecial" : "5368",
         "obligadoContabilidad" : "SI",
@@ -92,4 +92,15 @@ X-API-Key: 1792146739001_live_RxSX-AjWjUdoYEaWf-9gtSqlJQ2j_pJD
             "valor": "juan.perez@example.com"
         }
     ]    
+}
+
+### SRI Endpoints Test
+### Generate SRI Invoice
+PUT {{host}}/api/sri/test/invoice/authorize
+Content-Type: application/json
+#X-API-Key: 1716004948001_live_Aw8P3xGovxKEuC8F-9EMflP9_KWX1w3G
+X-API-Key: 1792146739001_live_RxSX-AjWjUdoYEaWf-9gtSqlJQ2j_pJD
+
+{
+    "accessKey": "1801202601179214673900110020010000000021801590512"
 }

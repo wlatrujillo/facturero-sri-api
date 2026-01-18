@@ -1,9 +1,9 @@
 import log4js from 'log4js';
 
 import { XmlProccessService } from "@services/xml-proccess.srv.js";
-import { StorageService } from "@services/storage.srv.js";
 import { InvoiceMapper } from '@mappers/invoice.mapper.js';
 import { ENVIRONMENT } from 'facturero-sri-signer';
+import type { StorageService } from './storage.srv.js';
 
 
 export class InvoiceSriService {
@@ -39,9 +39,9 @@ export class InvoiceSriService {
             const invoice = InvoiceMapper.toInvoiceSriModel(invoiceData);
 
             // === 1. Generar XML ===
-            const { xml, jsonObject } =
+            const { xml, accessKey } =
                 await this._xmlProccessService.generateInvoiceXML(invoice);
-            const claveAcceso = jsonObject.infoTributaria.claveAcceso as string;
+            const claveAcceso = accessKey as string;
 
             await this._storageService.writeGeneratedVoucher(companyId,
                 claveAcceso,
@@ -89,10 +89,48 @@ export class InvoiceSriService {
 
             this.logger.debug(`authorization response: ${JSON.stringify(authorization)}`);
 
+
+            if (!authorization || authorization.estado !== 'AUTORIZADO') {
+                this.logger.error(`❌ Error de autorización:`, authorization);
+                throw new Error(`Error de autorización SRI: ${JSON.stringify(authorization)}`);
+            }
+
+
             await this._storageService.writeAuthorizedVoucher(companyId, claveAcceso, Buffer.from(authorization.comprobante));
+
             this.logger.info(`🧾 Comprobante autorizado correctamente:`);
 
             this.logger.info("🎉 Proceso completado con éxito.");
+        } catch (error) {
+            this.logger.error("❌ Error durante el proceso:", error);
+            throw error;
+        }
+    }
+
+    authorizeInvoice = async (companyId: string, env: string, accessKey: string): Promise<void> => {
+        this.logger.info(`🚀 Iniciando proceso de autorización SRI para la empresa: ${companyId} en entorno ${env} con clave de acceso: ${accessKey}`);
+        try {
+
+            const ENVIROMENT_TO_EXECUTE = env === 'prod' ? ENVIRONMENT.PRODUCCION : ENVIRONMENT.PRUEBAS;
+
+            this.logger.debug(`Iniciando autorización del comprobante...`);
+
+            // === 4. Autorizar comprobante ===
+            const authorization: any = await this._xmlProccessService.authorizeXML(
+                accessKey,
+                ENVIROMENT_TO_EXECUTE
+            );
+
+            this.logger.debug(`authorization response: ${JSON.stringify(authorization)}`);
+
+            if (!authorization || authorization.estado !== 'AUTORIZADO') {
+                this.logger.error(`❌ Error de autorización:`, authorization);
+                throw new Error(`Error de autorización SRI: ${JSON.stringify(authorization)}`);
+            }
+
+            await this._storageService.writeAuthorizedVoucher(companyId, accessKey, Buffer.from(authorization.comprobante));
+
+            this.logger.info(`🧾 Comprobante autorizado correctamente:`);
         } catch (error) {
             this.logger.error("❌ Error durante el proceso:", error);
             throw error;

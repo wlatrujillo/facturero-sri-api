@@ -15,6 +15,14 @@ import SriRoutes from './routes/sri.route.js';
 import CompanyRoutes from '@routes/company.route.js';
 import { checkApiKey } from '@controllers/api-key.ctrl.js';
 
+//Repositories and Services
+import { S3Repository } from '@repository/s3.repository.js';
+import { S3StorageService } from '@services/s3.storage.srv.js';
+import { XmlProccessService } from '@services/xml-proccess.srv.js';
+import { InvoiceSriService } from '@services/invoice.sri.srv.js';
+import { FsStorageService } from '@services/fs.storage.srv.js';
+import { FsRepository } from '@repository/fs.repository.js';
+
 
 class App {
 
@@ -29,12 +37,16 @@ class App {
 
     private routes(): void {
 
+        const invoiceSriService = new InvoiceSriService(new XmlProccessService(), new FsStorageService(new FsRepository()));
+
         this.app.get("/", (req, res) => res.render("index", { layout: false, link: "https://facturero-digital.com" }));
         this.app.get("/api/health", (req, res) => res.status(200).send("OK"));
         this.app.use('/api/company', new CompanyRoutes().router);
-        this.app.use('/api/sri', [checkApiKey], new SriRoutes().router);
+        this.app.use('/api/sri', [checkApiKey], new SriRoutes(invoiceSriService).router);
 
     }
+
+
 
     private logConfig() {
         Log4js.configure({

@@ -4,10 +4,6 @@ import type { Request, Response } from 'express';
 import log4js from 'log4js';
 
 import { InvoiceSriService } from '@services/invoice.sri.srv.js';
-import { StorageService } from '@services/storage.srv.js';
-import { XmlProccessService } from '@services/xml-proccess.srv.js';
-
-import { FsRepository } from '@repository/fs.repository.js';
 
 const logger = log4js.getLogger("SriController");
 /**
@@ -16,37 +12,9 @@ const logger = log4js.getLogger("SriController");
  */
 export class SriController {
 
-  private _invoiceSriService: InvoiceSriService;
 
-  constructor() {
+  constructor(private readonly _invoiceSriService: InvoiceSriService) {
     logger.debug('SriController initialized');
-    this._invoiceSriService = new InvoiceSriService(new XmlProccessService(), new StorageService(new FsRepository()));
-  }
-
-
-  generateTestInvoice = async (req: Request, res: Response): Promise<void> => {
-    logger.debug('generateTestInvoice called');
-    try {
-
-      const companyId = res.locals.companyId;
-
-      const invoiceData = req.body;
-
-      await this._invoiceSriService.executeInvoice(companyId, 'test', invoiceData);
-
-      res.status(200).send({
-        status: "success",
-        message: "Test invoice processed successfully"
-      });
-
-    } catch (error: any) {
-
-      res.status(500).send({
-        status: "error",
-        message: error instanceof Error ? error.message : String(error),
-        errors: error.errors ? error.errors : undefined
-      });
-    }
   }
 
   generateInvoice = async (req: Request, res: Response): Promise<void> => {
@@ -55,10 +23,14 @@ export class SriController {
 
       const companyId = res.locals.companyId;
 
+      const env = req.path.includes('/prod') ? 'prod' : 'test';
+
       const invoiceData = req.body;
 
-      await this._invoiceSriService.executeInvoice(companyId, 'prod', invoiceData);
+      logger.info(`Received invoice data for companyId: ${companyId} in env: ${env}`);
 
+      await this._invoiceSriService.executeInvoice(companyId, env, invoiceData);
+     
       res.status(200).send({
         message: "Invoice processed successfully",
         status: "success"
@@ -72,5 +44,45 @@ export class SriController {
       });
     }
   }
+
+  authorizeInvoice = async (req: Request, res: Response): Promise<void> => {
+    logger.debug('authorizeInvoice called');
+    try {
+
+      const companyId = res.locals.companyId;
+
+      const env = req.path.includes('/prod') ? 'prod' : 'test';
+
+      const accessKey = req.body.accessKey;
+
+      if (!accessKey) {
+        res.status(400).send({
+          status: "error",
+          message: "Access key is required"
+        });
+        return;
+      }
+
+      logger.info(`Received invoice data for authorization for companyId: ${companyId} in env: ${env}`);
+
+      await this._invoiceSriService.authorizeInvoice(companyId, env, accessKey);
+
+      res.status(200).send({
+        message: "Invoice authorized successfully",
+        status: "success"
+      });
+
+    } catch (error: Error | any) {
+      res.status(500).send({
+        status: "error",
+        message: error instanceof Error ? error.message : String(error),
+        errors: error.errors ? error.errors : undefined
+      });
+    }
+  }
+
+
+
+
 
 }
