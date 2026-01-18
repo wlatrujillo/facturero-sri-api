@@ -7,6 +7,8 @@ import { InvoiceSriService } from '@services/invoice.sri.srv.js';
 import { StorageService } from '@services/storage.srv.js';
 import { XmlProccessService } from '@services/xml-proccess.srv.js';
 
+import { FsRepository } from '@repository/fs.repository.js';
+
 const logger = log4js.getLogger("SriController");
 /**
  * Controlador responsable de generar, firmar, validar y autorizar un comprobante XML.
@@ -18,7 +20,7 @@ export class SriController {
 
   constructor() {
     logger.debug('SriController initialized');
-    this._invoiceSriService = new InvoiceSriService(new XmlProccessService(), new StorageService());
+    this._invoiceSriService = new InvoiceSriService(new XmlProccessService(), new StorageService(new FsRepository()));
   }
 
 

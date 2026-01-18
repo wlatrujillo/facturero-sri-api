@@ -3,7 +3,7 @@
 **/logs
 **/dist
 **/lib
-**/certs
+**/facturero_data
 **/vouchers
 .vscode
 .vscode/*.json

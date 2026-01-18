@@ -22,6 +22,7 @@ export class InvoiceMapper {
             ptoEmi: data.ptoEmi,
             secuencial: data.secuencial,
             dirMatriz: data.dirMatriz,
+            // obligadoContabilidad: "SI",
             // agenteRetencion: "1",
             // contribuyenteRimpe: "CONTRIBUYENTE RÉGIMEN RIMPE"
         };
@@ -54,15 +55,11 @@ export class InvoiceMapper {
             direccionComprador: data.direccionComprador,
             totalSinImpuestos: data.totalSinImpuestos,
             totalDescuento: data.totalDescuento,
-            totalConImpuestos: {
-                totalImpuesto: data.totalConImpuestos
-            },
+            totalConImpuestos: data.totalConImpuestos,
             propina: 0.0,
             importeTotal: data.importeTotal,
             moneda: data.moneda,
-            pagos: {
-                pago: data.pagos
-            },
+            pagos: data.pagos,
             valorRetIva: data.valorRetIva || 0,
             valorRetRenta: data.valorRetRenta || 0,
         };
@@ -70,30 +67,21 @@ export class InvoiceMapper {
 
     static toDetalles(detalles: any): any {
 
-        return {
-            detalle: detalles.map((detalle: any) => ({
-                codigoPrincipal: detalle.codigoPrincipal,
-                descripcion: detalle.descripcion,
-                cantidad: detalle.cantidad,
-                precioUnitario: detalle.precioUnitario,
-                descuento: detalle.descuento,
-                precioTotalSinImpuesto: detalle.precioTotalSinImpuesto,
-                impuestos: {
-                    impuesto: detalle.impuestos as Impuesto[] || []
-                },
-                detallesAdicionales: {
-                    detAdicional: detalle.detallesAdicionales || []
-                }
-            }))
-        }
-
+        return detalles.map((detalle: any) => ({
+            codigoPrincipal: detalle.codigoPrincipal,
+            descripcion: detalle.descripcion,
+            cantidad: detalle.cantidad,
+            precioUnitario: detalle.precioUnitario,
+            descuento: detalle.descuento,
+            precioTotalSinImpuesto: detalle.precioTotalSinImpuesto,
+            impuestos: detalle.impuestos as Impuesto[] || [],
+            detallesAdicionales: detalle.detallesAdicionales || []
+        }));
 
     }
 
     static toInfoAdicional(infoAdicional: any): any {
-        return {
-            campoAdicional: infoAdicional
-        }
+        return infoAdicional
     }
 
 
