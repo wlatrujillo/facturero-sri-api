@@ -5,11 +5,11 @@
 ### Generate SRI Invoice
 POST {{host}}/api/sri/test/invoice
 Content-Type: application/json
-X-API-Key: 1716004948001_live_Aw8P3xGovxKEuC8F-9EMflP9_KWX1w3G
+#X-API-Key: 1716004948001_live_Aw8P3xGovxKEuC8F-9EMflP9_KWX1w3G
+X-API-Key: 1792146739001_live_RxSX-AjWjUdoYEaWf-9gtSqlJQ2j_pJD
 
 {
     "factura": {
-        "signature":"Gocu71421Fir",
         "razonSocial": "Distribuidora de Suministros Nacional S.A.",
         "nombreComercial": "Empresa Importadora y Exportadora de Piezas",
         "dirMatriz": "Enrique Guerrero Portilla OE1-34 AV. Galo Plaza Lasso",
@@ -85,11 +85,11 @@ X-API-Key: 1716004948001_live_Aw8P3xGovxKEuC8F-9EMflP9_KWX1w3G
     "infoAdicional": [
         {
             "nombre": "Contacto",
-            "value": "Juan Perez"
+            "valor": "Juan Perez"
         },
         {
             "nombre": "Email",
-            "value": "juan.perez@example.com"
+            "valor": "juan.perez@example.com"
         }
     ]    
 }

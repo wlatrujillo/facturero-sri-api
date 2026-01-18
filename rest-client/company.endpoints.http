@@ -15,5 +15,5 @@ Content-Type: application/json
 }
 
 ### Get Company Information
-GET {{host}}/api/company/1716004948001
+GET {{host}}/api/company/1792146739001
 Content-Type: application/json
