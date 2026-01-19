@@ -1,21 +1,20 @@
 import log4js from 'log4js';
 
-import { XmlProccessService } from "@services/xml-proccess.srv.js";
-import { InvoiceMapper } from '@mappers/invoice.mapper.js';
-import { ENVIRONMENT } from 'facturero-sri-signer';
-import type { StorageService } from './storage.srv.js';
+import { type XmlProccessService } from '@services/xml.proccess.srv.js';
+import type { VoucherServiceSri } from '@services/voucher.srv.sri.js';
+import type { StorageService } from '@services/storage.srv.js';
+import type { ValidationResult } from '@dtos/validation.result.js';
+import type { ENVIROMENT_TYPE } from '@enums/enviroment.type.js';
+import type { InvoiceDTO } from '@dtos/invoice.dto.js';
+import type { CompanyRepository } from '@repository/company.repository.js';
 
-
-export class InvoiceSriService {
-
-    private readonly logger = log4js.getLogger('InvoiceSriService');
-
-
+export class VoucherServiceSriImpl implements VoucherServiceSri {
+    private readonly logger = log4js.getLogger('VoucherServiceSriImpl');
     constructor(
         private readonly _xmlProccessService: XmlProccessService,
-        private readonly _storageService: StorageService) {
-
-    }
+        private readonly _companyRepository: CompanyRepository,
+        private readonly _storageService: StorageService
+    ) { }
 
     /**
      * Ejecuta el flujo completo:
@@ -24,23 +23,23 @@ export class InvoiceSriService {
      * 3. Validar XML
      * 4. Autorizar comprobante
      */
-    executeInvoice = async (companyId: string, env: string, invoiceData: any): Promise<void> => {
-        this.logger.info(`🚀 Iniciando proceso de facturación SRI para la empresa: ${companyId} en entorno ${env}`);
+    executeInvoice = async (companyId: string, enviromentType: ENVIROMENT_TYPE, invoiceData: InvoiceDTO): Promise<void> => {
+        this.logger.info(`🚀 Iniciando proceso de facturación SRI para la empresa: ${companyId} en entorno ${enviromentType}`);
 
         try {
 
-            const ENVIROMENT_TO_EXECUTE = env === 'prod' ? ENVIRONMENT.PRODUCCION : ENVIRONMENT.PRUEBAS;
+            this.logger.debug(`Fetching company data for companyId: ${companyId}`);
+            const company = await this._companyRepository.findById({ companyId });
+            if (!company) {
+                throw new Error(`Company with ID ${companyId} not found.`);
+            }
 
-            invoiceData.factura.ambiente = ENVIROMENT_TO_EXECUTE;
-            invoiceData.factura.ruc = companyId;
-
-            const password = invoiceData.factura.signature;
-
-            const invoice = InvoiceMapper.toInvoiceSriModel(invoiceData);
+            // TO-DO: Retrieve password securely
+            const password = company.signaturePassword;
 
             // === 1. Generar XML ===
             const { xml, accessKey } =
-                await this._xmlProccessService.generateInvoiceXML(invoice);
+                await this._xmlProccessService.generateInvoiceXML(companyId, invoiceData, enviromentType);
             const claveAcceso = accessKey as string;
 
             await this._storageService.writeGeneratedVoucher(companyId,
@@ -67,9 +66,9 @@ export class InvoiceSriService {
             const signedXmlBuffer = await this._storageService.readSignedVoucher(companyId, claveAcceso);
 
             // === 3. Validar XML firmado ===
-            const validationResult = await this._xmlProccessService.validateXML(
+            const validationResult : ValidationResult = await this._xmlProccessService.validateXML(
                 signedXmlBuffer,
-                ENVIROMENT_TO_EXECUTE
+                enviromentType
             );
 
             if (!validationResult || validationResult.estado !== 'RECIBIDA') {
@@ -84,7 +83,7 @@ export class InvoiceSriService {
             // === 4. Autorizar comprobante ===
             const authorization: any = await this._xmlProccessService.authorizeXML(
                 claveAcceso,
-                ENVIROMENT_TO_EXECUTE
+                enviromentType
             );
 
             this.logger.debug(`authorization response: ${JSON.stringify(authorization)}`);
@@ -107,18 +106,16 @@ export class InvoiceSriService {
         }
     }
 
-    authorizeInvoice = async (companyId: string, env: string, accessKey: string): Promise<void> => {
-        this.logger.info(`🚀 Iniciando proceso de autorización SRI para la empresa: ${companyId} en entorno ${env} con clave de acceso: ${accessKey}`);
+    authorizeVoucher = async (companyId: string, enviromentType: ENVIROMENT_TYPE, accessKey: string): Promise<void> => {
+        this.logger.info(`🚀 Iniciando proceso de autorización SRI para la empresa: ${companyId} en entorno ${enviromentType} con clave de acceso: ${accessKey}`);
         try {
-
-            const ENVIROMENT_TO_EXECUTE = env === 'prod' ? ENVIRONMENT.PRODUCCION : ENVIRONMENT.PRUEBAS;
 
             this.logger.debug(`Iniciando autorización del comprobante...`);
 
             // === 4. Autorizar comprobante ===
             const authorization: any = await this._xmlProccessService.authorizeXML(
                 accessKey,
-                ENVIROMENT_TO_EXECUTE
+                enviromentType
             );
 
             this.logger.debug(`authorization response: ${JSON.stringify(authorization)}`);

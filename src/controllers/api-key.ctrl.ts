@@ -1,11 +1,13 @@
 import type { Request, Response, NextFunction } from "express";
 
-import { CompanyService } from "@services/company.srv.js";
+
+import { CompanyServiceImpl } from "@services/impl/company.srv.impl.js";
+import { CompanyRepository } from "@repository/company.repository.js";
 
 
 export const checkApiKey = async (req: Request, res: Response, next: NextFunction) => {
 
-    const companyService = new CompanyService();
+    const companyService = new CompanyServiceImpl(new CompanyRepository());
 
     const apiKey = req.header('X-API-Key');
     

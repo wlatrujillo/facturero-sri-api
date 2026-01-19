@@ -17,7 +17,7 @@ export class CompanyRepository {
         this.docClient = DynamoDBDocumentClient.from(this.client);
     }
 
-    findById = async (key: {companyId: string}) => {
+    findById = async (key: {companyId: string}) : Promise<ICompany | null> => {
 
         const getCommand = new GetCommand({
             TableName: TABLE_NAME,
@@ -26,11 +26,11 @@ export class CompanyRepository {
 
         const result = await this.docClient.send(getCommand);
 
-        return result.Item;
+        return result.Item as ICompany || null;
 
     }
 
-    insert = async (company: ICompany) => {
+    insert = async (company: ICompany) : Promise<void> => {
 
 
 

@@ -2,18 +2,16 @@
 import type { Request, Response } from 'express';
 import log4js from 'log4js';
 
-import { CompanyService } from "@services/company.srv.js";
+import type { CompanyService } from '@services/company.srv.js';
 
 
 const logger = log4js.getLogger("CompanyController");
 
 export class CompanyController {
 
-    private companyService: CompanyService;
 
-    constructor() {
+    constructor(private readonly companyService: CompanyService) {
         logger.debug('CompanyController initialized');
-        this.companyService = new CompanyService();
     }
 
     getCompanyInfo = async (req: Request, res: Response) => {

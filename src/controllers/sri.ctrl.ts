@@ -1,9 +1,10 @@
 
+import type { VoucherServiceSri } from '@services/voucher.srv.sri.js';
 import type { Request, Response } from 'express';
 
 import log4js from 'log4js';
 
-import { InvoiceSriService } from '@services/invoice.sri.srv.js';
+
 
 const logger = log4js.getLogger("SriController");
 /**
@@ -13,7 +14,7 @@ const logger = log4js.getLogger("SriController");
 export class SriController {
 
 
-  constructor(private readonly _invoiceSriService: InvoiceSriService) {
+  constructor(private readonly voucherServiceSri: VoucherServiceSri) {
     logger.debug('SriController initialized');
   }
 
@@ -29,7 +30,7 @@ export class SriController {
 
       logger.info(`Received invoice data for companyId: ${companyId} in env: ${env}`);
 
-      await this._invoiceSriService.executeInvoice(companyId, env, invoiceData);
+      await this.voucherServiceSri.executeInvoice(companyId, env, invoiceData);
      
       res.status(200).send({
         message: "Invoice processed successfully",
@@ -65,7 +66,7 @@ export class SriController {
 
       logger.info(`Received invoice data for authorization for companyId: ${companyId} in env: ${env}`);
 
-      await this._invoiceSriService.authorizeInvoice(companyId, env, accessKey);
+      await this.voucherServiceSri.authorizeVoucher(companyId, env, accessKey);
 
       res.status(200).send({
         message: "Invoice authorized successfully",

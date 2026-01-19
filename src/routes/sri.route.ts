@@ -1,7 +1,7 @@
 
 
 import { SriController } from '@controllers/index.js';
-import type { InvoiceSriService } from '@services/invoice.sri.srv.js';
+import type { VoucherServiceSri } from '@services/voucher.srv.sri.js';
 import { Router } from 'express';
 
 export class SriRoutes {
@@ -9,9 +9,9 @@ export class SriRoutes {
     router: Router;
     ctrl: SriController;
 
-    constructor(invoiceSriService: InvoiceSriService) {
+    constructor(private readonly voucherServiceSri: VoucherServiceSri) {
         this.router = Router();
-        this.ctrl = new SriController(invoiceSriService);
+        this.ctrl = new SriController(this.voucherServiceSri);
         this.routes();
     }
 

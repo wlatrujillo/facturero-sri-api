@@ -1,8 +1,9 @@
+import type { InvoiceDTO } from "@dtos/invoice.dto.js";
 import { type Invoice, type Impuesto, IDENTIFICATION } from "facturero-sri-signer";
 
 export class InvoiceMapper {
 
-    static toInvoiceSriModel(invoiceData: any): Invoice {
+    static toInvoiceSriModel(invoiceData: InvoiceDTO): Invoice {
         const invoiceModel = {} as Invoice;
         invoiceModel.infoTributaria = this.toInfoTributaria(invoiceData.factura);
         invoiceModel.infoFactura = this.toInfoFactura(invoiceData.factura);
@@ -33,9 +34,6 @@ export class InvoiceMapper {
         data.pagos ??= [];
 
         let issueDate: Date = new Date();
-
-        console.log('Fecha Emision:', data.fechaEmision);
-        console.log('Tipo de Fecha Emision:', typeof data.fechaEmision);
 
         if (data.fechaEmision && data.fechaEmision instanceof Date) {
             issueDate = data.fechaEmision;

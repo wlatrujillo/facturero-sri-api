@@ -44,7 +44,9 @@
       "@routes/*": ["routes/*"],
       "@model/*": ["model/*"],
       "@repository/*": ["repository/*"],
-      "@mappers/*": ["mappers/*"]
+      "@mappers/*": ["mappers/*"],
+      "@dtos/*": ["dtos/*"],
+      "@enums/*": ["enums/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

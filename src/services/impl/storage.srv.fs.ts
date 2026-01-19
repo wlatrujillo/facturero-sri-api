@@ -1,7 +1,7 @@
 import log4js from 'log4js';
 import { Buffer } from 'buffer';
 
-import type { StorageService } from './storage.srv.js';
+import type { StorageService } from '../storage.srv.js';
 import type { FsRepository } from '@repository/fs.repository.js';
 
 const logger = log4js.getLogger("StorageService");

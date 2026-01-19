@@ -2,7 +2,7 @@ import log4js from 'log4js';
 import { Buffer } from 'buffer';
 
 import { S3Repository } from "@repository/s3.repository.js";
-import type { StorageService } from './storage.srv.js';
+import type { StorageService } from '@services/storage.srv.js';
 
 const logger = log4js.getLogger("StorageService");
 export class S3StorageService implements StorageService{

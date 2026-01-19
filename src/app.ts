@@ -16,12 +16,12 @@ import CompanyRoutes from '@routes/company.route.js';
 import { checkApiKey } from '@controllers/api-key.ctrl.js';
 
 //Repositories and Services
-import { S3Repository } from '@repository/s3.repository.js';
-import { S3StorageService } from '@services/s3.storage.srv.js';
-import { XmlProccessService } from '@services/xml-proccess.srv.js';
-import { InvoiceSriService } from '@services/invoice.sri.srv.js';
-import { FsStorageService } from '@services/fs.storage.srv.js';
+import { FsStorageService } from '@services/impl/storage.srv.fs.js';
 import { FsRepository } from '@repository/fs.repository.js';
+import { CompanyRepository } from '@repository/company.repository.js';
+import { CompanyServiceImpl } from '@services/impl/company.srv.impl.js';
+import { VoucherServiceSriImpl } from '@services/impl/voucher.srv.sri.impl.js';
+import { XmlProccessServiceFacturero } from '@services/impl/xml.process.srv.facturero.js';
 
 
 class App {
@@ -37,12 +37,13 @@ class App {
 
     private routes(): void {
 
-        const invoiceSriService = new InvoiceSriService(new XmlProccessService(), new FsStorageService(new FsRepository()));
+        const voucherServiceSri = new VoucherServiceSriImpl(new XmlProccessServiceFacturero(), new CompanyRepository(), new FsStorageService(new FsRepository()));
+        const companyService = new CompanyServiceImpl(new CompanyRepository());
 
         this.app.get("/", (req, res) => res.render("index", { layout: false, link: "https://facturero-digital.com" }));
         this.app.get("/api/health", (req, res) => res.status(200).send("OK"));
-        this.app.use('/api/company', new CompanyRoutes().router);
-        this.app.use('/api/sri', [checkApiKey], new SriRoutes(invoiceSriService).router);
+        this.app.use('/api/company', new CompanyRoutes(companyService).router);
+        this.app.use('/api/sri', [checkApiKey], new SriRoutes(voucherServiceSri).router);
 
     }
 
