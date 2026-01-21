@@ -11,7 +11,7 @@ import { ENVIRONMENT_TYPE } from "@enums/environment.type.js";
 
 import type { InvoiceDTO } from "@dtos/invoice.dto.js";
 import type { VoucherResponse } from "@dtos/voucher.response.js";
-import { VoucherStatus } from "@enums/voucher.status.js";
+import { VOUCHER_STATUS } from "@enums/voucher.status.js";
 
 
 export class XmlProccessServiceFacturero implements XmlProccessService {
@@ -38,7 +38,7 @@ export class XmlProccessServiceFacturero implements XmlProccessService {
     return {
       xml: generateInvoiceXMLResponse.xml,
       accessKey: generateInvoiceXMLResponse.accessKey,
-      status: VoucherStatus.GENERATED,
+      status: VOUCHER_STATUS.GENERATED,
       errors: []
     };
     
