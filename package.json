@@ -33,7 +33,6 @@
     "express-handlebars": "^8.0.4",
     "install": "^0.13.0",
     "log4js": "^6.9.1",
-    "osodreamer-sri-xml-signer": "^0.1.2",
-    "facturero-sri-signer": "file:../facturero-sri-signer"
+    "facturero-sri-signer": "^1.0.0"
   }
 }
