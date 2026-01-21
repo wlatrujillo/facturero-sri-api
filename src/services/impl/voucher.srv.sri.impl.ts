@@ -7,12 +7,15 @@ import type { ValidationResult } from '@dtos/validation.result.js';
 import type { ENVIROMENT_TYPE } from '@enums/enviroment.type.js';
 import type { InvoiceDTO } from '@dtos/invoice.dto.js';
 import type { CompanyRepository } from '@repository/company.repository.js';
+import type { VoucherRepository } from '@repository/voucher.repository.js';
+import { VoucherStatus } from '@enums/voucher.status.js';
 
 export class VoucherServiceSriImpl implements VoucherServiceSri {
     private readonly logger = log4js.getLogger('VoucherServiceSriImpl');
     constructor(
         private readonly _xmlProccessService: XmlProccessService,
         private readonly _companyRepository: CompanyRepository,
+        private readonly _voucherRepository: VoucherRepository,
         private readonly _storageService: StorageService
     ) { }
 
@@ -45,10 +48,20 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             await this._storageService.writeGeneratedVoucher(companyId,
                 claveAcceso,
                 Buffer.from(xml));
+
+            this._voucherRepository.insert({
+                companyId: companyId,
+                key: claveAcceso,
+                xml: xml,
+                status: VoucherStatus.GENERATED,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+            
             this.logger.info(`📄 XML generado correctamente:`);
 
             this.logger.debug(`reading necessary files for signing and authorization...: claveAcceso: ${claveAcceso}, companyId: ${companyId}`);
-            //const p12Buffer = await this._storageService.readCertificateP12(companyId);
+
             const p12Buffer = await this._storageService.readCertificateP12(companyId);
 
             const xmlBuffer = await this._storageService.readGeneratedVoucher(companyId, claveAcceso);

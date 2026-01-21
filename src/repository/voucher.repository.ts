@@ -43,4 +43,12 @@ export class VoucherRepository {
         return result.Item;
 
     }
+
+    findByVoucherSequence = async (companyId: string, voucherSequence: string) => {
+        // Implementation for finding a voucher by sequence goes here
+        this.logger.debug(`Finding voucher for companyId: ${companyId} with voucherSequence: ${voucherSequence}`);
+        // As we don't have a direct index on voucherSequence, this is a placeholder for actual implementation.
+        // In a real scenario, you would use a Query operation with a GSI or scan the table (not recommended for production).
+        throw new Error("Method not implemented.");
+    }
 }

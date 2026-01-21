@@ -17,11 +17,11 @@ import { checkApiKey } from '@controllers/api-key.ctrl.js';
 
 //Repositories and Services
 import { FsStorageService } from '@services/impl/storage.srv.fs.js';
-import { FsRepository } from '@repository/fs.repository.js';
 import { CompanyRepository } from '@repository/company.repository.js';
 import { CompanyServiceImpl } from '@services/impl/company.srv.impl.js';
 import { VoucherServiceSriImpl } from '@services/impl/voucher.srv.sri.impl.js';
 import { XmlProccessServiceFacturero } from '@services/impl/xml.process.srv.facturero.js';
+import { VoucherRepository } from '@repository/voucher.repository.js';
 
 
 class App {
@@ -37,7 +37,12 @@ class App {
 
     private routes(): void {
 
-        const voucherServiceSri = new VoucherServiceSriImpl(new XmlProccessServiceFacturero(), new CompanyRepository(), new FsStorageService(new FsRepository()));
+        const voucherServiceSri = new VoucherServiceSriImpl(
+            new XmlProccessServiceFacturero(),
+            new CompanyRepository(),
+            new VoucherRepository(),
+            new FsStorageService());
+
         const companyService = new CompanyServiceImpl(new CompanyRepository());
 
         this.app.get("/", (req, res) => res.render("index", { layout: false, link: "https://facturero-digital.com" }));
