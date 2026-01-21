@@ -1,6 +1,7 @@
-export enum VoucherStatus {
+export enum VOUCHER_STATUS {
     GENERATED = 'GENERATED',
     SIGNED = 'SIGNED',
+    VALIDATED = 'VALIDATED',
     AUTHORIZED = 'AUTHORIZED',
     REJECTED = 'REJECTED',
     ERROR = 'ERROR'

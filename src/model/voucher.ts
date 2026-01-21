@@ -1,11 +1,11 @@
-import type { VoucherStatus } from "@enums/voucher.status.js";
+import type { VOUCHER_STATUS } from "@enums/voucher.status.js";
 
 export interface IVoucher {
     companyId: string;
     key: string;
     accessKey?: string;
     xml: string;
-    status: VoucherStatus;
+    status: VOUCHER_STATUS;
     createdAt: string;  
     updatedAt: string;
 }

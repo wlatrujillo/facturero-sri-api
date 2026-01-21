@@ -2,7 +2,7 @@
 import type { InvoiceDTO } from "@dtos/invoice.dto.js";
 import type { ValidationResult } from "@dtos/validation.result.js";
 import type { VoucherResponse } from "@dtos/voucher.response.js";
-import type { ENVIROMENT_TYPE } from "@enums/enviroment.type.js";
+import type { ENVIROMENT_TYPE } from "@enums/environment.type.js";
 
 export interface XmlProccessService {
 

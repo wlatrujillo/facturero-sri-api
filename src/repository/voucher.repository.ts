@@ -1,9 +1,14 @@
 import log4js from 'log4js';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, GetCommand, type PutCommandOutput, type GetCommandOutput } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand, type PutCommandOutput, type GetCommandOutput } from "@aws-sdk/lib-dynamodb";
 import type { IVoucher } from '@model/voucher.js';
+import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
+import { VOUCHER_TYPE } from '@enums/voucher.type.js';
+import { VOUCHER_STATUS } from '@enums/voucher.status.js';
+import type { IVoucherKey } from '@model/voucher.key.js';
 
 const TABLE_NAME = 'facturero-vouchers';
+const TABLE_NAME_TEST = 'facturero-vouchers-test';
 
 export class VoucherRepository {
     // Repository methods will be defined here
@@ -16,39 +21,61 @@ export class VoucherRepository {
         this.docClient = DynamoDBDocumentClient.from(this.client);
     }
 
-    insert = async (voucher: IVoucher) => {
+    insert = async (voucher: IVoucher, env: ENVIRONMENT_TYPE) : Promise<IVoucher> => {
         // Implementation for inserting a voucher goes here
         const putCommand = new PutCommand({
-            TableName: TABLE_NAME,
+            TableName: env === ENVIRONMENT_TYPE.TEST ? TABLE_NAME_TEST : TABLE_NAME,
             Item: voucher,
             ConditionExpression: "attribute_not_exists(companyId) AND attribute_not_exists(key)" // Prevent overwriting existing item,
         });
 
         const result: PutCommandOutput = await this.docClient.send(putCommand);
 
-        return result;
+        return voucher;
 
     }
 
-    findById = async (key: { companyId: string, key: string }) => {
+    updateStatus = async (key: IVoucherKey, status: VOUCHER_STATUS, env: ENVIRONMENT_TYPE) : Promise<void> => {
+        // Implementation for updating a voucher status goes here
+        // This is a placeholder implementation. Actual implementation may vary.
+        this.logger.debug(`Updating voucher status for companyId: ${key.companyId}, key: ${key.sequence}`);
+
+        const updateCommand = new UpdateCommand({
+            TableName: env === ENVIRONMENT_TYPE.TEST ? TABLE_NAME_TEST : TABLE_NAME,
+            Key: {
+                companyId: key.companyId,
+                key: `#${key.voucherType}#${key.sequence}`
+            },
+            UpdateExpression: `SET #status = :status, updatedAt = :updatedAt`,
+            ConditionExpression: "attribute_exists(companyId)",
+            ExpressionAttributeNames: {
+                "#status": "status"
+            },
+            ExpressionAttributeValues: {
+                ":status": status,
+                ":updatedAt": new Date().toISOString()
+            },
+            ReturnValues: "ALL_NEW"
+        });
+
+        await this.docClient.send(updateCommand);
+
+    }
+
+    findById = async (key: IVoucherKey, env: ENVIRONMENT_TYPE) : Promise<IVoucher | undefined> => {
         // Implementation for finding a voucher by ID goes here
 
         const command = new GetCommand({
-            TableName: TABLE_NAME,
-            Key: key
+            TableName: env === ENVIRONMENT_TYPE.TEST ? TABLE_NAME_TEST : TABLE_NAME,
+            Key: {
+                companyId: key.companyId,
+                key: `#${key.voucherType}#${key.sequence}`
+            }
         });
 
         const result: GetCommandOutput = await this.docClient.send(command);
 
-        return result.Item;
+        return result.Item as IVoucher | undefined;
 
-    }
-
-    findByVoucherSequence = async (companyId: string, voucherSequence: string) => {
-        // Implementation for finding a voucher by sequence goes here
-        this.logger.debug(`Finding voucher for companyId: ${companyId} with voucherSequence: ${voucherSequence}`);
-        // As we don't have a direct index on voucherSequence, this is a placeholder for actual implementation.
-        // In a real scenario, you would use a Query operation with a GSI or scan the table (not recommended for production).
-        throw new Error("Method not implemented.");
     }
 }
