@@ -30,23 +30,23 @@ import { SriTestRoutes } from '@routes/sri.test.route.js';
 
 // Configuración de Swagger
 const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0', // Especificar la versión de OpenAPI
-    info: {
-      title: 'Facturero SRI API',
-      version: '1.0.0',
-      description: 'Documentación de Facturero SRI API',
+    definition: {
+        openapi: '3.0.0', // Especificar la versión de OpenAPI
+        info: {
+            title: 'Facturero SRI API',
+            version: '1.0.0',
+            description: 'Documentación de Facturero SRI API',
+        },
+        servers: [
+            {
+                url: 'https://sri.facturero-digital.com',
+            },
+            {
+                url: 'http://localhost:8080',
+            }
+        ],
     },
-    servers: [
-      {
-        url: 'http://localhost:8080', // URL de tu API
-      },
-       {
-        url: 'https://sri.facturero-digital.com', // URL de tu API
-      },
-    ],
-  },
-  apis: ['./src/routes/*.ts', './src/dtos/*.ts'], // Ruta a tus archivos de rutas y DTOs donde se documenta la API
+    apis: ['./src/routes/*.ts', './src/dtos/*.ts'], // Ruta a tus archivos de rutas y DTOs donde se documenta la API
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
