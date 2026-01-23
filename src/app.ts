@@ -38,7 +38,6 @@ class App {
 
     private routes(): void {
 
-
         const voucherServiceSri = new VoucherServiceSriImpl(
             new XmlProccessServiceFacturero(ENVIRONMENT_TYPE.LIVE),
             new CompanyRepository(),
