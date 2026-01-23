@@ -5,7 +5,8 @@ import { S3Client, GetObjectCommand, PutObjectCommand, type GetObjectCommandOutp
 import type { StorageService } from '@services/storage.srv.js';
 import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 
-const BUCKET_NAME = process.env.BUCKET_NAME || "dev-facturero-storage";
+const BUCKET_NAME = process.env.BUCKET_NAME || "facturero-storage";
+const BUCKET_NAME_TEST = process.env.BUCKET_NAME_TEST || "facturero-storage-test";
 
 const logger = log4js.getLogger("S3StorageService");
 export class S3StorageService implements StorageService {
@@ -16,9 +17,13 @@ export class S3StorageService implements StorageService {
     private readonly certDir = 'certs';
 
     private s3Client: S3Client;
+    private readonly bucketName: string;
 
-    constructor(private readonly env: ENVIRONMENT_TYPE = ENVIRONMENT_TYPE.TEST) {
-        this.s3Client = new S3Client({ region: "us-east-1" });
+    constructor(
+        private region:string = 'us-east-1', 
+        private readonly env: ENVIRONMENT_TYPE = ENVIRONMENT_TYPE.TEST) {
+        this.s3Client = new S3Client({ region: this.region });
+        this.bucketName = this.env === ENVIRONMENT_TYPE.TEST ? BUCKET_NAME_TEST : BUCKET_NAME;
     }
 
     public async readCertificateP12(companyId: string): Promise<Buffer> {
@@ -115,7 +120,7 @@ export class S3StorageService implements StorageService {
         try {
 
             const command = new PutObjectCommand({
-                Bucket: BUCKET_NAME,
+                Bucket: this.bucketName,
                 Key: this.env == ENVIRONMENT_TYPE.TEST ? `test/${folderName}/${fileName}` : `${folderName}/${fileName}`,
                 Body: fileContent
             });
@@ -130,7 +135,7 @@ export class S3StorageService implements StorageService {
 
         try {
             const command = new GetObjectCommand({
-                Bucket: BUCKET_NAME,
+                Bucket: this.bucketName,
                 Key: this.env == ENVIRONMENT_TYPE.TEST ? `test/${folderName}/${fileName}` : `${folderName}/${fileName}`
             });
             const response: GetObjectCommandOutput = await this.s3Client.send(command);

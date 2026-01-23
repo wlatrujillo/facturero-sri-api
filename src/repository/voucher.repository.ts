@@ -16,8 +16,8 @@ export class VoucherRepository {
     private docClient;
     private tableName: string;
 
-    constructor(private readonly env: ENVIRONMENT_TYPE) {
-        this.client = new DynamoDBClient({ region: "us-east-1" });
+    constructor(private readonly region: string = "us-east-1", private readonly env: ENVIRONMENT_TYPE) {
+        this.client = new DynamoDBClient({ region: this.region });
         this.docClient = DynamoDBDocumentClient.from(this.client);
         this.tableName = this.env === ENVIRONMENT_TYPE.TEST ? TABLE_NAME_TEST : TABLE_NAME;
     }
@@ -45,7 +45,7 @@ export class VoucherRepository {
             TableName: this.tableName,
             Key: {
                 companyId: key.companyId,
-                key: `#${key.voucherType}#${key.sequence}`
+                key: `#${key.voucherType}#${key.establishment}#${key.branch}#${key.sequence}`
             },
             UpdateExpression: `SET #status = :status, updatedAt = :updatedAt`,
             ConditionExpression: "attribute_exists(companyId)",
@@ -70,7 +70,7 @@ export class VoucherRepository {
             TableName: this.tableName,
             Key: {
                 companyId: key.companyId,
-                key: `#${key.voucherType}#${key.sequence}`
+                key: `#${key.voucherType}#${key.establishment}#${key.branch}#${key.sequence}`
             }
         });
 

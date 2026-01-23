@@ -23,6 +23,7 @@ import { VoucherServiceSriImpl } from '@services/impl/voucher.srv.sri.impl.js';
 import { XmlProccessServiceFacturero } from '@services/impl/xml.process.srv.facturero.js';
 import { VoucherRepository } from '@repository/voucher.repository.js';
 import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
+import { S3StorageService } from '@services/impl/storage.srv.s3.js';
 
 
 class App {
@@ -38,19 +39,21 @@ class App {
 
     private routes(): void {
 
+        const region = process.env.AWS_REGION || "us-east-1";
+
         const voucherServiceSri = new VoucherServiceSriImpl(
             new XmlProccessServiceFacturero(ENVIRONMENT_TYPE.LIVE),
-            new CompanyRepository(),
-            new VoucherRepository(ENVIRONMENT_TYPE.LIVE),
-            new FsStorageService(ENVIRONMENT_TYPE.LIVE));
+            new CompanyRepository(region),
+            new VoucherRepository(region, ENVIRONMENT_TYPE.LIVE),
+            new S3StorageService(region, ENVIRONMENT_TYPE.LIVE));
 
         const voucherServiceSriTest = new VoucherServiceSriImpl(
             new XmlProccessServiceFacturero(ENVIRONMENT_TYPE.TEST),
-            new CompanyRepository(),
-            new VoucherRepository(ENVIRONMENT_TYPE.TEST),
+            new CompanyRepository(region),
+            new VoucherRepository(region, ENVIRONMENT_TYPE.TEST),
             new FsStorageService(ENVIRONMENT_TYPE.TEST));
 
-        const companyService = new CompanyServiceImpl(new CompanyRepository());
+        const companyService = new CompanyServiceImpl(new CompanyRepository(region));
 
         this.app.get("/", (req, res) => res.render("index", { layout: false, link: "https://facturero-digital.com" }));
         this.app.get("/api/health", (req, res) => res.status(200).send("OK"));

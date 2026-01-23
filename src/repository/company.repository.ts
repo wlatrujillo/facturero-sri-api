@@ -12,8 +12,8 @@ export class CompanyRepository {
     private client;
     private docClient;
 
-    constructor() {
-        this.client = new DynamoDBClient({ region: "us-east-1" });
+    constructor(private readonly region: string = "us-east-1") {
+        this.client = new DynamoDBClient({ region: this.region });
         this.docClient = DynamoDBDocumentClient.from(this.client);
     }
 

@@ -43,6 +43,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             const voucherKey: IVoucherKey = {
                 companyId: companyId,
                 voucherType: VOUCHER_TYPE.INVOICE,
+                establishment: invoiceData.factura.estab,
+                branch: invoiceData.factura.ptoEmi,
                 sequence: invoiceData.factura.secuencial
             };
 

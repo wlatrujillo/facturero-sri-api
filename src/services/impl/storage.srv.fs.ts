@@ -6,6 +6,7 @@ import type { StorageService } from '../storage.srv.js';
 import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 
 const BASE_DIR = './facturero_storage';
+const BASE_DIR_TEST = './facturero_storage_test';
 
 const logger = log4js.getLogger("StorageService");
 export class FsStorageService implements StorageService {
@@ -19,7 +20,7 @@ export class FsStorageService implements StorageService {
 
     constructor(private readonly env: ENVIRONMENT_TYPE = ENVIRONMENT_TYPE.TEST) {
 
-        this.baseDir = env === ENVIRONMENT_TYPE.TEST ? `${BASE_DIR}/test` : BASE_DIR;
+        this.baseDir = env === ENVIRONMENT_TYPE.TEST ? BASE_DIR_TEST : BASE_DIR;
         
         if (!fs.existsSync(this.baseDir)) {
             fs.mkdirSync(this.baseDir, { recursive: true });
