@@ -4,6 +4,8 @@ import { dirname } from 'path';
 
 //external libs
 import express from 'express';
+import swaggerJsDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 import type { Application } from 'express';
 import bodyParser from 'body-parser';
 import { engine } from 'express-handlebars';
@@ -25,6 +27,29 @@ import { VoucherRepository } from '@repository/voucher.repository.js';
 import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 import { S3StorageService } from '@services/impl/storage.srv.s3.js';
 
+// Configuración de Swagger
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0', // Especificar la versión de OpenAPI
+    info: {
+      title: 'Facturero SRI API',
+      version: '1.0.0',
+      description: 'Documentación de Facturero SRI API',
+    },
+    servers: [
+      {
+        url: 'http://localhost:8080', // URL de tu API
+      },
+       {
+        url: 'https://sri.facturero-digital.com', // URL de tu API
+      },
+    ],
+  },
+  apis: ['./src/routes/*.ts', './src/dtos/*.ts'], // Ruta a tus archivos de rutas y DTOs donde se documenta la API
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+
 
 class App {
 
@@ -38,6 +63,10 @@ class App {
     }
 
     private routes(): void {
+
+
+        // Rutas de Swagger
+        this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
         const region = process.env.AWS_REGION || "us-east-1";
 

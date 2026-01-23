@@ -5,7 +5,7 @@ import type { VoucherServiceSri } from '@services/voucher.srv.sri.js';
 import type { StorageService } from '@services/storage.srv.js';
 import type { ValidationResult } from '@dtos/validation.result.js';
 import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
-import type { InvoiceDTO } from '@dtos/invoice.dto.js';
+import type { AddInvoiceRequest } from '@dtos/add.invoice.request.js';
 import type { CompanyRepository } from '@repository/company.repository.js';
 import type { VoucherRepository } from '@repository/voucher.repository.js';
 import { VOUCHER_STATUS } from '@enums/voucher.status.js';
@@ -19,7 +19,6 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         private readonly _companyRepository: CompanyRepository,
         private readonly _voucherRepository: VoucherRepository,
         private readonly _storageService: StorageService,
-        private readonly _env: ENVIRONMENT_TYPE = ENVIRONMENT_TYPE.TEST
     ) { }
 
     /**
@@ -29,8 +28,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
      * 3. Validar XML
      * 4. Autorizar comprobante
      */
-    executeInvoice = async (companyId: string, invoiceData: InvoiceDTO): Promise<void> => {
-        this.logger.info(`🚀 Iniciando proceso de facturación SRI para la empresa: ${companyId} en entorno ${this._env}`);
+    executeInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<void> => {
+        this.logger.info(`🚀 Iniciando proceso de facturación SRI para la empresa: ${companyId} en entorno ${env}`);
 
         try {
 
@@ -54,7 +53,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                 this.logger.debug(`No existing voucher found. Generating new XML for invoice sequence: ${invoiceData.factura.secuencial}`);
                 // === 1. Generar XML ===
                 const { xml, accessKey } =
-                    await this._xmlProccessService.generateInvoiceXML(companyId, invoiceData, this._env);
+                    await this._xmlProccessService.generateInvoiceXML(companyId, env, invoiceData);
                 const claveAcceso = accessKey as string;
 
                 await this._storageService.writeGeneratedVoucher(companyId,
@@ -110,8 +109,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
 
                 const validationResult: ValidationResult = await this._xmlProccessService.validateXML(
-                    signedXmlBuffer,
-                    this._env
+                    env,
+                    signedXmlBuffer
                 );
 
                 if (!validationResult || validationResult.estado !== 'RECIBIDA') {
@@ -130,8 +129,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
                 // === 4. Autorizar comprobante ===
                 const authorization: any = await this._xmlProccessService.authorizeXML(
-                    voucherGenerated.accessKey || '',
-                    this._env
+                    env,
+                    voucherGenerated.accessKey || ''
                 );
 
                 this.logger.debug(`authorization response: ${JSON.stringify(authorization)}`);
@@ -159,16 +158,16 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         }
     }
 
-    authorizeVoucher = async (companyId: string, accessKey: string): Promise<void> => {
-        this.logger.info(`🚀 Iniciando proceso de autorización SRI para la empresa: ${companyId} en entorno ${this._env} con clave de acceso: ${accessKey}`);
+    authorizeVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<void> => {
+        this.logger.info(`🚀 Iniciando proceso de autorización SRI para la empresa: ${companyId} en entorno ${env} con clave de acceso: ${accessKey}`);
         try {
 
             this.logger.debug(`Iniciando autorización del comprobante...`);
 
             // === 4. Autorizar comprobante ===
             const authorization: any = await this._xmlProccessService.authorizeXML(
-                accessKey,
-                this._env
+                env,
+                accessKey
             );
 
             this.logger.debug(`authorization response: ${JSON.stringify(authorization)}`);
