@@ -1,6 +1,7 @@
 
 import type { AddInvoiceRequest } from '@dtos/add.invoice.request.js';
 import type { AddVoucherResponse } from '@dtos/add.voucher.response.js';
+import type { AuthVoucherResponse } from '@dtos/auth.voucher.response.js';
 import type { VoucherResponse } from '@dtos/voucher.response.js';
 import type { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 import type { VoucherServiceSri } from '@services/voucher.srv.sri.js';
@@ -77,8 +78,7 @@ export class SriController {
 
       const serviceResponse: VoucherResponse = await this.voucherServiceSri.authorizeVoucher(companyId, environment as ENVIRONMENT_TYPE, accessKey);
 
-      const response: AddVoucherResponse = {
-        accessKey: serviceResponse.accessKey,
+      const response: AuthVoucherResponse = {
         status: serviceResponse.status,
         errors: serviceResponse.errors
       };

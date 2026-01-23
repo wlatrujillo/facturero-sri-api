@@ -64,12 +64,12 @@ export class SriTestRoutes {
 
         /**
          * @swagger
-         * /api/sri-test/test/invoice/authorize:
+         * /api/sri-test/test/authorize:
          *   put:
-         *     summary: Autoriza una factura electrónica en el ambiente de test del SRI
-         *     description: Envía una solicitud de autorización para una factura electrónica previamente generada
+         *     summary: Autoriza un comprobante electrónico en el ambiente de test del SRI
+         *     description: Envía una solicitud de autorización para un comprobante electrónico previamente generado
          *     tags:
-         *       - Invoice
+         *       - Authorize
          *     parameters:
          *       - in: header
          *         name: X-API-Key
@@ -96,15 +96,17 @@ export class SriTestRoutes {
          *         content:
          *           application/json:
          *             schema:
-         *              $ref: '#/components/schemas/AddVoucherResponse'
+         *              $ref: '#/components/schemas/AuthVoucherResponse'
          *       400:
          *         description: Datos de autorización inválidos
          *       401:
          *         description: API Key no válida o ausente
+         *       404:
+         *         description: Comprobante no encontrado
          *       500:
          *         description: Error interno del servidor
          */
-        this.router.route('/test/invoice/authorize')
+        this.router.route('/test/authorize')
             .put(this.ctrl.authorizeInvoice);
 
 
