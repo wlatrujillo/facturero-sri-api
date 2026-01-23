@@ -164,6 +164,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
             this.logger.debug(`Iniciando autorización del comprobante...`);
 
+            // TOD-DO: Get voucher from repository to check its current status
+
             // === 4. Autorizar comprobante ===
             const authorization: any = await this._xmlProccessService.authorizeXML(
                 env,
@@ -183,6 +185,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             await this._voucherRepository.updateStatus({
                 companyId: companyId,
                 voucherType: VOUCHER_TYPE.INVOICE,
+                branch: '', // TO-DO: Extract branch from accessKey or pass it as parameter
+                establishment: '', // TO-DO: Extract establishment from accessKey or pass it as parameter
                 sequence: '' // TO-DO: Extract sequence from accessKey or pass it as parameter
             }, VOUCHER_STATUS.AUTHORIZED);
 

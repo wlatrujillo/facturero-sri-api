@@ -1,4 +1,6 @@
 
+import type { AddInvoiceRequest } from '@dtos/add.invoice.request.js';
+import type { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 import type { VoucherServiceSri } from '@services/voucher.srv.sri.js';
 import type { Request, Response } from 'express';
 
@@ -20,17 +22,18 @@ export class SriController {
 
   generateInvoice = async (req: Request, res: Response): Promise<void> => {
     logger.debug('generateInvoice called');
+
     try {
 
       const companyId = res.locals.companyId;
 
+      const environment = req.path.includes('/sri-test/') ? 'TEST' : 'LIVE';
 
-      const invoiceData = req.body;
+      const invoiceData: AddInvoiceRequest = req.body;
 
-      logger.info(`Received invoice data for companyId: ${companyId}`);
 
-      await this.voucherServiceSri.executeInvoice(companyId, invoiceData);
-     
+      await this.voucherServiceSri.executeInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
+
       res.status(200).send({
         message: "Invoice processed successfully",
         status: "success"
@@ -51,6 +54,7 @@ export class SriController {
 
       const companyId = res.locals.companyId;
 
+      const environment = req.path.includes('/sri-test/') ? 'TEST' : 'LIVE';
 
       const accessKey = req.body.accessKey;
 
@@ -64,7 +68,7 @@ export class SriController {
 
       logger.info(`Received invoice data for authorization for companyId: ${companyId}`);
 
-      await this.voucherServiceSri.authorizeVoucher(companyId, accessKey);
+      await this.voucherServiceSri.authorizeVoucher(companyId, environment as ENVIRONMENT_TYPE, accessKey);
 
       res.status(200).send({
         message: "Invoice authorized successfully",

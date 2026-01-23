@@ -63,8 +63,8 @@
  *               example: "000000001"
  *             fechaEmision:
  *               type: string
- *               description: Fecha de emisión de la factura (formato dd/MM/yyyy)
- *               example: "23/01/2026"
+ *               description: Fecha de emisión de la factura (formato yyyy/MM/dd)
+ *               example: "2026/01/18"
  *             dirEstablecimiento:
  *               type: string
  *               description: Dirección del establecimiento emisor

@@ -4,7 +4,7 @@ import { SriController } from '@controllers/index.js';
 import type { VoucherServiceSri } from '@services/voucher.srv.sri.js';
 import { Router } from 'express';
 
-export class SriRoutes {
+export class SriTestRoutes {
 
     router: Router;
     ctrl: SriController;
@@ -19,9 +19,9 @@ export class SriRoutes {
 
         /**
          * @swagger
-         * /api/sri/invoice:
+         * /api/sri-test/test/invoice:
          *   post:
-         *     summary: Genera una factura electrónica para el SRI
+         *     summary: Genera una factura electrónica en el ambiente de test del SRI
          *     description: Crea y procesa una factura electrónica según los estándares del SRI ecuatoriano
          *     tags:
          *       - Invoice
@@ -63,14 +63,14 @@ export class SriRoutes {
          *       500:
          *         description: Error interno del servidor
          */
-        this.router.route('/invoice')
+        this.router.route('/test/invoice')
             .post(this.ctrl.generateInvoice);
 
         /**
          * @swagger
-         * /api/sri/invoice/authorize:
+         * /api/sri-test/test/invoice/authorize:
          *   put:
-         *     summary: Autoriza una factura electrónica en el SRI
+         *     summary: Autoriza una factura electrónica en el ambiente de test del SRI
          *     description: Envía una solicitud de autorización para una factura electrónica previamente generada
          *     tags:
          *       - Invoice
@@ -112,7 +112,7 @@ export class SriRoutes {
          *       500:
          *         description: Error interno del servidor
          */
-        this.router.route('/invoice/authorize')
+        this.router.route('/test/invoice/authorize')
             .put(this.ctrl.authorizeInvoice);
 
 
@@ -120,4 +120,4 @@ export class SriRoutes {
     }
 }
 
-export default SriRoutes;
+export default SriTestRoutes;

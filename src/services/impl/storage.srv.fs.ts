@@ -20,7 +20,7 @@ export class FsStorageService implements StorageService {
 
     constructor(private readonly env: ENVIRONMENT_TYPE = ENVIRONMENT_TYPE.TEST) {
 
-        this.baseDir = env === ENVIRONMENT_TYPE.TEST ? BASE_DIR_TEST : BASE_DIR;
+        this.baseDir = this.env === ENVIRONMENT_TYPE.TEST ? BASE_DIR_TEST : BASE_DIR;
         
         if (!fs.existsSync(this.baseDir)) {
             fs.mkdirSync(this.baseDir, { recursive: true });

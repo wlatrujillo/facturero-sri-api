@@ -26,6 +26,7 @@ import { XmlProccessServiceFacturero } from '@services/impl/xml.process.srv.fact
 import { VoucherRepository } from '@repository/voucher.repository.js';
 import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 import { S3StorageService } from '@services/impl/storage.srv.s3.js';
+import { SriTestRoutes } from '@routes/sri.test.route.js';
 
 // Configuración de Swagger
 const swaggerOptions = {
@@ -71,13 +72,13 @@ class App {
         const region = process.env.AWS_REGION || "us-east-1";
 
         const voucherServiceSri = new VoucherServiceSriImpl(
-            new XmlProccessServiceFacturero(ENVIRONMENT_TYPE.LIVE),
+            new XmlProccessServiceFacturero(),
             new CompanyRepository(region),
             new VoucherRepository(region, ENVIRONMENT_TYPE.LIVE),
             new S3StorageService(region, ENVIRONMENT_TYPE.LIVE));
 
         const voucherServiceSriTest = new VoucherServiceSriImpl(
-            new XmlProccessServiceFacturero(ENVIRONMENT_TYPE.TEST),
+            new XmlProccessServiceFacturero(),
             new CompanyRepository(region),
             new VoucherRepository(region, ENVIRONMENT_TYPE.TEST),
             new FsStorageService(ENVIRONMENT_TYPE.TEST));
@@ -88,7 +89,7 @@ class App {
         this.app.get("/api/health", (req, res) => res.status(200).send("OK"));
         this.app.use('/api/company', new CompanyRoutes(companyService).router);
         this.app.use('/api/sri', [checkApiKey], new SriRoutes(voucherServiceSri).router);
-        this.app.use('/api/sri/test', [checkApiKey], new SriRoutes(voucherServiceSriTest).router);
+        this.app.use('/api/sri-test', [checkApiKey], new SriTestRoutes(voucherServiceSriTest).router);
 
     }
 
