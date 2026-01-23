@@ -13,6 +13,8 @@ import { VOUCHER_TYPE } from '@enums/voucher.type.js';
 import type { IVoucherKey } from '@model/voucher.key.js';
 import type { VoucherResponse } from '@dtos/voucher.response.js';
 import { AddVoucherException } from 'exceptions/add.voucher.exception.js';
+import type { AddVoucherResponse } from '@dtos/add.voucher.response.js';
+import type { AuthVoucherResponse } from '@dtos/auth.voucher.response.js';
 
 export class VoucherServiceSriImpl implements VoucherServiceSri {
     private readonly logger = log4js.getLogger('VoucherServiceSriImpl');
@@ -30,9 +32,10 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
      * 3. Validar XML
      * 4. Autorizar comprobante
      */
-    executeInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<VoucherResponse> => {
+    executeInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse> => {
         this.logger.info(`🚀 Iniciando proceso de facturación SRI para la empresa: ${companyId} en entorno ${env}`);
 
+        let addVoucherResponse: AddVoucherResponse = {} as AddVoucherResponse;
 
         try {
 
@@ -72,6 +75,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 });
+
+
 
                 this.logger.info(`📄 XML generado correctamente:`);
             }
@@ -118,7 +123,12 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
                 if (!validationResult || validationResult.estado !== 'RECIBIDA') {
                     this.logger.error(`❌ Error de validación:`, validationResult);
-                    throw new Error(`Error de validación SRI: ${JSON.stringify(validationResult)}`);
+
+                    return addVoucherResponse = {
+                        accessKey: voucherGenerated.accessKey || '',
+                        status: voucherGenerated.status,
+                        errors: validationResult.errors || []
+                    };
                 }
 
                 await this._voucherRepository.updateStatus(voucherKey, VOUCHER_STATUS.VALIDATED);
@@ -141,7 +151,13 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
                 if (!authorization || authorization.estado !== 'AUTORIZADO') {
                     this.logger.error(`❌ Error de autorización:`, authorization);
-                    throw new AddVoucherException(`Error de autorización SRI: ${JSON.stringify(authorization)}`);
+
+
+                    return addVoucherResponse = {
+                        accessKey: voucherGenerated.accessKey || '',
+                        status: voucherGenerated.status,
+                        errors: authorization.errors || []
+                    };
                 }
 
                 await this._storageService.writeAuthorizedVoucher(companyId, voucherGenerated.accessKey || '', Buffer.from(authorization.comprobante));
@@ -155,17 +171,17 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
             this.logger.info("🎉 Proceso completado con éxito.");
 
-            return { xml: voucherGenerated.xml || '', accessKey: voucherGenerated.accessKey || '', status: voucherGenerated.status, errors: [] } as VoucherResponse;
+            return { accessKey: voucherGenerated.accessKey || '', status: voucherGenerated.status, errors: [] } as AddVoucherResponse;
 
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error("❌ Error durante el proceso:", error);
-            throw error;
+            throw new AddVoucherException(`Error en el proceso de facturación SRI: ${error?.message}`);
         }
 
 
     }
 
-    authorizeVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<VoucherResponse> => {
+    authorizeVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<AuthVoucherResponse> => {
         this.logger.info(`🚀 Iniciando proceso de autorización SRI para la empresa: ${companyId} en entorno ${env} con clave de acceso: ${accessKey}`);
         try {
 
@@ -198,7 +214,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             }, VOUCHER_STATUS.AUTHORIZED);
 
             this.logger.info(`🧾 Comprobante autorizado correctamente:`);
-            return { xml: '', accessKey: accessKey, status: VOUCHER_STATUS.AUTHORIZED, errors: [] } as VoucherResponse;
+            return { accessKey: accessKey, status: VOUCHER_STATUS.AUTHORIZED, errors: [] } as AuthVoucherResponse;
         } catch (error) {
             this.logger.error("❌ Error durante el proceso:", error);
             throw error;
