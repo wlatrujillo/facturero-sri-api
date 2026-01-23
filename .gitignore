@@ -3,8 +3,8 @@
 **/logs
 **/dist
 **/lib
-**/facturero_data
 **/facturero_storage
+**/facturero_storage_test
 **/vouchers
 .vscode
 .vscode/*.json
