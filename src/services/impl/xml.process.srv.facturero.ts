@@ -13,24 +13,25 @@ import type { InvoiceDTO } from "@dtos/invoice.dto.js";
 import type { VoucherResponse } from "@dtos/voucher.response.js";
 import { VOUCHER_STATUS } from "@enums/voucher.status.js";
 
-
 export class XmlProccessServiceFacturero implements XmlProccessService {
 
   private voucherGenerator: VoucherGenerator;
   private xmlSigner: XmlSigner;
   private authorizationService: AuthorizationService;
+  private sriEnvironment: ENVIRONMENT;
 
-  constructor() {
+  constructor(private readonly env: ENVIRONMENT_TYPE = ENVIRONMENT_TYPE.TEST) {
     this.voucherGenerator = new VoucherGenerator();
     this.xmlSigner = new XmlSigner();
     this.authorizationService = new AuthorizationService();
+    this.sriEnvironment = this.env === ENVIRONMENT_TYPE.LIVE ? ENVIRONMENT.PRODUCCION : ENVIRONMENT.PRUEBAS;
   }
 
-  async generateInvoiceXML(companyId: string, invoice: InvoiceDTO, environmentType: ENVIRONMENT_TYPE): Promise<VoucherResponse> {
+  async generateInvoiceXML(companyId: string, invoice: InvoiceDTO): Promise<VoucherResponse> {
 
     const invoiceSriModel = InvoiceMapper.toInvoiceSriModel(invoice);
 
-    invoiceSriModel.infoTributaria.ambiente =  environmentType === ENVIRONMENT_TYPE.LIVE ? ENVIRONMENT.PRODUCCION : ENVIRONMENT.PRUEBAS
+    invoiceSriModel.infoTributaria.ambiente =  this.sriEnvironment;
     invoiceSriModel.infoTributaria.ruc = companyId;
 
     const generateInvoiceXMLResponse: InvoiceResponse = await this.voucherGenerator.generateXmlInvoice(invoiceSriModel);
@@ -46,14 +47,12 @@ export class XmlProccessServiceFacturero implements XmlProccessService {
   async signXML(cmd: { xmlBuffer: Buffer, p12Buffer: Buffer, password: string }): Promise<string> {
     return await this.xmlSigner.signXml(cmd.p12Buffer, cmd.password, cmd.xmlBuffer);
   }
-  async validateXML(xml: Buffer, env: ENVIRONMENT_TYPE): Promise<ValidationResult> {
-    const environment = env === ENVIRONMENT_TYPE.LIVE ? ENVIRONMENT.PRODUCCION : ENVIRONMENT.PRUEBAS;
-    return await this.authorizationService.validateXml(environment, xml);
+  async validateXML(xml: Buffer): Promise<ValidationResult> {
+    return await this.authorizationService.validateXml(this.sriEnvironment, xml);
   }
 
-  async authorizeXML(claveAcceso: string, env: ENVIRONMENT_TYPE): Promise<void> {
-    const environment = env === ENVIRONMENT_TYPE.LIVE ? ENVIRONMENT.PRODUCCION : ENVIRONMENT.PRUEBAS;
-    return await this.authorizationService.authorizeXml(environment, claveAcceso); // "test" o "prod"
+  async authorizeXML(claveAcceso: string): Promise<void> {
+    return await this.authorizationService.authorizeXml(this.sriEnvironment, claveAcceso); // "test" o "prod"
   }
 
 }

@@ -4,7 +4,7 @@ import { type XmlProccessService } from '@services/xml.proccess.srv.js';
 import type { VoucherServiceSri } from '@services/voucher.srv.sri.js';
 import type { StorageService } from '@services/storage.srv.js';
 import type { ValidationResult } from '@dtos/validation.result.js';
-import type { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
+import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 import type { InvoiceDTO } from '@dtos/invoice.dto.js';
 import type { CompanyRepository } from '@repository/company.repository.js';
 import type { VoucherRepository } from '@repository/voucher.repository.js';
@@ -18,7 +18,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         private readonly _xmlProccessService: XmlProccessService,
         private readonly _companyRepository: CompanyRepository,
         private readonly _voucherRepository: VoucherRepository,
-        private readonly _storageService: StorageService
+        private readonly _storageService: StorageService,
+        private readonly _env: ENVIRONMENT_TYPE = ENVIRONMENT_TYPE.TEST
     ) { }
 
     /**
@@ -28,8 +29,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
      * 3. Validar XML
      * 4. Autorizar comprobante
      */
-    executeInvoice = async (companyId: string, environmentType: ENVIRONMENT_TYPE, invoiceData: InvoiceDTO): Promise<void> => {
-        this.logger.info(`🚀 Iniciando proceso de facturación SRI para la empresa: ${companyId} en entorno ${environmentType}`);
+    executeInvoice = async (companyId: string, invoiceData: InvoiceDTO): Promise<void> => {
+        this.logger.info(`🚀 Iniciando proceso de facturación SRI para la empresa: ${companyId} en entorno ${this._env}`);
 
         try {
 
@@ -45,13 +46,13 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                 sequence: invoiceData.factura.secuencial
             };
 
-            let voucherGenerated = await this._voucherRepository.findById(voucherKey, environmentType);
+            let voucherGenerated = await this._voucherRepository.findById(voucherKey);
 
             if (!voucherGenerated) {
                 this.logger.debug(`No existing voucher found. Generating new XML for invoice sequence: ${invoiceData.factura.secuencial}`);
                 // === 1. Generar XML ===
                 const { xml, accessKey } =
-                    await this._xmlProccessService.generateInvoiceXML(companyId, invoiceData, environmentType);
+                    await this._xmlProccessService.generateInvoiceXML(companyId, invoiceData, this._env);
                 const claveAcceso = accessKey as string;
 
                 await this._storageService.writeGeneratedVoucher(companyId,
@@ -66,14 +67,14 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                     status: VOUCHER_STATUS.GENERATED,
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
-                }, environmentType);
+                });
 
                 this.logger.info(`📄 XML generado correctamente:`);
             }
 
             if (voucherGenerated.status === VOUCHER_STATUS.GENERATED) {
                 this.logger.debug(`Signing XML for accessKey: ${voucherGenerated.accessKey}`);
-                // === 2. Firmar XML ===∏fo
+                // === 2. Firmar XML ===
 
                 // TO-DO: Retrieve password securely
                 const password = company.signaturePassword;
@@ -92,8 +93,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
                 await this._voucherRepository.updateStatus(
                     voucherKey,
-                    VOUCHER_STATUS.SIGNED,
-                    environmentType);
+                    VOUCHER_STATUS.SIGNED);
 
                 voucherGenerated.status = VOUCHER_STATUS.SIGNED;
 
@@ -109,7 +109,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
                 const validationResult: ValidationResult = await this._xmlProccessService.validateXML(
                     signedXmlBuffer,
-                    environmentType
+                    this._env
                 );
 
                 if (!validationResult || validationResult.estado !== 'RECIBIDA') {
@@ -117,7 +117,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                     throw new Error(`Error de validación SRI: ${JSON.stringify(validationResult)}`);
                 }
 
-                await this._voucherRepository.updateStatus(voucherKey, VOUCHER_STATUS.VALIDATED, environmentType);
+                await this._voucherRepository.updateStatus(voucherKey, VOUCHER_STATUS.VALIDATED);
 
                 voucherGenerated.status = VOUCHER_STATUS.VALIDATED;
 
@@ -129,7 +129,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                 // === 4. Autorizar comprobante ===
                 const authorization: any = await this._xmlProccessService.authorizeXML(
                     voucherGenerated.accessKey || '',
-                    environmentType
+                    this._env
                 );
 
                 this.logger.debug(`authorization response: ${JSON.stringify(authorization)}`);
@@ -142,7 +142,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
                 await this._storageService.writeAuthorizedVoucher(companyId, voucherGenerated.accessKey || '', Buffer.from(authorization.comprobante));
 
-                await this._voucherRepository.updateStatus(voucherKey, VOUCHER_STATUS.AUTHORIZED, environmentType);
+
+                await this._voucherRepository.updateStatus(voucherKey, VOUCHER_STATUS.AUTHORIZED);
 
                 voucherGenerated.status = VOUCHER_STATUS.AUTHORIZED;
 
@@ -156,8 +157,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         }
     }
 
-    authorizeVoucher = async (companyId: string, environmentType: ENVIRONMENT_TYPE, accessKey: string): Promise<void> => {
-        this.logger.info(`🚀 Iniciando proceso de autorización SRI para la empresa: ${companyId} en entorno ${environmentType} con clave de acceso: ${accessKey}`);
+    authorizeVoucher = async (companyId: string, accessKey: string): Promise<void> => {
+        this.logger.info(`🚀 Iniciando proceso de autorización SRI para la empresa: ${companyId} en entorno ${this._env} con clave de acceso: ${accessKey}`);
         try {
 
             this.logger.debug(`Iniciando autorización del comprobante...`);
@@ -165,7 +166,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             // === 4. Autorizar comprobante ===
             const authorization: any = await this._xmlProccessService.authorizeXML(
                 accessKey,
-                environmentType
+                this._env
             );
 
             this.logger.debug(`authorization response: ${JSON.stringify(authorization)}`);
@@ -182,7 +183,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                 companyId: companyId,
                 voucherType: VOUCHER_TYPE.INVOICE,
                 sequence: '' // TO-DO: Extract sequence from accessKey or pass it as parameter
-            }, VOUCHER_STATUS.AUTHORIZED, environmentType);
+            }, VOUCHER_STATUS.AUTHORIZED);
 
             this.logger.info(`🧾 Comprobante autorizado correctamente:`);
         } catch (error) {

@@ -3,6 +3,7 @@ import { Buffer } from 'buffer';
 import { S3Client, GetObjectCommand, PutObjectCommand, type GetObjectCommandOutput } from "@aws-sdk/client-s3";
 
 import type { StorageService } from '@services/storage.srv.js';
+import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 
 const BUCKET_NAME = process.env.BUCKET_NAME || "dev-facturero-storage";
 
@@ -16,7 +17,7 @@ export class S3StorageService implements StorageService {
 
     private s3Client: S3Client;
 
-    constructor() {
+    constructor(private readonly env: ENVIRONMENT_TYPE = ENVIRONMENT_TYPE.TEST) {
         this.s3Client = new S3Client({ region: "us-east-1" });
     }
 
@@ -112,9 +113,10 @@ export class S3StorageService implements StorageService {
     private async writeFile(folderName: string, fileName: string, fileContent: Buffer): Promise<void> {
         // Implementation for uploading a file goes here
         try {
+
             const command = new PutObjectCommand({
                 Bucket: BUCKET_NAME,
-                Key: `${folderName}/${fileName}`,
+                Key: this.env == ENVIRONMENT_TYPE.TEST ? `test/${folderName}/${fileName}` : `${folderName}/${fileName}`,
                 Body: fileContent
             });
             await this.s3Client.send(command);
@@ -129,7 +131,7 @@ export class S3StorageService implements StorageService {
         try {
             const command = new GetObjectCommand({
                 Bucket: BUCKET_NAME,
-                Key: `${folderName}/${fileName}`
+                Key: this.env == ENVIRONMENT_TYPE.TEST ? `test/${folderName}/${fileName}` : `${folderName}/${fileName}`
             });
             const response: GetObjectCommandOutput = await this.s3Client.send(command);
 

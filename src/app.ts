@@ -22,6 +22,7 @@ import { CompanyServiceImpl } from '@services/impl/company.srv.impl.js';
 import { VoucherServiceSriImpl } from '@services/impl/voucher.srv.sri.impl.js';
 import { XmlProccessServiceFacturero } from '@services/impl/xml.process.srv.facturero.js';
 import { VoucherRepository } from '@repository/voucher.repository.js';
+import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 
 
 class App {
@@ -37,11 +38,18 @@ class App {
 
     private routes(): void {
 
+
         const voucherServiceSri = new VoucherServiceSriImpl(
-            new XmlProccessServiceFacturero(),
+            new XmlProccessServiceFacturero(ENVIRONMENT_TYPE.LIVE),
             new CompanyRepository(),
-            new VoucherRepository(),
-            new FsStorageService());
+            new VoucherRepository(ENVIRONMENT_TYPE.LIVE),
+            new FsStorageService(ENVIRONMENT_TYPE.LIVE));
+
+        const voucherServiceSriTest = new VoucherServiceSriImpl(
+            new XmlProccessServiceFacturero(ENVIRONMENT_TYPE.TEST),
+            new CompanyRepository(),
+            new VoucherRepository(ENVIRONMENT_TYPE.TEST),
+            new FsStorageService(ENVIRONMENT_TYPE.TEST));
 
         const companyService = new CompanyServiceImpl(new CompanyRepository());
 
@@ -49,6 +57,7 @@ class App {
         this.app.get("/api/health", (req, res) => res.status(200).send("OK"));
         this.app.use('/api/company', new CompanyRoutes(companyService).router);
         this.app.use('/api/sri', [checkApiKey], new SriRoutes(voucherServiceSri).router);
+        this.app.use('/api/sri/test', [checkApiKey], new SriRoutes(voucherServiceSriTest).router);
 
     }
 

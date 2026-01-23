@@ -3,8 +3,9 @@ import { Buffer } from 'buffer';
 import * as fs from 'fs';
 
 import type { StorageService } from '../storage.srv.js';
+import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 
-const BASE_DIR = './facturero_data';
+const BASE_DIR = './facturero_storage';
 
 const logger = log4js.getLogger("StorageService");
 export class FsStorageService implements StorageService {
@@ -14,7 +15,27 @@ export class FsStorageService implements StorageService {
     private readonly authorizedDir = 'autorizados';
     private readonly certDir = 'certs';
 
-    constructor() {
+    private readonly baseDir: string;
+
+    constructor(private readonly env: ENVIRONMENT_TYPE = ENVIRONMENT_TYPE.TEST) {
+
+        this.baseDir = env === ENVIRONMENT_TYPE.TEST ? `${BASE_DIR}/test` : BASE_DIR;
+        
+        if (!fs.existsSync(this.baseDir)) {
+            fs.mkdirSync(this.baseDir, { recursive: true });
+        }
+        if (!fs.existsSync(`${this.baseDir}/${this.certDir}`)) {
+            fs.mkdirSync(`${this.baseDir}/${this.certDir}`, { recursive: true });
+        }
+        if (!fs.existsSync(`${this.baseDir}/${this.generatedDir}`)) {
+            fs.mkdirSync(`${this.baseDir}/${this.generatedDir}`, { recursive: true });
+        }
+        if (!fs.existsSync(`${this.baseDir}/${this.signedDir}`)) {
+            fs.mkdirSync(`${this.baseDir}/${this.signedDir}`, { recursive: true });
+        }
+        if (!fs.existsSync(`${this.baseDir}/${this.authorizedDir}`)) {
+            fs.mkdirSync(`${this.baseDir}/${this.authorizedDir}`, { recursive: true });
+        }
     }
 
     public async readCertificateP12(companyId: string): Promise<Buffer> {
@@ -106,7 +127,7 @@ export class FsStorageService implements StorageService {
     }
 
     private async writeFile(folderName: string, fileName: string, fileContent: Buffer): Promise<void> {
-        const dirPath = `${BASE_DIR}/${folderName}`;
+        const dirPath = `${this.baseDir}/${folderName}`;
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true });
         }
@@ -115,7 +136,7 @@ export class FsStorageService implements StorageService {
     }
 
     private async readFile(folderName: string, fileName: string): Promise<Buffer> {
-        const filePath = `${BASE_DIR}/${folderName}/${fileName}`;
+        const filePath = `${this.baseDir}/${folderName}/${fileName}`;
         if (!fs.existsSync(filePath)) {
             throw new Error("File not found");
         }

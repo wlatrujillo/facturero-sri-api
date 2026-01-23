@@ -4,6 +4,7 @@
 **/dist
 **/lib
 **/facturero_data
+**/facturero_storage
 **/vouchers
 .vscode
 .vscode/*.json

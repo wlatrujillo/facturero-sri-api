@@ -17,12 +17,6 @@ export class SriRoutes {
 
     routes() {
 
-        this.router.route('/test/invoice')
-            .post(this.ctrl.generateInvoice);
-
-        this.router.route('/test/invoice/authorize')
-            .put(this.ctrl.authorizeInvoice);
-
         this.router.route('/invoice')
             .post(this.ctrl.generateInvoice);
 

@@ -24,13 +24,12 @@ export class SriController {
 
       const companyId = res.locals.companyId;
 
-      const env = req.path.includes('/prod') ? 'prod' : 'test';
 
       const invoiceData = req.body;
 
-      logger.info(`Received invoice data for companyId: ${companyId} in env: ${env}`);
+      logger.info(`Received invoice data for companyId: ${companyId}`);
 
-      await this.voucherServiceSri.executeInvoice(companyId, env, invoiceData);
+      await this.voucherServiceSri.executeInvoice(companyId, invoiceData);
      
       res.status(200).send({
         message: "Invoice processed successfully",
@@ -52,7 +51,6 @@ export class SriController {
 
       const companyId = res.locals.companyId;
 
-      const env = req.path.includes('/prod') ? 'prod' : 'test';
 
       const accessKey = req.body.accessKey;
 
@@ -64,9 +62,9 @@ export class SriController {
         return;
       }
 
-      logger.info(`Received invoice data for authorization for companyId: ${companyId} in env: ${env}`);
+      logger.info(`Received invoice data for authorization for companyId: ${companyId}`);
 
-      await this.voucherServiceSri.authorizeVoucher(companyId, env, accessKey);
+      await this.voucherServiceSri.authorizeVoucher(companyId, accessKey);
 
       res.status(200).send({
         message: "Invoice authorized successfully",
