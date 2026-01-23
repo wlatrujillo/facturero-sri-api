@@ -51,11 +51,7 @@ export class SriRoutes {
          *         content:
          *           application/json:
          *             schema:
-         *               type: object
-         *               properties:
-         *                 message:
-         *                   type: string
-         *                   example: "Factura generada exitosamente"
+         *               $ref: '#/components/schemas/AddVoucherResponse'
          *       400:
          *         description: Datos de factura inválidos
          *       401:
@@ -100,11 +96,7 @@ export class SriRoutes {
          *         content:
          *           application/json:
          *             schema:
-         *               type: object
-         *               properties:
-         *                 message:
-         *                   type: string
-         *                   example: "Factura autorizada exitosamente"
+         *               $ref: '#/components/schemas/AddVoucherResponse'
          *       400:
          *         description: Datos de autorización inválidos
          *       401:

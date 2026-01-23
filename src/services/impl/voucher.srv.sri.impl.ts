@@ -7,10 +7,11 @@ import type { ValidationResult } from '@dtos/validation.result.js';
 import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 import type { AddInvoiceRequest } from '@dtos/add.invoice.request.js';
 import type { CompanyRepository } from '@repository/company.repository.js';
-import type { VoucherRepository } from '@repository/voucher.repository.js';
+import { VoucherRepository } from '@repository/voucher.repository.js';
 import { VOUCHER_STATUS } from '@enums/voucher.status.js';
 import { VOUCHER_TYPE } from '@enums/voucher.type.js';
 import type { IVoucherKey } from '@model/voucher.key.js';
+import type { VoucherResponse } from '@dtos/voucher.response.js';
 
 export class VoucherServiceSriImpl implements VoucherServiceSri {
     private readonly logger = log4js.getLogger('VoucherServiceSriImpl');
@@ -28,8 +29,9 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
      * 3. Validar XML
      * 4. Autorizar comprobante
      */
-    executeInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<void> => {
+    executeInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<VoucherResponse> => {
         this.logger.info(`🚀 Iniciando proceso de facturación SRI para la empresa: ${companyId} en entorno ${env}`);
+
 
         try {
 
@@ -62,7 +64,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
                 voucherGenerated = await this._voucherRepository.insert({
                     companyId: companyId,
-                    key: `#${VOUCHER_TYPE.INVOICE}#${invoiceData.factura.secuencial}`,
+                    key: `#${VOUCHER_TYPE.INVOICE}#${invoiceData.factura.estab}#${invoiceData.factura.ptoEmi}#${invoiceData.factura.secuencial}`,
                     accessKey: claveAcceso,
                     xml: xml,
                     status: VOUCHER_STATUS.GENERATED,
@@ -152,13 +154,18 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             }
 
             this.logger.info("🎉 Proceso completado con éxito.");
+
+            return { xml: voucherGenerated.xml || '', accessKey: voucherGenerated.accessKey || '', status: voucherGenerated.status, errors: [] } as VoucherResponse;
+
         } catch (error) {
             this.logger.error("❌ Error durante el proceso:", error);
             throw error;
         }
+
+
     }
 
-    authorizeVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<void> => {
+    authorizeVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<VoucherResponse> => {
         this.logger.info(`🚀 Iniciando proceso de autorización SRI para la empresa: ${companyId} en entorno ${env} con clave de acceso: ${accessKey}`);
         try {
 
@@ -191,10 +198,12 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             }, VOUCHER_STATUS.AUTHORIZED);
 
             this.logger.info(`🧾 Comprobante autorizado correctamente:`);
+            return { xml: '', accessKey: accessKey, status: VOUCHER_STATUS.AUTHORIZED, errors: [] } as VoucherResponse;
         } catch (error) {
             this.logger.error("❌ Error durante el proceso:", error);
             throw error;
         }
+
     }
 
 

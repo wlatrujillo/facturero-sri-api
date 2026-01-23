@@ -1,5 +1,7 @@
 
 import type { AddInvoiceRequest } from '@dtos/add.invoice.request.js';
+import type { AddVoucherResponse } from '@dtos/add.voucher.response.js';
+import type { VoucherResponse } from '@dtos/voucher.response.js';
 import type { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 import type { VoucherServiceSri } from '@services/voucher.srv.sri.js';
 import type { Request, Response } from 'express';
@@ -32,12 +34,17 @@ export class SriController {
       const invoiceData: AddInvoiceRequest = req.body;
 
 
-      await this.voucherServiceSri.executeInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
+      const serviceResponse: VoucherResponse = await this.voucherServiceSri.executeInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
 
-      res.status(200).send({
-        message: "Invoice processed successfully",
-        status: "success"
-      });
+
+      const response: AddVoucherResponse = {
+        accessKey: serviceResponse.accessKey,
+        status: serviceResponse.status,
+        errors: serviceResponse.errors
+      };
+
+
+      res.status(200).send(response);
 
     } catch (error: Error | any) {
       res.status(500).send({
@@ -68,12 +75,16 @@ export class SriController {
 
       logger.info(`Received invoice data for authorization for companyId: ${companyId}`);
 
-      await this.voucherServiceSri.authorizeVoucher(companyId, environment as ENVIRONMENT_TYPE, accessKey);
+      const serviceResponse: VoucherResponse = await this.voucherServiceSri.authorizeVoucher(companyId, environment as ENVIRONMENT_TYPE, accessKey);
 
-      res.status(200).send({
-        message: "Invoice authorized successfully",
-        status: "success"
-      });
+      const response: AddVoucherResponse = {
+        accessKey: serviceResponse.accessKey,
+        status: serviceResponse.status,
+        errors: serviceResponse.errors
+      };
+
+
+      res.status(200).send(response);
 
     } catch (error: Error | any) {
       res.status(500).send({
