@@ -12,6 +12,7 @@ import { VOUCHER_STATUS } from '@enums/voucher.status.js';
 import { VOUCHER_TYPE } from '@enums/voucher.type.js';
 import type { IVoucherKey } from '@model/voucher.key.js';
 import type { VoucherResponse } from '@dtos/voucher.response.js';
+import { AddVoucherException } from 'exceptions/add.voucher.exception.js';
 
 export class VoucherServiceSriImpl implements VoucherServiceSri {
     private readonly logger = log4js.getLogger('VoucherServiceSriImpl');
@@ -140,11 +141,10 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
                 if (!authorization || authorization.estado !== 'AUTORIZADO') {
                     this.logger.error(`❌ Error de autorización:`, authorization);
-                    throw new Error(`Error de autorización SRI: ${JSON.stringify(authorization)}`);
+                    throw new AddVoucherException(`Error de autorización SRI: ${JSON.stringify(authorization)}`);
                 }
 
                 await this._storageService.writeAuthorizedVoucher(companyId, voucherGenerated.accessKey || '', Buffer.from(authorization.comprobante));
-
 
                 await this._voucherRepository.updateStatus(voucherKey, VOUCHER_STATUS.AUTHORIZED);
 
@@ -183,7 +183,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
             if (!authorization || authorization.estado !== 'AUTORIZADO') {
                 this.logger.error(`❌ Error de autorización:`, authorization);
-                throw new Error(`Error de autorización SRI: ${JSON.stringify(authorization)}`);
+                throw new AddVoucherException(`Error de autorización SRI: ${JSON.stringify(authorization)}`);
             }
 
             await this._storageService.writeAuthorizedVoucher(companyId, accessKey, Buffer.from(authorization.comprobante));
