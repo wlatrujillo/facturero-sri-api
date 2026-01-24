@@ -66,82 +66,6 @@ Parameters:
 
 Resources:
 
-  ExecutionRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      RoleName: !Join
-        - ""
-        - - !Ref EnvironmentId
-          - "-" 
-          - !Ref Module
-          - "-ECSRole"
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-                - ecs-tasks.amazonaws.com
-            Action:
-              - "sts:AssumeRole"
-      Path: /
-      Policies:
-        - PolicyName: !Sub "${EnvironmentId}-policy_allow_ecr_operations"
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ecr:GetAuthorizationToken
-                  - ecr:BatchCheckLayerAvailability
-                  - ecr:GetDownloadUrlForLayer
-                  - ecr:BatchGetImage
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: '*'
-        - PolicyName: !Sub "${EnvironmentId}-policy_allow_sessionmanagement"
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                Resource: "*"
-        - PolicyName: !Sub "${EnvironmentId}-policy_allow_dynamo_write"
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - dynamodb:PutItem
-                  - dynamodb:UpdateItems
-                  - dynamodb:GetItem
-                  - dynamodb:Query
-                Resource: "*"
-        - PolicyName: !Sub "${EnvironmentId}-policy_allow_s3_access"
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:PutObject
-                  - s3:GetObject
-                  - s3:ListBucket
-                Resource: "*"
-      Tags:
-        - Key: "GROUP"
-          Value: !Sub "${AWS::StackName}"
-        - Key: "ENVIRONMENT_ID"
-          Value: !Ref EnvironmentId
-        - Key: "MODULE"
-          Value: !Ref Module
-      ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
-        - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
-        - "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
-        - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy" 
-
   ALBSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
@@ -197,7 +121,7 @@ Resources:
         - Key: "GROUP"
           Value: !Sub "${AWS::StackName}"
     DependsOn:
-    - ALBSecurityGroup
+      - ALBSecurityGroup
         
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -235,25 +159,6 @@ Resources:
       SslPolicy: "ELBSecurityPolicy-2016-08"
       Certificates:
         - CertificateArn: !Ref SSLCertificateArn
-
-  ECSCluster:
-    Type: AWS::ECS::Cluster
-    Properties:
-      ClusterName: !Sub "${EnvironmentId}-${Module}-cluster"
-      CapacityProviders:
-      - FARGATE
-      - FARGATE_SPOT
-      ClusterSettings:
-      - Name: containerInsights
-        Value: disabled
-      Configuration:
-        ExecuteCommandConfiguration:
-          Logging: DEFAULT
-      ServiceConnectDefaults:
-        Namespace: "com.amazonaws.ecs"
-      Tags:
-        - Key: "GROUP"
-          Value: !Sub "${AWS::StackName}"
   
   LogGroup:
     Type: AWS::Logs::LogGroup

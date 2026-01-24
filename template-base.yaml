@@ -1,0 +1,300 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: The template used to create an ECS Service from the ECS Console.
+
+Parameters:
+  Module:
+    Type: String
+    Description: The module name to deploy. 
+    Default: facturero-sri
+  EnvironmentId:
+    Type: String
+    Description: The environment to deploy the stack to. 
+    Default: dev
+    ConstraintDescription: Must specify dev, qa, or prd.
+    AllowedValues:
+      - dev
+      - qa
+      - prd
+  EcrRepositoryName:
+    Type: String
+    Description: The name of the ECR repository to use. 
+    Default: facturero-sri
+
+
+Resources:
+
+  ExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Join
+        - ""
+        - - !Ref EnvironmentId
+          - "-" 
+          - !Ref Module
+          - "-ECSRole"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - ecs-tasks.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: /
+      Policies:
+        - PolicyName: !Sub "${EnvironmentId}-policy_allow_ecr_operations"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+        - PolicyName: !Sub "${EnvironmentId}-policy_allow_sessionmanagement"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: "*"
+        - PolicyName: !Sub "${EnvironmentId}-policy_allow_dynamo_write"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItems
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                Resource: "*"
+        - PolicyName: !Sub "${EnvironmentId}-policy_allow_s3_access"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource: "*"
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+        - "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+        - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
+  VouchersBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${EnvironmentId}-${Module}-vouchers
+      AccessControl: 'Private'
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: TRUE
+        BlockPublicPolicy: TRUE
+        IgnorePublicAcls: TRUE
+        RestrictPublicBuckets: TRUE
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
+
+  VouchersBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    DependsOn:
+      - VouchersBucket
+    Properties:
+      Bucket:
+        Ref: "VouchersBucket"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ForceSSLOnlyAccess
+            Effect: "Deny"
+            Principal: "*"
+            Action:
+              - 's3:*'
+            Resource:
+              - !Join [ "", [ !GetAtt VouchersBucket.Arn, "/*" ] ]
+              - !GetAtt VouchersBucket.Arn
+            Condition:
+              Bool:
+                'aws:SecureTransport': false
+
+  VouchersTestBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${EnvironmentId}-${Module}-vouchers-test
+      AccessControl: 'Private'
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: TRUE
+        BlockPublicPolicy: TRUE
+        IgnorePublicAcls: TRUE
+        RestrictPublicBuckets: TRUE
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
+
+  VouchersTestBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    DependsOn:
+      - VouchersTestBucket
+    Properties:
+      Bucket:
+        Ref: "VouchersTestBucket"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ForceSSLOnlyAccess
+            Effect: "Deny"
+            Principal: "*"
+            Action:
+              - 's3:*'
+            Resource:
+              - !Join [ "", [ !GetAtt VouchersTestBucket.Arn, "/*" ] ]
+              - !GetAtt VouchersTestBucket.Arn
+            Condition:
+              Bool:
+                'aws:SecureTransport': false
+
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref EcrRepositoryName
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
+  
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub "${EnvironmentId}-${Module}-cluster"
+      CapacityProviders:
+      - FARGATE
+      - FARGATE_SPOT
+      ClusterSettings:
+      - Name: containerInsights
+        Value: disabled
+      Configuration:
+        ExecuteCommandConfiguration:
+          Logging: DEFAULT
+      ServiceConnectDefaults:
+        Namespace: "com.amazonaws.ecs"
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
+
+  DynamoDBCompaniesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${EnvironmentId}-${Module}-companies"
+      AttributeDefinitions:
+        - AttributeName: "companyId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "companyId"
+          KeyType: "HASH"
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
+
+  DynamoDBVouchersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${EnvironmentId}-${Module}-vouchers"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: companyId
+          AttributeType: S
+        - AttributeName: voucherId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: companyId
+          KeyType: HASH
+        - AttributeName: voucherId
+          KeyType: RANGE
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
+
+  DynamoDBVouchersTestTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${EnvironmentId}-${Module}-vouchers-test"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: companyId
+          AttributeType: S
+        - AttributeName: voucherId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: companyId
+          KeyType: HASH
+        - AttributeName: voucherId
+          KeyType: RANGE
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
+  
+
+Outputs:
+
+  ECSCluster:
+    Description: The created cluster.
+    Value:
+      Ref: ECSCluster
+  ECRRepository:
+    Description: The created ECR Repository.
+    Value:
+      Ref: ECRRepository
+  RoleExecutionRole:
+    Description: The created Execution Role.
+    Value:
+      Ref: ExecutionRole
