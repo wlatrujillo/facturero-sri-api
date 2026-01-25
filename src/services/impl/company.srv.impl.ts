@@ -13,14 +13,14 @@ export class CompanyServiceImpl implements CompanyService {
     }
 
 
-    findCompany = async (ruc: string) : Promise<ICompany | null> => {
+    findCompany = async (ruc: string): Promise<ICompany | null> => {
 
         const key = { companyId: ruc };
         const result = await this.repository.findById(key);
         return result;
     }
 
-    createCompany = async (company: ICompany) : Promise<IApiKey> => {
+    createCompany = async (company: ICompany): Promise<IApiKey> => {
 
         try {
             this.logger.info(`Registering company  ${company}`);
@@ -43,7 +43,7 @@ export class CompanyServiceImpl implements CompanyService {
 
             await this.repository.insert(company);
             return newApiKeyData;
-            
+
         } catch (error) {
             this.logger.error("Error inserting company:", error);
             throw error;
@@ -52,14 +52,17 @@ export class CompanyServiceImpl implements CompanyService {
 
     }
 
-    checkApiKey = async (apiKey: string) : Promise<boolean> => {
+    validateApiKey = async (apiKey: string): Promise<boolean> => {
         if (!apiKey) return false;
         const companyId = apiKey.split('_')[0] || '';
         const company = await this.repository.findById({ companyId });
         if (!company) return false;
         if (company.apiKey.status !== 'ACTIVE') return false;
         const secret = company.apiKey.secret;
-        return apiKey === secret;
+        if (apiKey !== secret) {
+            throw new Error('API key does not match');
+        }
+        return true;
     }
 
     private generateApiKey(ruc: string, env = 'live') {

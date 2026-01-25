@@ -1,20 +1,23 @@
-
+import log4js from 'log4js';
 
 import { ENVIRONMENT, VoucherGenerator, type InvoiceResponse } from "facturero-sri-signer";
 import { XmlSigner } from "facturero-sri-signer"
 import { AuthorizationService } from "facturero-sri-signer";
 
 import { InvoiceMapper } from "@mappers/invoice.mapper.js";
-import type { ValidationResult } from "dtos/validation.result.js";
+import type { SriValidationResult } from "@dtos/sri.validation.result.js";
 import type { XmlProccessService } from "@services/xml.proccess.srv.js";
 import { ENVIRONMENT_TYPE } from "@enums/environment.type.js";
 
 import type { AddInvoiceRequest } from "@dtos/add.invoice.request.js";
 import type { VoucherResponse } from "@dtos/voucher.response.js";
 import { VOUCHER_STATUS } from "@enums/voucher.status.js";
+import { SriResultMapper } from "@mappers/sri.result.mapper.js";
+import type { SriAuthorizationResult } from "@dtos/sri.auth.result.js";
 
 export class XmlProccessServiceFacturero implements XmlProccessService {
 
+  private readonly logger = log4js.getLogger('VoucherServiceSriImpl');
   private voucherGenerator: VoucherGenerator;
   private xmlSigner: XmlSigner;
   private authorizationService: AuthorizationService;
@@ -46,38 +49,35 @@ export class XmlProccessServiceFacturero implements XmlProccessService {
     return await this.xmlSigner.signXml(cmd.p12Buffer, cmd.password, cmd.xmlBuffer);
   }
 
-  async validateXML(env: ENVIRONMENT_TYPE, xml: Buffer): Promise<ValidationResult> {
+  async validateXML(env: ENVIRONMENT_TYPE, xml: Buffer): Promise<SriValidationResult> {
 
     const environment = env === ENVIRONMENT_TYPE.LIVE ? ENVIRONMENT.PRODUCCION : ENVIRONMENT.PRUEBAS;
 
-    let validationResult: ValidationResult;
     try {
-
-      console.log('Iniciando validación de XML...');
-
       const executionResult = await this.authorizationService.validateXml(environment, xml);
-
-      console.log('Resultado de la validación:', executionResult);
-
-      validationResult = {
-        estado: executionResult.estado,
-        mensajes: executionResult?.comprobantes?.comprobante.mensajes || []
-      };
-
-      return validationResult;
-
+      return SriResultMapper.toSriValidationResult(executionResult);
 
     } catch (error) {
-      console.error('Error durante la validación de XML:', error);
+      this.logger.error('Error durante la validación de XML:', error);
       throw error;
     }
- 
+
 
   }
 
-  async authorizeXML(env: ENVIRONMENT_TYPE, claveAcceso: string): Promise<void> {
+  async authorizeXML(env: ENVIRONMENT_TYPE, claveAcceso: string): Promise<SriAuthorizationResult> {
     const environment = env === ENVIRONMENT_TYPE.LIVE ? ENVIRONMENT.PRODUCCION : ENVIRONMENT.PRUEBAS;
-    return await this.authorizationService.authorizeXml(environment, claveAcceso); // "test" o "prod"
+    try {
+      const executionResult = await this.authorizationService.authorizeXml(environment, claveAcceso);
+      this.logger.debug('Resultado de la autorización:', executionResult);
+      if (!executionResult) {
+        throw new Error('No se recibió respuesta de autorización del SRI.');
+      }
+      return SriResultMapper.toSriAuthResult(executionResult);
+    } catch (error) {
+      this.logger.error('Error durante la autorización de XML:', error);
+      throw error;
+    }
   }
 
 }

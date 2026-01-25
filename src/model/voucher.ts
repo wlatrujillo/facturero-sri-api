@@ -6,6 +6,8 @@ export interface IVoucher {
     accessKey?: string;
     xml: string;
     status: VOUCHER_STATUS;
+    sriStatus?: string;
+    messages?: string[];
     createdAt: string;  
     updatedAt: string;
 }

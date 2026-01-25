@@ -1,9 +1,9 @@
-import type { InvoiceDTO } from "@dtos/add.invoice.request.js";
+import type { AddInvoiceRequest } from "@dtos/add.invoice.request.js";
 import { type Invoice, type Impuesto, IDENTIFICATION } from "facturero-sri-signer";
 
 export class InvoiceMapper {
 
-    static toInvoiceSriModel(invoiceData: InvoiceDTO): Invoice {
+    static toInvoiceSriModel(invoiceData: AddInvoiceRequest): Invoice {
         const invoiceModel = {} as Invoice;
         invoiceModel.infoTributaria = this.toInfoTributaria(invoiceData.factura);
         invoiceModel.infoFactura = this.toInfoFactura(invoiceData.factura);

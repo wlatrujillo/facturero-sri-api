@@ -23,7 +23,7 @@ export class VoucherRepository {
         this.tableName = this.env === ENVIRONMENT_TYPE.TEST ? TABLE_NAME_TEST : TABLE_NAME;
     }
 
-    insert = async (voucher: IVoucher) : Promise<IVoucher> => {
+    insert = async (voucher: IVoucher): Promise<IVoucher> => {
         // Implementation for inserting a voucher goes here
         const putCommand = new PutCommand({
             TableName: this.tableName,
@@ -37,10 +37,42 @@ export class VoucherRepository {
 
     }
 
-    updateStatus = async (voucherId: IVoucherKey, status: VOUCHER_STATUS) : Promise<void> => {
+    updateStatus = async (voucherId: IVoucherKey, 
+        status: VOUCHER_STATUS, 
+        sriStatus: string = '', 
+        messages: string[] = [],
+        xml?: string): Promise<void> => {
         // Implementation for updating a voucher status goes here
         // This is a placeholder implementation. Actual implementation may vary.
         this.logger.debug(`Updating voucher status for companyId: ${voucherId.companyId}, voucherId: ${voucherId.sequence}`);
+
+        // Build dynamic update expression
+        const updateExpressions: string[] = [];
+        const expressionAttributeNames: Record<string, string> = {};
+        const expressionAttributeValues: Record<string, any> = {};
+
+        // Always update status, sriStatus, messages, and updatedAt
+        updateExpressions.push('#status = :status');
+        expressionAttributeNames['#status'] = 'status';
+        expressionAttributeValues[':status'] = status;
+
+        updateExpressions.push('#sriStatus = :sriStatus');
+        expressionAttributeNames['#sriStatus'] = 'sriStatus';
+        expressionAttributeValues[':sriStatus'] = sriStatus;
+
+        updateExpressions.push('#messages = :messages');
+        expressionAttributeNames['#messages'] = 'messages';
+        expressionAttributeValues[':messages'] = messages;
+
+        updateExpressions.push('updatedAt = :updatedAt');
+        expressionAttributeValues[':updatedAt'] = new Date().toISOString();
+
+        // Only add XML to update if it's provided and not empty
+        if (xml && xml.trim() !== '') {
+            updateExpressions.push('#xml = :xml');
+            expressionAttributeNames['#xml'] = 'xml';
+            expressionAttributeValues[':xml'] = xml;
+        }
 
         const updateCommand = new UpdateCommand({
             TableName: this.tableName,
@@ -48,15 +80,10 @@ export class VoucherRepository {
                 companyId: voucherId.companyId,
                 voucherId: `#${voucherId.voucherType}#${voucherId.establishment}#${voucherId.branch}#${voucherId.sequence}`
             },
-            UpdateExpression: `SET #status = :status, updatedAt = :updatedAt`,
+            UpdateExpression: `SET ${updateExpressions.join(', ')}`,
             ConditionExpression: "attribute_exists(companyId)",
-            ExpressionAttributeNames: {
-                "#status": "status"
-            },
-            ExpressionAttributeValues: {
-                ":status": status,
-                ":updatedAt": new Date().toISOString()
-            },
+            ExpressionAttributeNames: expressionAttributeNames,
+            ExpressionAttributeValues: expressionAttributeValues,
             ReturnValues: "ALL_NEW"
         });
 
@@ -64,7 +91,7 @@ export class VoucherRepository {
 
     }
 
-    findById = async (voucherId: IVoucherKey) : Promise<IVoucher | undefined> => {
+    findById = async (voucherId: IVoucherKey): Promise<IVoucher | undefined> => {
         // Implementation for finding a voucher by ID goes here
 
         const command = new GetCommand({
