@@ -177,6 +177,48 @@ Resources:
             Condition:
               Bool:
                 'aws:SecureTransport': false
+  
+  StorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${EnvironmentId}-${Module}-storage
+      AccessControl: 'Private'
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: TRUE
+        BlockPublicPolicy: TRUE
+        IgnorePublicAcls: TRUE
+        RestrictPublicBuckets: TRUE
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
+
+  StorageBucketBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    DependsOn:
+      - StorageBucket
+    Properties:
+      Bucket:
+        Ref: "StorageBucket"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ForceSSLOnlyAccess
+            Effect: "Deny"
+            Principal: "*"
+            Action:
+              - 's3:*'
+            Resource:
+              - !Join [ "", [ !GetAtt StorageBucket.Arn, "/*" ] ]
+              - !GetAtt StorageBucket.Arn
+            Condition:
+              Bool:
+                'aws:SecureTransport': false
 
   ECRRepository:
     Type: AWS::ECR::Repository

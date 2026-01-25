@@ -109,7 +109,7 @@ class App {
             "categories": {
                 "default": {
                     "appenders": ["out"],
-                    "level": process.env.log_level || "DEBUG"
+                    "level": process.env.LOG_LEVEL || "INFO"
                 }
             }
         });

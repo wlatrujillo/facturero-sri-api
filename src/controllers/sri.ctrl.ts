@@ -30,12 +30,14 @@ export class SriController {
 
       const companyId = res.locals.companyId;
 
-      const environment = req.path.includes('/sri-test/') ? 'TEST' : 'LIVE';
+      console.log('Request path:', req.path);
+
+      const environment = req.path.includes('/test/') ? 'TEST' : 'LIVE';
 
       const invoiceData: AddInvoiceRequest = req.body;
 
 
-      const serviceResponse: VoucherResponse = await this.voucherServiceSri.executeInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
+      const serviceResponse: AddVoucherResponse = await this.voucherServiceSri.executeInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
 
 
       const response: AddVoucherResponse = {
@@ -76,7 +78,7 @@ export class SriController {
 
       logger.info(`Received invoice data for authorization for companyId: ${companyId}`);
 
-      const serviceResponse: VoucherResponse = await this.voucherServiceSri.authorizeVoucher(companyId, environment as ENVIRONMENT_TYPE, accessKey);
+      const serviceResponse: AuthVoucherResponse = await this.voucherServiceSri.authorizeVoucher(companyId, environment as ENVIRONMENT_TYPE, accessKey);
 
       const response: AuthVoucherResponse = {
         status: serviceResponse.status,

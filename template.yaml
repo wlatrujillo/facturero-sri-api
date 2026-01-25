@@ -83,6 +83,8 @@ Resources:
 
   ECSSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
+    DependsOn:
+      - ALBSecurityGroup
     Properties:
         GroupName: !Sub "${EnvironmentId}-${Module}-ecs-sg"
         GroupDescription: "security group for ECS"
@@ -99,11 +101,11 @@ Resources:
             FromPort: 443
             IpProtocol: "tcp"
             ToPort: 443
-    DependsOn:
-    - ALBSecurityGroup
     
   ApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn:
+      - ALBSecurityGroup
     Properties:
       Type: application
       Name: !Sub "${EnvironmentId}-${Module}-alb"
@@ -116,9 +118,11 @@ Resources:
       Tags:
         - Key: "GROUP"
           Value: !Sub "${AWS::StackName}"
-    DependsOn:
-      - ALBSecurityGroup
-        
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
+
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -138,10 +142,15 @@ Resources:
       Tags:
         - Key: "GROUP"
           Value: !Sub "${AWS::StackName}"
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
         
   HTTPSlistener:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
-    DependsOn: ApplicationLoadBalancer
+    DependsOn:
+      - ApplicationLoadBalancer
     Properties:
       DefaultActions:
         - Type: forward
@@ -196,15 +205,22 @@ Resources:
               awslogs-stream-prefix: !Sub "${EnvironmentId}-${Module}-server-log"
           Essential: true
           Environment:
-            - Name: NODE_ENV
-              Value: !Ref EnvironmentId
             - Name: PORT
               Value: !Ref ProjectExposedPort
             - Name: LOG_LEVEL
               Value: "DEBUG"
+            - Name: "NODE_ENV"
+              Value: !Ref EnvironmentId
+            - Name: "MODULE"
+              Value: !Ref Module
 
   ECSService:
     Type: AWS::ECS::Service
+    DependsOn:
+      - ECSTaskDefinition
+      - HTTPSlistener
+      - ECSSecurityGroup
+      - TargetGroup
     Properties:
       Cluster: !Sub "${EnvironmentId}-${Module}-cluster"
       TaskDefinition: !Ref ECSTaskDefinition
@@ -234,15 +250,15 @@ Resources:
           Rollback: true
       DeploymentController:
         Type: ECS
+      EnableECSManagedTags: true
       Tags:
         - Key: "GROUP"
           Value: !Sub "${AWS::StackName}"
-      EnableECSManagedTags: true
-    DependsOn:
-    - ECSTaskDefinition
-    - HTTPSlistener
-    - ECSSecurityGroup
-    - TargetGroup
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
+
 
 Outputs:
 

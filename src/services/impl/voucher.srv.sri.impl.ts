@@ -11,7 +11,6 @@ import { VoucherRepository } from '@repository/voucher.repository.js';
 import { VOUCHER_STATUS } from '@enums/voucher.status.js';
 import { VOUCHER_TYPE } from '@enums/voucher.type.js';
 import type { IVoucherKey } from '@model/voucher.key.js';
-import type { VoucherResponse } from '@dtos/voucher.response.js';
 import { AddVoucherException } from 'exceptions/add.voucher.exception.js';
 import type { AddVoucherResponse } from '@dtos/add.voucher.response.js';
 import type { AuthVoucherResponse } from '@dtos/auth.voucher.response.js';
@@ -68,15 +67,13 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
                 voucherGenerated = await this._voucherRepository.insert({
                     companyId: companyId,
-                    key: `#${VOUCHER_TYPE.INVOICE}#${invoiceData.factura.estab}#${invoiceData.factura.ptoEmi}#${invoiceData.factura.secuencial}`,
+                    voucherId: `#${VOUCHER_TYPE.INVOICE}#${invoiceData.factura.estab}#${invoiceData.factura.ptoEmi}#${invoiceData.factura.secuencial}`,
                     accessKey: claveAcceso,
                     xml: xml,
                     status: VOUCHER_STATUS.GENERATED,
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 });
-
-
 
                 this.logger.info(`📄 XML generado correctamente:`);
             }
@@ -127,7 +124,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                     return addVoucherResponse = {
                         accessKey: voucherGenerated.accessKey || '',
                         status: voucherGenerated.status,
-                        errors: validationResult.errors || []
+                        errors: validationResult.mensajes || []
                     };
                 }
 

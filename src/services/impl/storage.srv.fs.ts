@@ -5,8 +5,10 @@ import * as fs from 'fs';
 import type { StorageService } from '../storage.srv.js';
 import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 
-const BASE_DIR = './facturero_storage';
-const BASE_DIR_TEST = './facturero_storage_test';
+
+const BASE_VOUCHERS_DIR_NAME = `facturero-sri-vouchers`;
+const BASE_VOUCHERS_DIR_NAME_TEST = `facturero-sri-vouchers-test`;
+const BASE_STORAGE_DIR_NAME = `facturero-sri-storage`;
 
 const logger = log4js.getLogger("StorageService");
 export class FsStorageService implements StorageService {
@@ -14,36 +16,19 @@ export class FsStorageService implements StorageService {
     private readonly generatedDir = 'generados';
     private readonly signedDir = 'firmados';
     private readonly authorizedDir = 'autorizados';
-    private readonly certDir = 'certs';
-
-    private readonly baseDir: string;
+    private readonly baseVouchersDir: string;
 
     constructor(private readonly env: ENVIRONMENT_TYPE = ENVIRONMENT_TYPE.TEST) {
 
-        this.baseDir = this.env === ENVIRONMENT_TYPE.TEST ? BASE_DIR_TEST : BASE_DIR;
-        
-        if (!fs.existsSync(this.baseDir)) {
-            fs.mkdirSync(this.baseDir, { recursive: true });
-        }
-        if (!fs.existsSync(`${this.baseDir}/${this.certDir}`)) {
-            fs.mkdirSync(`${this.baseDir}/${this.certDir}`, { recursive: true });
-        }
-        if (!fs.existsSync(`${this.baseDir}/${this.generatedDir}`)) {
-            fs.mkdirSync(`${this.baseDir}/${this.generatedDir}`, { recursive: true });
-        }
-        if (!fs.existsSync(`${this.baseDir}/${this.signedDir}`)) {
-            fs.mkdirSync(`${this.baseDir}/${this.signedDir}`, { recursive: true });
-        }
-        if (!fs.existsSync(`${this.baseDir}/${this.authorizedDir}`)) {
-            fs.mkdirSync(`${this.baseDir}/${this.authorizedDir}`, { recursive: true });
-        }
+        this.baseVouchersDir = this.env === ENVIRONMENT_TYPE.TEST ? BASE_VOUCHERS_DIR_NAME_TEST : BASE_VOUCHERS_DIR_NAME;
+      
     }
 
     public async readCertificateP12(companyId: string): Promise<Buffer> {
         // Implementation for uploading a file goes here
         logger.debug(`Reading certificate P12 for companyId: ${companyId}`);
         try {
-            return await this.readFile(this.certDir, `${companyId}.p12`);
+            return await this.readFile(BASE_STORAGE_DIR_NAME, `${companyId}`, `${companyId}.p12`);
         } catch (error) {
             throw new Error(`Error getting file: ${error}`);
         }
@@ -52,7 +37,7 @@ export class FsStorageService implements StorageService {
     public async writeCertificateP12(companyId: string, fileContent: Buffer): Promise<void> {
         // Implementation for uploading a file goes here
         try {
-            await this.writeFile(this.certDir, `${companyId}.p12`, fileContent);
+            await this.writeFile(BASE_STORAGE_DIR_NAME, `${companyId}`, `${companyId}.p12`, fileContent);
         } catch (error) {
             throw new Error(`Error writing file: ${error}`);
         }
@@ -61,7 +46,7 @@ export class FsStorageService implements StorageService {
     public async writeGeneratedVoucher(companyId: string, accessKey: string, fileContent: Buffer): Promise<void> {
         // Implementation for uploading a file goes here
         try {
-            await this.writeFile(`${companyId}/${this.generatedDir}`, `${accessKey}.xml`, fileContent);
+            await this.writeFile(this.baseVouchersDir, `${companyId}/${this.generatedDir}`, `${accessKey}.xml`, fileContent);
         } catch (error) {
             throw new Error(`Error writing file: ${error}`);
         }
@@ -70,7 +55,7 @@ export class FsStorageService implements StorageService {
     public async writeSignedVoucher(companyId: string, accessKey: string, fileContent: Buffer): Promise<void> {
         // Implementation for uploading a file goes here
         try {
-            await this.writeFile(`${companyId}/${this.signedDir}`, `${accessKey}.xml`, fileContent);
+            await this.writeFile(this.baseVouchersDir, `${companyId}/${this.signedDir}`, `${accessKey}.xml`, fileContent);
         } catch (error) {
             throw new Error(`Error writing file: ${error}`);
         }
@@ -79,7 +64,7 @@ export class FsStorageService implements StorageService {
     public async writeAuthorizedVoucher(companyId: string, accessKey: string, fileContent: Buffer): Promise<void> {
         // Implementation for uploading a file goes here
         try {
-            await this.writeFile(`${companyId}/${this.authorizedDir}`, `${accessKey}_aut.xml`, fileContent);
+            await this.writeFile(this.baseVouchersDir, `${companyId}/${this.authorizedDir}`, `${accessKey}_aut.xml`, fileContent);
         } catch (error) {
             throw new Error(`Error writing file: ${error}`);
         }
@@ -88,7 +73,7 @@ export class FsStorageService implements StorageService {
     public async readGeneratedVoucher(companyId: string, accessKey: string): Promise<Buffer> {
         // Implementation for getting a file goes here
         try {
-            const response = await this.readFile(`${companyId}/${this.generatedDir}`, `${accessKey}.xml`);
+            const response = await this.readFile(this.baseVouchersDir, `${companyId}/${this.generatedDir}`, `${accessKey}.xml`);
             if (response) {
                 return response;
             } else {
@@ -102,7 +87,7 @@ export class FsStorageService implements StorageService {
     public async readSignedVoucher(companyId: string, accessKey: string): Promise<Buffer> {
         // Implementation for getting a file goes here
         try {
-            const response = await this.readFile(`${companyId}/${this.signedDir}`, `${accessKey}.xml`);
+            const response = await this.readFile(this.baseVouchersDir, `${companyId}/${this.signedDir}`, `${accessKey}.xml`);
             if (response) {
                 return response;
             } else {
@@ -116,7 +101,7 @@ export class FsStorageService implements StorageService {
     public async readAuthorizedVoucher(companyId: string, accessKey: string): Promise<Buffer> {
         // Implementation for getting a file goes here
         try {
-            const response = await this.readFile(`${companyId}/${this.authorizedDir}`, `${accessKey}_aut.xml`);
+            const response = await this.readFile(this.baseVouchersDir, `${companyId}/${this.authorizedDir}`, `${accessKey}_aut.xml`);
             if (response) {
                 return response;
             } else {
@@ -127,8 +112,8 @@ export class FsStorageService implements StorageService {
         }
     }
 
-    private async writeFile(folderName: string, fileName: string, fileContent: Buffer): Promise<void> {
-        const dirPath = `${this.baseDir}/${folderName}`;
+    private async writeFile(baseDir: string, folderName:string, fileName: string, fileContent: Buffer): Promise<void> {
+        const dirPath = `${baseDir}/${folderName}`;
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true });
         }
@@ -136,9 +121,10 @@ export class FsStorageService implements StorageService {
         fs.writeFileSync(filePath, fileContent);
     }
 
-    private async readFile(folderName: string, fileName: string): Promise<Buffer> {
-        const filePath = `${this.baseDir}/${folderName}/${fileName}`;
+    private async readFile(baseDir:string,folderName:string, fileName: string): Promise<Buffer> {
+        const filePath = `${baseDir}/${folderName}/${fileName}`;
         if (!fs.existsSync(filePath)) {
+            logger.error(`File not found at path: ${filePath}`);
             throw new Error("File not found");
         }
         return fs.readFileSync(filePath);

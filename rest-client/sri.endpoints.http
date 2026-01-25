@@ -6,7 +6,7 @@
 POST {{host}}/api/sri-test/test/invoice
 Content-Type: application/json
 #X-API-Key: 1716004948001_live_Aw8P3xGovxKEuC8F-9EMflP9_KWX1w3G
-X-API-Key: 1792146739001_live_RxSX-AjWjUdoYEaWf-9gtSqlJQ2j_pJD
+X-API-Key: 1792146739001_live_UEGYHTYJy-EjSj0xfD0ClghcKr9oFcPT
 
 {
     "factura": {
@@ -15,7 +15,7 @@ X-API-Key: 1792146739001_live_RxSX-AjWjUdoYEaWf-9gtSqlJQ2j_pJD
         "dirMatriz": "Enrique Guerrero Portilla OE1-34 AV. Galo Plaza Lasso",
         "estab": "001",
         "ptoEmi": "001",
-        "secuencial": "000000004",
+        "secuencial": "000000001",
         "fechaEmision" : "2026/01/18",
         "dirEstablecimiento" : "Sebastian Moreno S/N Franciso Garcia",
         "contribuyenteEspecial" : "5368",

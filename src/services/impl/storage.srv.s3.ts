@@ -5,8 +5,10 @@ import { S3Client, GetObjectCommand, PutObjectCommand, type GetObjectCommandOutp
 import type { StorageService } from '@services/storage.srv.js';
 import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
 
-const BUCKET_NAME = process.env.BUCKET_NAME || "facturero-storage";
-const BUCKET_NAME_TEST = process.env.BUCKET_NAME_TEST || "facturero-storage-test";
+const NODE_ENV = process.env.NODE_ENV || 'dev';
+const BUCKET_NAME = `${NODE_ENV}-facturero-sri-vouchers`;
+const BUCKET_NAME_TEST = `${NODE_ENV}-facturero-sri-vouchers-test`;
+const BUCKET_NAME_STORAGE = `${NODE_ENV}-facturero-sri-storage`;
 
 const logger = log4js.getLogger("S3StorageService");
 export class S3StorageService implements StorageService {
@@ -14,23 +16,22 @@ export class S3StorageService implements StorageService {
     private readonly generatedDir = 'generados';
     private readonly signedDir = 'firmados';
     private readonly authorizedDir = 'autorizados';
-    private readonly certDir = 'certs';
-
+    
     private s3Client: S3Client;
-    private readonly bucketName: string;
+    private readonly bucketVouchersName: string;
 
     constructor(
         private region:string = 'us-east-1', 
         private readonly env: ENVIRONMENT_TYPE = ENVIRONMENT_TYPE.TEST) {
         this.s3Client = new S3Client({ region: this.region });
-        this.bucketName = this.env === ENVIRONMENT_TYPE.TEST ? BUCKET_NAME_TEST : BUCKET_NAME;
+        this.bucketVouchersName = this.env === ENVIRONMENT_TYPE.TEST ? BUCKET_NAME_TEST : BUCKET_NAME;
     }
 
     public async readCertificateP12(companyId: string): Promise<Buffer> {
         // Implementation for uploading a file goes here
         logger.debug(`Reading certificate P12 for companyId: ${companyId}`);
         try {
-            return await this.readFile(this.certDir, `${companyId}.p12`);
+            return await this.readFile(BUCKET_NAME_STORAGE, `${companyId}`, `${companyId}.p12`);
         } catch (error) {
             throw new Error(`Error getting file: ${error}`);
         }
@@ -39,7 +40,7 @@ export class S3StorageService implements StorageService {
     public async writeCertificateP12(companyId: string, fileContent: Buffer): Promise<void> {
         // Implementation for uploading a file goes here
         try {
-            await this.writeFile(this.certDir, `${companyId}.p12`, fileContent);
+            await this.writeFile(BUCKET_NAME_STORAGE, `${companyId}`, `${companyId}.p12`, fileContent);
         } catch (error) {
             throw new Error(`Error writing file: ${error}`);
         }
@@ -48,7 +49,7 @@ export class S3StorageService implements StorageService {
     public async writeGeneratedVoucher(companyId: string, accessKey: string, fileContent: Buffer): Promise<void> {
         // Implementation for uploading a file goes here
         try {
-            await this.writeFile(`${companyId}/${this.generatedDir}`, `${accessKey}.xml`, fileContent);
+            await this.writeFile(this.bucketVouchersName, `${companyId}/${this.generatedDir}`, `${accessKey}.xml`, fileContent);
         } catch (error) {
             throw new Error(`Error writing file: ${error}`);
         }
@@ -57,7 +58,7 @@ export class S3StorageService implements StorageService {
     public async writeSignedVoucher(companyId: string, accessKey: string, fileContent: Buffer): Promise<void> {
         // Implementation for uploading a file goes here
         try {
-            await this.writeFile(`${companyId}/${this.signedDir}`, `${accessKey}.xml`, fileContent);
+            await this.writeFile(this.bucketVouchersName, `${companyId}/${this.signedDir}`, `${accessKey}.xml`, fileContent);
         } catch (error) {
             throw new Error(`Error writing file: ${error}`);
         }
@@ -66,7 +67,7 @@ export class S3StorageService implements StorageService {
     public async writeAuthorizedVoucher(companyId: string, accessKey: string, fileContent: Buffer): Promise<void> {
         // Implementation for uploading a file goes here
         try {
-            await this.writeFile(`${companyId}/${this.authorizedDir}`, `${accessKey}_aut.xml`, fileContent);
+            await this.writeFile(this.bucketVouchersName, `${companyId}/${this.authorizedDir}`, `${accessKey}_aut.xml`, fileContent);
         } catch (error) {
             throw new Error(`Error writing file: ${error}`);
         }
@@ -75,7 +76,7 @@ export class S3StorageService implements StorageService {
     public async readGeneratedVoucher(companyId: string, accessKey: string): Promise<Buffer> {
         // Implementation for getting a file goes here
         try {
-            const response = await this.readFile(`${companyId}/${this.generatedDir}`, `${accessKey}.xml`);
+            const response = await this.readFile(this.bucketVouchersName, `${companyId}/${this.generatedDir}`, `${accessKey}.xml`);
             if (response) {
                 return response;
             } else {
@@ -89,7 +90,7 @@ export class S3StorageService implements StorageService {
     public async readSignedVoucher(companyId: string, accessKey: string): Promise<Buffer> {
         // Implementation for getting a file goes here
         try {
-            const response = await this.readFile(`${companyId}/${this.signedDir}`, `${accessKey}.xml`);
+            const response = await this.readFile(this.bucketVouchersName, `${companyId}/${this.signedDir}`, `${accessKey}.xml`);
             if (response) {
                 return response;
             } else {
@@ -103,7 +104,7 @@ export class S3StorageService implements StorageService {
     public async readAuthorizedVoucher(companyId: string, accessKey: string): Promise<Buffer> {
         // Implementation for getting a file goes here
         try {
-            const response = await this.readFile(`${companyId}/${this.authorizedDir}`, `${accessKey}_aut.xml`);
+            const response = await this.readFile(this.bucketVouchersName, `${companyId}/${this.authorizedDir}`, `${accessKey}_aut.xml`);
             if (response) {
                 return response;
             } else {
@@ -115,12 +116,12 @@ export class S3StorageService implements StorageService {
     }
 
 
-    private async writeFile(folderName: string, fileName: string, fileContent: Buffer): Promise<void> {
+    private async writeFile(bucketName:string, folderName: string, fileName: string, fileContent: Buffer): Promise<void> {
         // Implementation for uploading a file goes here
         try {
 
             const command = new PutObjectCommand({
-                Bucket: this.bucketName,
+                Bucket: bucketName,
                 Key: this.env == ENVIRONMENT_TYPE.TEST ? `test/${folderName}/${fileName}` : `${folderName}/${fileName}`,
                 Body: fileContent
             });
@@ -130,12 +131,12 @@ export class S3StorageService implements StorageService {
         }
     }
 
-    private async readFile(folderName: string, fileName: string): Promise<Buffer> {
+    private async readFile(bucketName: string, folderName: string, fileName: string): Promise<Buffer> {
         // Implementation for getting a file goes here
 
         try {
             const command = new GetObjectCommand({
-                Bucket: this.bucketName,
+                Bucket: bucketName,
                 Key: this.env == ENVIRONMENT_TYPE.TEST ? `test/${folderName}/${fileName}` : `${folderName}/${fileName}`
             });
             const response: GetObjectCommandOutput = await this.s3Client.send(command);

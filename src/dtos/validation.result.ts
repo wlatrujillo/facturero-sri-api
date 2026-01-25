@@ -1,4 +1,4 @@
 export interface ValidationResult {
     estado: string;
-    errors: string[];
+    mensajes: string[];
 }

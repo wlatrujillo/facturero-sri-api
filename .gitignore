@@ -3,9 +3,9 @@
 **/logs
 **/dist
 **/lib
-**/facturero_storage
-**/facturero_storage_test
-**/vouchers
+**/facturero-sri-vouchers
+**/facturero-sri-vouchers-test
+**/facturero-sri-storage
 .vscode
 .vscode/*.json
 .DS_Store
