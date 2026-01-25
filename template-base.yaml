@@ -15,11 +15,6 @@ Parameters:
       - dev
       - qa
       - prd
-  EcrRepositoryName:
-    Type: String
-    Description: The name of the ECR repository to use. 
-    Default: facturero-sri
-
 
 Resources:
 
@@ -186,7 +181,7 @@ Resources:
   ECRRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Ref EcrRepositoryName
+      RepositoryName: !Sub "${EnvironmentId}-${Module}"
       Tags:
         - Key: "GROUP"
           Value: !Sub "${AWS::StackName}"

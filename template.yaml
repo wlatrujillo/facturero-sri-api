@@ -47,10 +47,6 @@ Parameters:
     Type: String
     Default: "true"
     AllowedValues: [ "true" , "false" ]
-  EcrRepositoryName:
-    Type: String
-    Description: The name of the ECR repository to use. 
-    Default: facturero-sri-api
   EcrRepositoryVersion:
     Type: String
     Description: The version of the ECR repository to use. 
@@ -169,8 +165,8 @@ Resources:
   ECSTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      ExecutionRoleArn: !Ref ExecutionRole
-      TaskRoleArn: !Ref ExecutionRole
+      ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/${EnvironmentId}-${Module}-ECSRole"
+      TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/${EnvironmentId}-${Module}-ECSRole"
       Family: !Sub "${EnvironmentId}-${Module}-task-definition"
       NetworkMode: awsvpc
       RequiresCompatibilities:
@@ -182,7 +178,7 @@ Resources:
         - Name: init
       ContainerDefinitions:
         - Name: !Sub ${EnvironmentId}-${Module}-taskcontainer
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EcrRepositoryName}:${EcrRepositoryVersion}"
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EnvironmentId}-${Module}:${EcrRepositoryVersion}"
           Memory: !Ref TaskDefinitionMemory
           ReadonlyRootFilesystem: !Ref ReadonlyRootFilesystem
           MountPoints:
@@ -210,13 +206,13 @@ Resources:
   ECSService:
     Type: AWS::ECS::Service
     Properties:
-      Cluster: !Ref ECSCluster
+      Cluster: !Sub "${EnvironmentId}-${Module}-cluster"
       TaskDefinition: !Ref ECSTaskDefinition
       ServiceName: !Sub "${EnvironmentId}-${Module}-service"
       LaunchType: FARGATE
       DesiredCount: 1
       LoadBalancers:
-      - ContainerName: !Sub ${EnvironmentId}-${Module}-taskcontainer
+      - ContainerName: !Sub "${EnvironmentId}-${Module}-taskcontainer"
         ContainerPort: !Ref ProjectExposedPort
         TargetGroupArn: !Ref TargetGroup
       NetworkConfiguration:
@@ -243,7 +239,6 @@ Resources:
           Value: !Sub "${AWS::StackName}"
       EnableECSManagedTags: true
     DependsOn:
-    - ECSCluster
     - ECSTaskDefinition
     - HTTPSlistener
     - ECSSecurityGroup
@@ -251,10 +246,6 @@ Resources:
 
 Outputs:
 
-  ECSCluster:
-    Description: The created cluster.
-    Value:
-      Ref: ECSCluster
   ECSService:
     Description: The created service.
     Value:
