@@ -27,28 +27,7 @@ import { ENVIRONMENT_TYPE } from './enums/environment.type.js';
 import { S3StorageService } from './services/impl/storage.srv.s3.js';
 import { SriTestRoutes } from './routes/sri.test.route.js';
 
-// Configuración de Swagger
-const swaggerOptions = {
-    definition: {
-        openapi: '3.0.0', // Especificar la versión de OpenAPI
-        info: {
-            title: 'Facturero SRI API',
-            version: '1.0.0',
-            description: 'Documentación de Facturero SRI API',
-        },
-        servers: [
-            {
-                url: 'https://sri.facturero-digital.com',
-            },
-            {
-                url: 'http://localhost:8080',
-            }
-        ],
-    },
-    apis: ['./src/routes/*.ts', './src/dtos/*.ts'], // Ruta a tus archivos de rutas y DTOs donde se documenta la API
-};
 
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 
 class App {
@@ -59,14 +38,12 @@ class App {
         this.app = express();
         this.logConfig();
         this.serverConfig();
+        this.swaggerConfig();
         this.routes();
     }
 
     private routes(): void {
 
-
-        // Rutas de Swagger
-        this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
         const region = process.env.AWS_REGION || "us-east-1";
 
@@ -90,6 +67,40 @@ class App {
         this.app.use('/api/sri', [checkApiKey], new SriRoutes(voucherServiceSri).router);
         this.app.use('/api/sri-test', [checkApiKey], new SriTestRoutes(voucherServiceSriTest).router);
 
+    }
+
+    private swaggerConfig() {
+        // Detect if running from workspace root or package directory
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = dirname(__filename);
+        const isWorkspaceRoot = __dirname.includes('/packages/facturero-sri-api/dist');
+        const swaggerApiPaths = isWorkspaceRoot
+            ? ['./packages/facturero-sri-api/src/routes/*.ts', './packages/facturero-sri-api/src/dtos/*.ts']
+            : ['./src/routes/*.ts', './src/dtos/*.ts'];
+
+        // Configuración de Swagger
+        const swaggerOptions = {
+            definition: {
+                openapi: '3.0.0', // Especificar la versión de OpenAPI
+                info: {
+                    title: 'Facturero SRI API',
+                    version: '1.0.0',
+                    description: 'Documentación de Facturero SRI API',
+                },
+                servers: [
+                    {
+                        url: 'https://sri.facturero-digital.com',
+                    },
+                    {
+                        url: 'http://localhost:8080',
+                    }
+                ],
+            },
+            apis: swaggerApiPaths,
+        };
+
+        const swaggerDocs = swaggerJsDoc(swaggerOptions);
+        this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
     }
 
 

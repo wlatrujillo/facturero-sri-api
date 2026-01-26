@@ -40,8 +40,12 @@ RUN npm ci --omit=dev
 COPY --from=builder /app/packages/facturero-sri-api/dist ./packages/facturero-sri-api/dist
 COPY --from=builder /app/packages/facturero-sri-signer/dist ./packages/facturero-sri-signer/dist
 
-# Copy views directory (for Handlebars templates)
-COPY packages/facturero-sri-api/src/views ./packages/facturero-sri-api/src/views
+# Copy views directory (for Handlebars templates) to dist folder
+COPY packages/facturero-sri-api/src/views ./packages/facturero-sri-api/dist/views
+
+# Copy source files needed for Swagger documentation
+COPY packages/facturero-sri-api/src/routes ./packages/facturero-sri-api/src/routes
+COPY packages/facturero-sri-api/src/dtos ./packages/facturero-sri-api/src/dtos
 
 # Expose port
 EXPOSE 8080
