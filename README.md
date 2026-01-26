@@ -33,7 +33,7 @@ Add this in vscode user or workspace settings.json
             "api_key": "dev_key_secret"
         },
         "prd": {
-            "host": "https://api.myproduct.com",
+            "host": "https://sri.facturero-digital.com",
             "api_key": "prod_key_secret"
         }
     }
