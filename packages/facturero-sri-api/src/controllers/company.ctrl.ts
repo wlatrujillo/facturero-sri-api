@@ -14,7 +14,7 @@ export class CompanyController {
         logger.debug('CompanyController initialized');
     }
 
-    getCompanyInfo = async (req: Request, res: Response) => {
+    getCompanyInfo = async (req: Request, res: Response) : Promise<Response> => {
         const ruc = req.params.ruc;
         try {
 
@@ -37,7 +37,7 @@ export class CompanyController {
             }
             return res.status(200).json(companyInfo);
         } catch (error: Error | any) {
-            res.status(500).send({
+            return res.status(500).send({
                 status: "error",
                 message: error instanceof Error ? error.message : String(error),
                 errors: error.errors ? error.errors : undefined
@@ -45,13 +45,13 @@ export class CompanyController {
         }
     }
 
-    registerCompany = async (req: Request, res: Response) => {
+    registerCompany = async (req: Request, res: Response) : Promise<Response> => {
         const companyData = req.body;
         try {
             const apiKey = await this.companyService.createCompany(companyData);
             return res.status(201).json({ apiKey });
         } catch (error: Error | any) {
-            res.status(500).send({
+            return res.status(500).send({
                 status: "error",
                 message: error instanceof Error ? error.message : String(error),
                 errors: error.errors ? error.errors : undefined

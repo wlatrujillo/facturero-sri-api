@@ -1,6 +1,6 @@
 import log4js from 'log4js';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand, type PutCommandOutput, type GetCommandOutput } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand, type GetCommandOutput } from "@aws-sdk/lib-dynamodb";
 import type { IVoucher } from '../model/voucher.js';
 import { ENVIRONMENT_TYPE } from '../enums/environment.type.js';
 import { VOUCHER_STATUS } from '../enums/voucher.status.js';
@@ -31,7 +31,7 @@ export class VoucherRepository {
             ConditionExpression: "attribute_not_exists(companyId) AND attribute_not_exists(voucherId)" // Prevent overwriting existing item,
         });
 
-        const result: PutCommandOutput = await this.docClient.send(putCommand);
+        await this.docClient.send(putCommand);
 
         return voucher;
 

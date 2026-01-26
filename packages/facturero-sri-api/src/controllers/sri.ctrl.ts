@@ -22,7 +22,7 @@ export class SriController {
     logger.debug('SriController initialized');
   }
 
-  generateInvoice = async (req: Request, res: Response): Promise<void> => {
+  generateInvoice = async (req: Request, res: Response): Promise<Response> => {
     logger.debug('generateInvoice called');
 
     try {
@@ -46,10 +46,10 @@ export class SriController {
       };
 
 
-      res.status(200).send(response);
+      return res.status(200).send(response);
 
     } catch (error: Error | any) {
-      res.status(500).send({
+      return res.status(500).send({
         status: "error",
         message: error instanceof Error ? error.message : String(error),
         errors: error.errors ? error.errors : undefined
@@ -57,7 +57,7 @@ export class SriController {
     }
   }
 
-  authorizeInvoice = async (req: Request, res: Response): Promise<void> => {
+  authorizeInvoice = async (req: Request, res: Response): Promise<Response> => {
     logger.debug('authorizeInvoice called');
     try {
 
@@ -72,7 +72,7 @@ export class SriController {
           status: "error",
           message: "Access key is required"
         });
-        return;
+        return res;
       }
 
       logger.info(`Received invoice data for authorization for companyId: ${companyId}`);
@@ -85,10 +85,10 @@ export class SriController {
       };
 
 
-      res.status(200).send(response);
+      return res.status(200).send(response);
 
     } catch (error: Error | any) {
-      res.status(500).send({
+      return res.status(500).send({
         status: "error",
         message: error instanceof Error ? error.message : String(error),
         errors: error.errors ? error.errors : undefined

@@ -212,7 +212,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
             const voucherKey: IVoucherKey = this.getVoucherKeyFromAccessKey(accessKey);
 
-            let voucherGenerated = await this._voucherRepository.findById(voucherKey);
+            await this._voucherRepository.findById(voucherKey);
 
             // === 4. Autorizar comprobante ===
             const authorization: any = await this._xmlProccessService.authorizeXML(

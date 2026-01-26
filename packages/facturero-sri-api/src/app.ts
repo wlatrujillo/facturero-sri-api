@@ -18,7 +18,6 @@ import CompanyRoutes from './routes/company.route.js';
 import { checkApiKey } from './controllers/api-key.ctrl.js';
 
 //Repositories and Services
-import { FsStorageService } from './services/impl/storage.srv.fs.js';
 import { CompanyRepository } from './repository/company.repository.js';
 import { CompanyServiceImpl } from './services/impl/company.srv.impl.js';
 import { VoucherServiceSriImpl } from './services/impl/voucher.srv.sri.impl.js';
@@ -85,8 +84,8 @@ class App {
 
         const companyService = new CompanyServiceImpl(new CompanyRepository(region));
 
-        this.app.get("/", (req, res) => res.render("index", { layout: false, link: "https://facturero-digital.com" }));
-        this.app.get("/api/health", (req, res) => res.status(200).send("OK"));
+        this.app.get("/", (_req, res) => res.render("index", { layout: false, link: "https://facturero-digital.com" }));
+        this.app.get("/api/health", (_req, res) => res.status(200).send("OK"));
         this.app.use('/api/company', new CompanyRoutes(companyService).router);
         this.app.use('/api/sri', [checkApiKey], new SriRoutes(voucherServiceSri).router);
         this.app.use('/api/sri-test', [checkApiKey], new SriTestRoutes(voucherServiceSriTest).router);
@@ -129,7 +128,7 @@ class App {
         //habilita el cors(puertos)
         this.app.use(cors());
         //Seteo de la cabecera de respuesta
-        this.app.use((req, res, next) => {
+        this.app.use((_req, res, next) => {
             //Configura las cabeceras de la app
             res.setHeader('Access-Control-Allow-Origin', '*');
             res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, UPDATE, DELETE');

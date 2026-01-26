@@ -1,0 +1,7 @@
+export enum VOUCHER_TYPE {
+    FACTURA = '01',
+    NOTA_CREDITO = '04',
+    NOTA_DEBITO = '05',
+    GUIA_REMISION = '06',
+    COMPROBANTE_RETENCION = '07'
+}
