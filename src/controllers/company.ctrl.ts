@@ -26,8 +26,8 @@ export class CompanyController {
                 });
             }
 
-
-            const companyInfo = await this.companyService.findCompany(ruc);
+            const companyId:string = ruc as string;
+            const companyInfo = await this.companyService.findCompany(companyId);
 
             if (!companyInfo) {
                 return res.status(404).json({
