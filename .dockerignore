@@ -1,9 +1,52 @@
+# Dependencies
 node_modules
-dist
-.git
-.dockerignore
 npm-debug.log
+
+# Build outputs
+dist
+*.tsbuildinfo
+
+# Version control
+.git
+.gitignore
+
+# Docker
+.dockerignore
+Dockerfile
+
+# Development tools
 .angular
+.vscode
+.idea
+
+# Environment files
 .env
-rest-client
+.env.local
+.env.*.local
+
+# Data directories
 facturero_data
+
+# REST client files
+rest-client
+
+# Documentation
+*.md
+README.md
+
+# SAM templates
+template*.yaml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+
+# Test files
+coverage
+.nyc_output
+*.test.ts
+*.spec.ts

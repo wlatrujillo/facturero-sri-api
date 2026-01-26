@@ -12,9 +12,10 @@ npm install
 .env
 
 ```
-PORT=3000
-MONGO_URL=mongodb+srv://user:password@host/?appName=bddName
-
+NODE_ENV=dev
+LOG_LEVEL=DEBUG
+PORT=8080
+AWS_REGION=us-east-1
 ```
 
 
