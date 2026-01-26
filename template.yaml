@@ -14,7 +14,7 @@ Parameters:
     AllowedValues:
       - dev
       - qa
-      - prod
+      - prd
   SSLCertificateArn:
     Type: String
     Description: The ARN of the certificate to use for HTTPS. 
