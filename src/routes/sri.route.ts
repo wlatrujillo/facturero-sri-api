@@ -1,8 +1,7 @@
-
-
-import { SriController } from '@controllers/index.js';
-import type { VoucherServiceSri } from '@services/voucher.srv.sri.js';
 import { Router } from 'express';
+
+import { SriController } from '../controllers/index.js';
+import type { VoucherServiceSri } from '../services/voucher.srv.sri.js';
 
 export class SriRoutes {
 

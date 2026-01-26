@@ -3,7 +3,7 @@ import { Buffer } from 'buffer';
 import * as fs from 'fs';
 
 import type { StorageService } from '../storage.srv.js';
-import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
+import { ENVIRONMENT_TYPE } from '../../enums/environment.type.js';
 
 
 const BASE_VOUCHERS_DIR_NAME = `facturero-sri-vouchers`;

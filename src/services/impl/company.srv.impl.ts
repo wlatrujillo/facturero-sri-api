@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import log4js from 'log4js';
-import type { IApiKey, ICompany } from '@model/company.js';
-import type { CompanyRepository } from '@repository/company.repository.js';
-import type { CompanyService } from '@services/company.srv.js';
+import type { IApiKey, ICompany } from '../../model/company.js';
+import type { CompanyRepository } from '../../repository/company.repository.js';
+import type { CompanyService } from '../../services/company.srv.js';
 
 export class CompanyServiceImpl implements CompanyService {
 
@@ -23,7 +23,7 @@ export class CompanyServiceImpl implements CompanyService {
     createCompany = async (company: ICompany): Promise<IApiKey> => {
 
         try {
-            this.logger.info(`Registering company  ${company}`);
+            this.logger.info(`Registering company  ${company.companyId}`);
 
             const now = new Date().toISOString();
 

@@ -1,7 +1,8 @@
 import log4js from 'log4js';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
-import type { ICompany } from '@model/company.js';
+
+import type { ICompany } from '../model/company.js';
 
 const NODE_ENV = process.env.NODE_ENV || 'dev';
 const TABLE_NAME = `${NODE_ENV}-facturero-sri-companies`;

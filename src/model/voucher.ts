@@ -1,4 +1,4 @@
-import type { VOUCHER_STATUS } from "@enums/voucher.status.js";
+import type { VOUCHER_STATUS } from "../enums/voucher.status.js";
 
 export interface IVoucher {
     companyId: string;

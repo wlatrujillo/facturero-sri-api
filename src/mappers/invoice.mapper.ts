@@ -1,5 +1,7 @@
-import type { AddInvoiceRequest } from "@dtos/add.invoice.request.js";
 import { type Invoice, type Impuesto, IDENTIFICATION } from "facturero-sri-signer";
+
+import type { AddInvoiceRequest } from "../dtos/add.invoice.request.js";
+
 
 export class InvoiceMapper {
 

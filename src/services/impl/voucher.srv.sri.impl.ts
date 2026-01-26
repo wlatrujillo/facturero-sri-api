@@ -1,20 +1,20 @@
 import log4js from 'log4js';
 
-import { type XmlProccessService } from '@services/xml.proccess.srv.js';
-import type { VoucherServiceSri } from '@services/voucher.srv.sri.js';
-import type { StorageService } from '@services/storage.srv.js';
-import type { SriValidationResult } from '@dtos/sri.validation.result.js';
-import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
-import type { AddInvoiceRequest } from '@dtos/add.invoice.request.js';
-import type { CompanyRepository } from '@repository/company.repository.js';
-import { VoucherRepository } from '@repository/voucher.repository.js';
-import { VOUCHER_STATUS } from '@enums/voucher.status.js';
-import { VOUCHER_TYPE } from '@enums/voucher.type.js';
-import type { IVoucherKey } from '@model/voucher.key.js';
-import { AddVoucherException } from 'exceptions/add.voucher.exception.js';
-import type { AddVoucherResponse } from '@dtos/add.voucher.response.js';
-import type { AuthVoucherResponse } from '@dtos/auth.voucher.response.js';
-import type { SriAuthorizationResult } from '@dtos/sri.auth.result.js';
+import { type XmlProccessService } from '../../services/xml.proccess.srv.js';
+import type { VoucherServiceSri } from '../../services/voucher.srv.sri.js';
+import type { StorageService } from '../../services/storage.srv.js';
+import type { SriValidationResult } from '../../dtos/sri.validation.result.js';
+import { ENVIRONMENT_TYPE } from '../../enums/environment.type.js';
+import type { AddInvoiceRequest } from '../../dtos/add.invoice.request.js';
+import type { CompanyRepository } from '../../repository/company.repository.js';
+import { VoucherRepository } from '../../repository/voucher.repository.js';
+import { VOUCHER_STATUS } from '../../enums/voucher.status.js';
+import { VOUCHER_TYPE } from '../../enums/voucher.type.js';
+import type { IVoucherKey } from '../../model/voucher.key.js';
+import { AddVoucherException } from '../../exceptions/add.voucher.exception.js';
+import type { AddVoucherResponse } from '../../dtos/add.voucher.response.js';
+import type { AuthVoucherResponse } from '../../dtos/auth.voucher.response.js';
+import type { SriAuthorizationResult } from '../../dtos/sri.auth.result.js';
 
 export class VoucherServiceSriImpl implements VoucherServiceSri {
     private readonly logger = log4js.getLogger('VoucherServiceSriImpl');

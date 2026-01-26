@@ -1,8 +1,8 @@
 
 
 import { Router } from 'express';
-import { CompanyController } from '@controllers/index.js';
-import type { CompanyService } from '@services/company.srv.js';
+import { CompanyController } from '../controllers/index.js';
+import type { CompanyService } from '../services/company.srv.js';
 
 export class CompanyRoutes {
 

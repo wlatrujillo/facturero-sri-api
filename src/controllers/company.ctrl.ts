@@ -2,7 +2,7 @@
 import type { Request, Response } from 'express';
 import log4js from 'log4js';
 
-import type { CompanyService } from '@services/company.srv.js';
+import type { CompanyService } from '../services/company.srv.js';
 
 
 const logger = log4js.getLogger("CompanyController");

@@ -2,8 +2,8 @@ import log4js from 'log4js';
 import { Buffer } from 'buffer';
 import { S3Client, GetObjectCommand, PutObjectCommand, type GetObjectCommandOutput } from "@aws-sdk/client-s3";
 
-import type { StorageService } from '@services/storage.srv.js';
-import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
+import type { StorageService } from '../../services/storage.srv.js';
+import { ENVIRONMENT_TYPE } from '../../enums/environment.type.js';
 
 const NODE_ENV = process.env.NODE_ENV || 'dev';
 const BUCKET_NAME = `${NODE_ENV}-facturero-sri-vouchers`;

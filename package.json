@@ -8,7 +8,7 @@
     "copy": "cp -R src/views dist/",
     "dev": "tsx watch --env-file=.env src/index.ts",
     "start": "npm run build && node --env-file=.env dist/index.js",
-    "build": "tsc && tsc-alias"
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +21,6 @@
     "@types/node": "^25.0.3",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
-    "tsc-alias": "^1.8.16",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },

@@ -1,5 +1,5 @@
-import type { SriAuthorizationResult } from "@dtos/sri.auth.result.js";
-import type { SriValidationResult } from "@dtos/sri.validation.result.js";
+import type { SriAuthorizationResult } from "../dtos/sri.auth.result.js";
+import type { SriValidationResult } from "../dtos/sri.validation.result.js";
 
 export class SriResultMapper {
 

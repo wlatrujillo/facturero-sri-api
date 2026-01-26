@@ -1,5 +1,5 @@
 
-import type { IApiKey, ICompany } from '@model/company.js';
+import type { IApiKey, ICompany } from '../model/company.js';
 
 export interface CompanyService {
   

@@ -4,16 +4,16 @@ import { ENVIRONMENT, VoucherGenerator, type InvoiceResponse } from "facturero-s
 import { XmlSigner } from "facturero-sri-signer"
 import { AuthorizationService } from "facturero-sri-signer";
 
-import { InvoiceMapper } from "@mappers/invoice.mapper.js";
-import type { SriValidationResult } from "@dtos/sri.validation.result.js";
-import type { XmlProccessService } from "@services/xml.proccess.srv.js";
-import { ENVIRONMENT_TYPE } from "@enums/environment.type.js";
+import { InvoiceMapper } from "../../mappers/invoice.mapper.js";
+import type { SriValidationResult } from "../../dtos/sri.validation.result.js";
+import type { XmlProccessService } from "../../services/xml.proccess.srv.js";
+import { ENVIRONMENT_TYPE } from "../../enums/environment.type.js";
 
-import type { AddInvoiceRequest } from "@dtos/add.invoice.request.js";
-import type { VoucherResponse } from "@dtos/voucher.response.js";
-import { VOUCHER_STATUS } from "@enums/voucher.status.js";
-import { SriResultMapper } from "@mappers/sri.result.mapper.js";
-import type { SriAuthorizationResult } from "@dtos/sri.auth.result.js";
+import type { AddInvoiceRequest } from "../../dtos/add.invoice.request.js";
+import type { VoucherResponse } from "../../dtos/voucher.response.js";
+import { VOUCHER_STATUS } from "../../enums/voucher.status.js";
+import { SriResultMapper } from "../../mappers/sri.result.mapper.js";
+import type { SriAuthorizationResult } from "../../dtos/sri.auth.result.js";
 
 export class XmlProccessServiceFacturero implements XmlProccessService {
 

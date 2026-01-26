@@ -37,17 +37,7 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-    "baseUrl": "./src",
-    "paths": {
-      "@controllers/*": ["controllers/*"],
-      "@services/*": ["services/*"],
-      "@routes/*": ["routes/*"],
-      "@model/*": ["model/*"],
-      "@repository/*": ["repository/*"],
-      "@mappers/*": ["mappers/*"],
-      "@dtos/*": ["dtos/*"],
-      "@enums/*": ["enums/*"]
-    }
+    "baseUrl": "./src"
   },
   "exclude": ["node_modules", "dist"]
 }

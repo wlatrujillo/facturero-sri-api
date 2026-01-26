@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
 
 
-import { CompanyServiceImpl } from "@services/impl/company.srv.impl.js";
-import { CompanyRepository } from "@repository/company.repository.js";
+import { CompanyServiceImpl } from "../services/impl/company.srv.impl.js";
+import { CompanyRepository } from "../repository/company.repository.js";
 
 
 export const checkApiKey = async (req: Request, res: Response, next: NextFunction) => {

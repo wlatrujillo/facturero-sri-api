@@ -14,19 +14,19 @@ import Log4js from 'log4js';
 
 //Routes
 import SriRoutes from './routes/sri.route.js';
-import CompanyRoutes from '@routes/company.route.js';
-import { checkApiKey } from '@controllers/api-key.ctrl.js';
+import CompanyRoutes from './routes/company.route.js';
+import { checkApiKey } from './controllers/api-key.ctrl.js';
 
 //Repositories and Services
-import { FsStorageService } from '@services/impl/storage.srv.fs.js';
-import { CompanyRepository } from '@repository/company.repository.js';
-import { CompanyServiceImpl } from '@services/impl/company.srv.impl.js';
-import { VoucherServiceSriImpl } from '@services/impl/voucher.srv.sri.impl.js';
-import { XmlProccessServiceFacturero } from '@services/impl/xml.process.srv.facturero.js';
-import { VoucherRepository } from '@repository/voucher.repository.js';
-import { ENVIRONMENT_TYPE } from '@enums/environment.type.js';
-import { S3StorageService } from '@services/impl/storage.srv.s3.js';
-import { SriTestRoutes } from '@routes/sri.test.route.js';
+import { FsStorageService } from './services/impl/storage.srv.fs.js';
+import { CompanyRepository } from './repository/company.repository.js';
+import { CompanyServiceImpl } from './services/impl/company.srv.impl.js';
+import { VoucherServiceSriImpl } from './services/impl/voucher.srv.sri.impl.js';
+import { XmlProccessServiceFacturero } from './services/impl/xml.process.srv.facturero.js';
+import { VoucherRepository } from './repository/voucher.repository.js';
+import { ENVIRONMENT_TYPE } from './enums/environment.type.js';
+import { S3StorageService } from './services/impl/storage.srv.s3.js';
+import { SriTestRoutes } from './routes/sri.test.route.js';
 
 // Configuración de Swagger
 const swaggerOptions = {
