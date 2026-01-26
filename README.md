@@ -3,9 +3,21 @@
 
 ## Project structure
 
+- devops. 
+- rest-client
 - packages
     - facturero-sri-api
     - facturero-sri-signer
+
+|        Folder         |      Descripción              |
+|-----------------------|-------------------------------|
+| devops                | DevOps Assets                 |
+| rest-client.          | Rest client api test          |
+| packages              | Source code packages.         |
+|   facturero-sri-api   | Source code api rest.         |
+|   facturero-sri-signer| Source code sri signer.       |
+
+
 
 ## Install dependencies
 
