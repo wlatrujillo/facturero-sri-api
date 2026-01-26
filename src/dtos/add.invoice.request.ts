@@ -40,15 +40,15 @@
  *             razonSocial:
  *               type: string
  *               description: Razón social del emisor
- *               example: "EMPRESA EJEMPLO S.A."
+ *               example: "Distribuidora de Suministros Nacional S.A."
  *             nombreComercial:
  *               type: string
  *               description: Nombre comercial del emisor
- *               example: "Ejemplo Corp"
+ *               example: "Empresa Importadora y Exportadora de Piezas"
  *             dirMatriz:
  *               type: string
  *               description: Dirección de la matriz
- *               example: "Av. Principal 123 y Secundaria"
+ *               example: "Enrique Guerrero Portilla OE1-34 AV. Galo Plaza Lasso"
  *             estab:
  *               type: string
  *               description: Código del establecimiento (3 dígitos)
@@ -68,11 +68,11 @@
  *             dirEstablecimiento:
  *               type: string
  *               description: Dirección del establecimiento emisor
- *               example: "Av. Principal 123"
+ *               example: "Sebastian Moreno S/N Francisco Garcia"
  *             contribuyenteEspecial:
  *               type: string
  *               description: Número de resolución de contribuyente especial
- *               example: "12345"
+ *               example: "5368"
  *             obligadoContabilidad:
  *               type: string
  *               description: Obligado a llevar contabilidad (SI/NO)
@@ -80,7 +80,7 @@
  *             tipoIdentificacionComprador:
  *               type: string
  *               description: Tipo de identificación del comprador
- *               example: "04"
+ *               example: "05"
  *             guiaRemision:
  *               type: string
  *               description: Número de guía de remisión
@@ -88,23 +88,23 @@
  *             razonSocialComprador:
  *               type: string
  *               description: Razón social del comprador
- *               example: "CLIENTE EJEMPLO S.A."
+ *               example: "Juan Carlos Perez Lopez"
  *             identificacionComprador:
  *               type: string
  *               description: RUC/Cédula del comprador
- *               example: "1234567890001"
+ *               example: "1719923456"
  *             direccionComprador:
  *               type: string
  *               description: Dirección del comprador
- *               example: "Calle Secundaria 456"
+ *               example: "Av. Amazonas N34-567 y Av. Colon"
  *             totalSinImpuestos:
  *               type: number
  *               description: Total sin impuestos
- *               example: 100.00
+ *               example: 10.00
  *             totalDescuento:
  *               type: number
  *               description: Total de descuentos aplicados
- *               example: 10.00
+ *               example: 0.00
  *             totalConImpuestos:
  *               type: array
  *               description: Listado de impuestos aplicados
@@ -122,11 +122,11 @@
  *                   baseImponible:
  *                     type: number
  *                     description: Base imponible del impuesto
- *                     example: 100.00
+ *                     example: 0.00
  *                   valor:
  *                     type: number
  *                     description: Valor del impuesto
- *                     example: 12.00
+ *                     example: 1.50
  *             propina:
  *               type: number
  *               description: Valor de la propina
@@ -134,7 +134,7 @@
  *             importeTotal:
  *               type: number
  *               description: Importe total de la factura
- *               example: 112.00
+ *               example: 11.50
  *             moneda:
  *               type: string
  *               description: Código de moneda
@@ -152,15 +152,15 @@
  *                   total:
  *                     type: number
  *                     description: Total del pago
- *                     example: 112.00
+ *                     example: 11.50
  *                   plazo:
  *                     type: number
  *                     description: Plazo de pago
- *                     example: 0
+ *                     example: 30
  *                   unidadTiempo:
  *                     type: string
  *                     description: Unidad de tiempo del plazo
- *                     example: "dias"
+ *                     example: "DIA"
  *             valorRetIva:
  *               type: number
  *               description: Valor de retención de IVA
@@ -185,19 +185,19 @@
  *               codigoPrincipal:
  *                 type: string
  *                 description: Código principal del producto/servicio
- *                 example: "PROD001"
+ *                 example: "125BJC-01"
  *               codigoAuxiliar:
  *                 type: string
  *                 description: Código auxiliar del producto/servicio
- *                 example: "AUX001"
+ *                 example: "1234D56789-A"
  *               descripcion:
  *                 type: string
  *                 description: Descripción del producto/servicio
- *                 example: "Producto de ejemplo"
+ *                 example: "Bujia de encendido para motor 1.8L"
  *               cantidad:
  *                 type: number
  *                 description: Cantidad del producto/servicio
- *                 example: 10
+ *                 example: 1
  *               precioUnitario:
  *                 type: number
  *                 description: Precio unitario del producto/servicio
@@ -209,7 +209,21 @@
  *               precioTotalSinImpuesto:
  *                 type: number
  *                 description: Precio total sin impuestos
- *                 example: 100.00
+ *                 example: 9.00
+ *               detallesAdicionales:
+ *                 type: array
+ *                 description: Detalles adicionales del producto/servicio
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     nombre:
+ *                       type: string
+ *                       description: Nombre del detalle adicional
+ *                       example: "Marca"
+ *                     valor:
+ *                       type: string
+ *                       description: Valor del detalle adicional
+ *                       example: "Bosh"
  *               impuestos:
  *                 type: array
  *                 description: Impuestos aplicados al detalle
@@ -227,15 +241,15 @@
  *                     tarifa:
  *                       type: number
  *                       description: Tarifa del impuesto
- *                       example: 12
+ *                       example: 15
  *                     baseImponible:
  *                       type: number
  *                       description: Base imponible del impuesto
- *                       example: 100.00
+ *                       example: 0.00
  *                     valor:
  *                       type: number
  *                       description: Valor del impuesto
- *                       example: 12.00
+ *                       example: 1.50
  *         infoAdicional:
  *           type: array
  *           description: Información adicional de la factura
@@ -249,7 +263,7 @@
  *               valor:
  *                 type: string
  *                 description: Valor del campo adicional
- *                 example: "cliente@ejemplo.com"
+ *                 example: "juan.perez@example.com"
  */
 export interface AddInvoiceRequest {
     
