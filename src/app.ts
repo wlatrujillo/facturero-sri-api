@@ -81,7 +81,7 @@ class App {
             new XmlProccessServiceFacturero(),
             new CompanyRepository(region),
             new VoucherRepository(region, ENVIRONMENT_TYPE.TEST),
-            new FsStorageService(ENVIRONMENT_TYPE.TEST));
+            new S3StorageService(region, ENVIRONMENT_TYPE.TEST));
 
         const companyService = new CompanyServiceImpl(new CompanyRepository(region));
 
