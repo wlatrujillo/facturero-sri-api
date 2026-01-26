@@ -21,12 +21,7 @@ Resources:
   ExecutionRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: !Join
-        - ""
-        - - !Ref EnvironmentId
-          - "-" 
-          - !Ref Module
-          - "-ECSRole"
+      RoleName: !Sub "${EnvironmentId}-${Module}-ECSRole"
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -52,35 +47,6 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: '*'
-        - PolicyName: !Sub "${EnvironmentId}-policy_allow_sessionmanagement"
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                Resource: "*"
-        - PolicyName: !Sub "${EnvironmentId}-policy_allow_dynamo_write"
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - dynamodb:PutItem
-                  - dynamodb:UpdateItems
-                  - dynamodb:GetItem
-                  - dynamodb:Query
-                Resource: "*"
-        - PolicyName: !Sub "${EnvironmentId}-policy_allow_s3_access"
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:PutObject
-                  - s3:GetObject
-                  - s3:ListBucket
-                Resource: "*"
       Tags:
         - Key: "GROUP"
           Value: !Sub "${AWS::StackName}"
@@ -93,6 +59,64 @@ Resources:
         - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
         - "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
         - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${EnvironmentId}-${Module}-ECSTaskRole"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "${EnvironmentId}-policy_allow_sessionmanagement"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: "*"
+        - PolicyName: !Sub "${EnvironmentId}-policy_allow_s3_access"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource:
+                  - !Sub "arn:aws:s3:::${EnvironmentId}-${Module}-vouchers"
+                  - !Sub "arn:aws:s3:::${EnvironmentId}-${Module}-vouchers/*"
+                  - !Sub "arn:aws:s3:::${EnvironmentId}-${Module}-vouchers-test"
+                  - !Sub "arn:aws:s3:::${EnvironmentId}-${Module}-vouchers-test/*"
+                  - !Sub "arn:aws:s3:::${EnvironmentId}-${Module}-storage"
+                  - !Sub "arn:aws:s3:::${EnvironmentId}-${Module}-storage/*"
+        - PolicyName: !Sub "${EnvironmentId}-dynamodb-access"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EnvironmentId}-${Module}-vouchers"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EnvironmentId}-${Module}-vouchers-test"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EnvironmentId}-${Module}-companies"
+      Tags:
+        - Key: "GROUP"
+          Value: !Sub "${AWS::StackName}"
+        - Key: "ENVIRONMENT_ID"
+          Value: !Ref EnvironmentId
+        - Key: "MODULE"
+          Value: !Ref Module
 
   VouchersBucket:
     Type: AWS::S3::Bucket
@@ -335,3 +359,7 @@ Outputs:
     Description: The created Execution Role.
     Value:
       Ref: ExecutionRole
+  RoleTaskRole:
+    Description: The created Task Role.
+    Value:
+      Ref: TaskRole

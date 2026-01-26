@@ -128,7 +128,7 @@ Resources:
       Cpu: !Ref Cpu
       Memory: !Ref Memory
       ExecutionRoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/${EnvironmentId}-${Module}-ECSRole
-      TaskRoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/${EnvironmentId}-${Module}-ECSRole
+      TaskRoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/${EnvironmentId}-${Module}-ECSTaskRole
       ContainerDefinitions:
         - Name: api
           Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EnvironmentId}-facturero-sri:${ImageTag}"
