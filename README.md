@@ -1,6 +1,12 @@
 # facturero-sri
 
 
+## Project structure
+
+- packages
+    - facturero-sri-api
+    - facturero-sri-signer
+
 ## Install dependencies
 
 ```
@@ -16,6 +22,12 @@ NODE_ENV=dev
 LOG_LEVEL=DEBUG
 PORT=8080
 AWS_REGION=us-east-1
+```
+
+## Run dev enviroment
+
+```
+npm run dev
 ```
 
 
