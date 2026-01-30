@@ -1,10 +1,11 @@
 
 import { SignedXml } from 'xml-crypto';
-
 import forge from 'node-forge';
 
+import { XmlSigner } from '../xml.signer.js';
 
-export class XmlSigner {
+
+export class XmlSignerCryptoImpl implements XmlSigner{
     // Lógica para firmar el XML
 
     signXml = (p12Buffer: Buffer, password: string, xmlBuffer: Buffer): string => {

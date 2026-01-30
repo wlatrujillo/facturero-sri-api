@@ -1,0 +1,14 @@
+import * as forge from "node-forge";
+
+export interface P12Certificate {
+    certificate: forge.pki.Certificate;
+    privateKey: forge.pki.PrivateKey;
+    issuerName: string;
+    serialNumber: string;
+    certificateX509: string;
+    base64Der: string;
+    publicKey: {
+        modulus: string;
+        exponent: string;
+    };
+}
