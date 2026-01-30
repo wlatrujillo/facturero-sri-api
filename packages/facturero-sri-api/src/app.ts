@@ -26,6 +26,8 @@ import { VoucherRepository } from './repository/voucher.repository.js';
 import { ENVIRONMENT_TYPE } from './enums/environment.type.js';
 import { S3StorageService } from './services/impl/storage.srv.s3.js';
 import { SriTestRoutes } from './routes/sri.test.route.js';
+import { FsStorageService } from './services/impl/storage.srv.fs.js';
+import { XmlProccessServiceOsoDreamer } from './services/impl/xml.process.srv.osodreamer.js';
 
 
 
@@ -54,10 +56,10 @@ class App {
             new S3StorageService(region, ENVIRONMENT_TYPE.LIVE));
 
         const voucherServiceSriTest = new VoucherServiceSriImpl(
-            new XmlProccessServiceFacturero(),
+            new XmlProccessServiceOsoDreamer(),
             new CompanyRepository(region),
             new VoucherRepository(region, ENVIRONMENT_TYPE.TEST),
-            new S3StorageService(region, ENVIRONMENT_TYPE.TEST));
+            new FsStorageService(ENVIRONMENT_TYPE.TEST));
 
         const companyService = new CompanyServiceImpl(new CompanyRepository(region));
 

@@ -7,6 +7,8 @@ export interface VoucherServiceSri {
 
     executeInvoice(companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse>;
 
+    generateSignedInvoice(companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<string>;
+
     authorizeVoucher(companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<AuthVoucherResponse>
 
 }

@@ -15,6 +15,8 @@ import { AddVoucherException } from '../../exceptions/add.voucher.exception.js';
 import type { AddVoucherResponse } from '../../dtos/add.voucher.response.js';
 import type { AuthVoucherResponse } from '../../dtos/auth.voucher.response.js';
 import type { SriAuthorizationResult } from '../../dtos/sri.auth.result.js';
+import { IVoucher } from '../../model/voucher.js';
+import { VoucherResponse } from '../../dtos/voucher.response.js';
 
 export class VoucherServiceSriImpl implements VoucherServiceSri {
     private readonly logger = log4js.getLogger('VoucherServiceSriImpl');
@@ -46,7 +48,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                 sequence: invoiceData.factura.secuencial
             };
 
-            let voucherGenerated = await this._voucherRepository.findById(voucherKey);
+            let voucherGenerated: IVoucher = await this._voucherRepository.findById(voucherKey) as IVoucher;
 
             if (!voucherGenerated) {
                 // === 1. Generar XML ===
@@ -143,9 +145,9 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
                 }
 
-                await this._voucherRepository.updateStatus(voucherKey, 
-                    VOUCHER_STATUS.VALIDATED, 
-                    validationSriResult.status, 
+                await this._voucherRepository.updateStatus(voucherKey,
+                    VOUCHER_STATUS.VALIDATED,
+                    validationSriResult.status,
                     validationSriResult.messages
                 );
                 voucherGenerated.status = VOUCHER_STATUS.VALIDATED;
@@ -168,9 +170,9 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
                 if (!authorizationResult || authorizationResult.status !== 'AUTORIZADO') {
 
-                    await this._voucherRepository.updateStatus(voucherKey, 
-                        VOUCHER_STATUS.NOT_AUTHORIZED, 
-                        authorizationResult.status, 
+                    await this._voucherRepository.updateStatus(voucherKey,
+                        VOUCHER_STATUS.NOT_AUTHORIZED,
+                        authorizationResult.status,
                         authorizationResult.messages);
 
                     return {
@@ -181,8 +183,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                 }
 
                 await this._storageService.writeAuthorizedVoucher(companyId, voucherGenerated.accessKey || '', Buffer.from(authorizationResult.voucher));
-                await this._voucherRepository.updateStatus(voucherKey, VOUCHER_STATUS.AUTHORIZED, 
-                    authorizationResult.status, 
+                await this._voucherRepository.updateStatus(voucherKey, VOUCHER_STATUS.AUTHORIZED,
+                    authorizationResult.status,
                     authorizationResult.messages,
                     authorizationResult.voucher);
 
@@ -200,6 +202,20 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         }
 
 
+    }
+
+    async generateSignedInvoice(companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<string> {
+
+        const voucherResponse: VoucherResponse = await this._xmlProccessService.generateInvoiceXML(companyId, env, invoiceData);
+
+        const xml = voucherResponse.xml;
+
+        const signedXml: string = await this._xmlProccessService.signXML({
+            p12Buffer: await this._storageService.readCertificateP12(companyId),
+            password: (await this._companyRepository.findById({ companyId }))?.signaturePassword || '',
+            xmlBuffer: Buffer.from(xml)
+        });
+        return signedXml;
     }
 
     authorizeVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<AuthVoucherResponse> => {
@@ -248,7 +264,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
     }
 
     private getVoucherKeyFromAccessKey = (accessKey: string): IVoucherKey => {
-        
+
         const voucherTypeCode = accessKey.substring(8, 10);
         const companyId = accessKey.substring(10, 24);
         const estab = accessKey.substring(25, 28);
