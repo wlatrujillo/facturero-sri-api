@@ -67,7 +67,7 @@ export class InvoiceMapperOsodreamer {
             propina: 0.0,
             importeTotal: data.importeTotal,
             moneda: data.moneda,
-            pagos: data.pagos,
+            pagos: { pago: data.pagos },
             valorRetIva: data.valorRetIva || 0,
             valorRetRenta: data.valorRetRenta || 0,
         };
@@ -75,18 +75,18 @@ export class InvoiceMapperOsodreamer {
 
     static toDetalles(detalles: any): DetallesModel {
 
-        return detalles.map((detalle: any) => ({
-            detalle: {
+        return {
+            detalle: detalles.map((detalle: any) => ({
                 codigoPrincipal: detalle.codigoPrincipal,
                 descripcion: detalle.descripcion,
                 cantidad: detalle.cantidad,
                 precioUnitario: detalle.precioUnitario,
                 descuento: detalle.descuento,
                 precioTotalSinImpuesto: detalle.precioTotalSinImpuesto,
-                impuestos: detalle.impuestos as ImpuestoDetalleModel[] || [],
+                impuestos: { impuesto: detalle.impuestos as ImpuestoDetalleModel[] || [] },
                 detallesAdicionales: detalle.detallesAdicionales || []
-            }
-        }));
+            }))
+        };
 
     }
 
