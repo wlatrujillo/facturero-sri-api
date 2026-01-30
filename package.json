@@ -14,8 +14,8 @@
   "license": "ISC",
   "type": "module",
   "workspaces": [
-    "packages/facturero-sri-api",
-    "packages/facturero-sri-signer"
+    "packages/facturero-sri-signer",
+    "packages/facturero-sri-api"
   ],
   "dependencies": {
     "tsx": "^4.21.0",
