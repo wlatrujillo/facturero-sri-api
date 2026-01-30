@@ -29,12 +29,13 @@ export class SriController {
 
       const companyId = res.locals.companyId;
 
-      console.log('Request path:', req.path);
+
 
       const environment = req.path.includes('/test/') ? 'TEST' : 'LIVE';
 
       const invoiceData: AddInvoiceRequest = req.body;
 
+      logger.info(`Received invoice data for invoice generation for companyId: ${companyId} environment: ${environment}`);
 
       const serviceResponse: AddVoucherResponse = await this.voucherServiceSri.executeInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
 
@@ -49,6 +50,7 @@ export class SriController {
       return res.status(200).send(response);
 
     } catch (error: Error | any) {
+      logger.error('Error in generateInvoice:', error);
       return res.status(500).send({
         status: "error",
         message: error instanceof Error ? error.message : String(error),
@@ -56,7 +58,7 @@ export class SriController {
       });
     }
   }
-  
+
   generateSignedInvoice = async (req: Request, res: Response): Promise<Response> => {
     logger.debug('generateSignedInvoice called');
     try {
@@ -71,7 +73,7 @@ export class SriController {
 
       const xmlSigned: string = await this.voucherServiceSri.generateSignedInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
 
-      const response= {
+      const response = {
         xmlSigned
       };
 
@@ -79,6 +81,7 @@ export class SriController {
       return res.status(200).send(response);
 
     } catch (error: Error | any) {
+      logger.error('Error in generateSignedInvoice:', error);
       return res.status(500).send({
         status: "error",
         message: error instanceof Error ? error.message : String(error),
@@ -118,6 +121,7 @@ export class SriController {
       return res.status(200).send(response);
 
     } catch (error: Error | any) {
+      logger.error('Error in authorizeInvoice:', error);
       return res.status(500).send({
         status: "error",
         message: error instanceof Error ? error.message : String(error),
