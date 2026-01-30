@@ -24,6 +24,7 @@
     "express": "^5.2.1",
     "express-handlebars": "^8.0.4",
     "log4js": "^6.9.1",
+    "osodreamer-sri-xml-signer": "^0.1.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
