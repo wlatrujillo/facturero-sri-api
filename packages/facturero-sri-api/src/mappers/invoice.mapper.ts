@@ -1,4 +1,5 @@
-import { type Invoice, type Impuesto, IDENTIFICATION } from "facturero-sri-signer";
+import { IDENTIFICATION } from "facturero-sri-signer";
+import type { Invoice, Impuesto } from "facturero-sri-signer";
 
 import type { AddInvoiceRequest } from "../dtos/add.invoice.request.js";
 
@@ -41,7 +42,7 @@ export class InvoiceMapper {
             issueDate = data.fechaEmision;
         } else if (data.fechaEmision && typeof data.fechaEmision === "string" && data.fechaEmision.trim() !== "") {
             issueDate = new Date(data.fechaEmision);
-        } 
+        }
 
         return {
             fechaEmision: issueDate,

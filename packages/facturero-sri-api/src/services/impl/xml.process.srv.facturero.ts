@@ -1,8 +1,8 @@
 import log4js from 'log4js';
 
-import { ENVIRONMENT, VoucherGenerator, type InvoiceResponse } from "facturero-sri-signer";
-import { XmlSigner } from "facturero-sri-signer"
-import { AuthorizationService } from "facturero-sri-signer";
+import { ENVIRONMENT, VoucherGenerator, AuthorizationService, XmlSignerImpl } from "facturero-sri-signer";
+import type { InvoiceResponse } from "facturero-sri-signer";
+
 
 import { InvoiceMapper } from "../../mappers/invoice.mapper.js";
 import type { SriValidationResult } from "../../dtos/sri.validation.result.js";
@@ -19,12 +19,12 @@ export class XmlProccessServiceFacturero implements XmlProccessService {
 
   private readonly logger = log4js.getLogger('VoucherServiceSriImpl');
   private voucherGenerator: VoucherGenerator;
-  private xmlSigner: XmlSigner;
+  private xmlSigner: XmlSignerImpl;
   private authorizationService: AuthorizationService;
 
   constructor() {
     this.voucherGenerator = new VoucherGenerator();
-    this.xmlSigner = new XmlSigner();
+    this.xmlSigner = new XmlSignerImpl();
     this.authorizationService = new AuthorizationService();
   }
 
