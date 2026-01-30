@@ -56,6 +56,36 @@ export class SriController {
       });
     }
   }
+  
+  generateSignedInvoice = async (req: Request, res: Response): Promise<Response> => {
+    logger.debug('generateSignedInvoice called');
+    try {
+
+      const companyId = res.locals.companyId;
+
+      const environment = req.path.includes('/test/') ? 'TEST' : 'LIVE';
+
+      logger.info(`Received invoice data for signed invoice generation for companyId: ${companyId} environment: ${environment}`);
+
+      const invoiceData: AddInvoiceRequest = req.body;
+
+      const xmlSigned: string = await this.voucherServiceSri.generateSignedInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
+
+      const response= {
+        xmlSigned
+      };
+
+
+      return res.status(200).send(response);
+
+    } catch (error: Error | any) {
+      return res.status(500).send({
+        status: "error",
+        message: error instanceof Error ? error.message : String(error),
+        errors: error.errors ? error.errors : undefined
+      });
+    }
+  }
 
   authorizeInvoice = async (req: Request, res: Response): Promise<Response> => {
     logger.debug('authorizeInvoice called');

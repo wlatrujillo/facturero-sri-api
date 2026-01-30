@@ -12,7 +12,6 @@
 |        Folder         |      Descripción              |
 |-----------------------|-------------------------------|
 | devops                | DevOps Assets                 |
-| rest-client.          | Rest client api test          |
 | packages              | Source code packages.         |
 |   facturero-sri-api   | Source code api rest.         |
 |   facturero-sri-signer| Source code sri signer.       |
@@ -41,29 +40,6 @@ AWS_REGION=us-east-1
 ```
 npm run dev
 ```
-
-
-## Rest Client
-
-
-### Config variables for VSCode
-
-Add this in vscode user or workspace settings.json 
-
-```json
-  "rest-client.environmentVariables": {
-        "dev": {
-            "host": "http://localhost:8080",
-            "api_key": "dev_key_secret"
-        },
-        "prd": {
-            "host": "https://sri.facturero-digital.com",
-            "api_key": "prod_key_secret"
-        }
-    }
-```
-
-
 
 
 ##### References

@@ -205,10 +205,12 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
     }
 
     async generateSignedInvoice(companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<string> {
-
+        this.logger.debug(`Signing XML for invoice for companyId: ${companyId} environment: ${env}`);
         const voucherResponse: VoucherResponse = await this._xmlProccessService.generateInvoiceXML(companyId, env, invoiceData);
 
         const xml = voucherResponse.xml;
+
+        this.logger.debug(`Generated XML: ${xml.substring(0, 100)}...`);
 
         const signedXml: string = await this._xmlProccessService.signXML({
             p12Buffer: await this._storageService.readCertificateP12(companyId),

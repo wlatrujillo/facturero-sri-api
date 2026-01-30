@@ -110,6 +110,10 @@ export class SriTestRoutes {
             .put(this.ctrl.authorizeInvoice);
 
 
+        this.router.route('/test/signed-invoice')
+            .post(this.ctrl.generateSignedInvoice);
+
+
 
     }
 }
