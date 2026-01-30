@@ -1,7 +1,7 @@
 
 
-export class XmlSigner {
+export interface XmlSigner {
 
-    signXml = (p12Buffer: Buffer, password: string, xmlBuffer: Buffer): string;
+    signXml(p12Buffer: Buffer, password: string, xmlBuffer: Buffer): string;
 
 }
