@@ -63,7 +63,7 @@ export class InvoiceMapperOsodreamer {
             direccionComprador: data.direccionComprador,
             totalSinImpuestos: data.totalSinImpuestos,
             totalDescuento: data.totalDescuento,
-            totalConImpuestos: data.totalConImpuestos,
+            totalConImpuestos: { totalImpuesto: data.totalConImpuestos },
             propina: 0.0,
             importeTotal: data.importeTotal,
             moneda: data.moneda,
