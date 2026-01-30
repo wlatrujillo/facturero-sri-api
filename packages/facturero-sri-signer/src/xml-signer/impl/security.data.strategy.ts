@@ -26,9 +26,14 @@ export class SecurityDataStrategy implements SignStrategy {
         }
     }
 
-    overrideIssuerName(certBags: forge.pkcs12.Bag[]): string {
-        const cert = certBags[forge.pki.oids.certBag][0].cert;
-        return cert.issuer.attributes
+    overrideIssuerName(certBags: any): string {
+
+
+        const cert = certBags.filter((c: any) => c?.cert?.extensions).reduce((prev: any, curr: any) => {
+            return (curr?.cert?.extensions?.length > prev?.cert?.extensions?.length) ? curr : prev
+        });
+
+        return cert.cert.issuer.attributes
             .reverse()
             .map((attr: any) => `${attr.shortName}=${attr.value}`)
             .join(",");

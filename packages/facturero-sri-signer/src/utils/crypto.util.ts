@@ -1,4 +1,4 @@
-import * as forge from "node-forge";
+import forge from "node-forge";
 
 export class CryptoUtils {
     hexToBase64(str: string): string {
@@ -8,6 +8,7 @@ export class CryptoUtils {
             .replace(/([\da-fA-F]{2}) ?/g, (match) =>
                 String.fromCharCode(parseInt(match, 16))
             );
+
         return forge.util.encode64(binary);
     }
 
@@ -17,8 +18,8 @@ export class CryptoUtils {
             ?.match(/\w{2}/g)
             ?.map((a) => String.fromCharCode(parseInt(a, 16)))
             .join("");
-        const base64 = forge.util.encode64(binary);
-        return base64.match(/.{1,76}/g).join("\n");
+        const base64 = forge.util.encode64(binary || "");
+        return base64.match(/.{1,76}/g)?.join("\n") || "";
     }
 
     p_obtener_aleatorio(): number {
