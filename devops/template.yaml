@@ -37,7 +37,7 @@ Parameters:
 
   ImageTag:
     Type: String
-    Default: 1.0.0
+    Default: 1.0.1
 
 Resources:
 
