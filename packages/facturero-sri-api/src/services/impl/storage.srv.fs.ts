@@ -126,10 +126,8 @@ export class FsStorageService implements StorageService {
 
     private async readFile(baseDir: string, folderName: string, fileName: string): Promise<Buffer> {
      
-        logger.debug(`Reading file from path: ${__dirname}`);
         const filePath = path.join(__dirname, '..', '..', '..', '..', '..', baseDir, folderName, fileName);
         if (!fs.existsSync(filePath)) {
-            logger.error(`File not found at path: ${filePath}`);
             throw new Error("File not found");
         }
         return fs.readFileSync(filePath);

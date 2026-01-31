@@ -36,8 +36,6 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
      */
     executeInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse> => {
         this.logger.info(`🚀 Iniciando proceso de facturación SRI para la empresa: ${companyId} en entorno ${env}`);
-
-
         try {
 
             const voucherKey: IVoucherKey = {
@@ -50,151 +48,105 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
             let voucherGenerated: IVoucher = await this._voucherRepository.findById(voucherKey) as IVoucher;
 
-            if (!voucherGenerated) {
-                // === 1. Generar XML ===
-                this.logger.debug(`No existing voucher found. Generating new XML for invoice sequence: ${invoiceData.factura.secuencial}`);
-
-                const { xml, accessKey } =
-                    await this._xmlProccessService.generateInvoiceXML(companyId, env, invoiceData);
-                const claveAcceso = accessKey as string;
-
-                await this._storageService.writeGeneratedVoucher(companyId,
-                    claveAcceso,
-                    Buffer.from(xml));
-
-                voucherGenerated = await this._voucherRepository.insert({
-                    companyId: companyId,
-                    voucherId: `#${VOUCHER_TYPE.INVOICE}#${invoiceData.factura.estab}#${invoiceData.factura.ptoEmi}#${invoiceData.factura.secuencial}`,
-                    accessKey: claveAcceso,
-                    xml: xml,
-                    status: VOUCHER_STATUS.GENERATED,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                });
-
-
-                voucherGenerated.status = VOUCHER_STATUS.GENERATED;
-
-                this.logger.info(`📄 XML generado correctamente:`);
+            if (voucherGenerated && voucherGenerated.status === VOUCHER_STATUS.AUTHORIZED) {
+                this.logger.info(`El comprobante con clave de acceso ${voucherGenerated.accessKey} ya se encuentra autorizado.`);
+                return {
+                    accessKey: voucherGenerated.accessKey || '',
+                    status: VOUCHER_STATUS.AUTHORIZED,
+                    errors: []
+                } as AddVoucherResponse;
             }
 
-            if (voucherGenerated.status === VOUCHER_STATUS.GENERATED) {
-                // === 2. Firmar XML ===
-                this.logger.debug(`Signing XML for accessKey: ${voucherGenerated.accessKey}`);
+            // === 1. Generar XML  ===
+            this.logger.debug(`1. Generating XML for invoice...`);
+            const voucherResponse: VoucherResponse = await this._xmlProccessService.generateInvoiceXML(companyId, env, invoiceData);
 
-                const company = await this._companyRepository.findById({ companyId });
-                if (!company) {
-                    throw new Error(`Company with ID ${companyId} not found.`);
-                }
-                // TO-DO: Retrieve password securely
-                const password = company.signaturePassword;
-
-                const p12Buffer = await this._storageService.readCertificateP12(companyId);
-
-                const xmlBuffer = await this._storageService.readGeneratedVoucher(companyId, voucherGenerated.accessKey || '');
-
-
-                const signedXml = await this._xmlProccessService.signXML({
-                    p12Buffer: p12Buffer,
-                    password: password,
-                    xmlBuffer: xmlBuffer
-                });
-                await this._storageService.writeSignedVoucher(companyId, voucherGenerated.accessKey || '', Buffer.from(signedXml));
-
-                await this._voucherRepository.updateStatus(
-                    voucherKey,
-                    VOUCHER_STATUS.SIGNED,
-                    '',
-                    [],
-                    signedXml
-                );
-
-                voucherGenerated.status = VOUCHER_STATUS.SIGNED;
-
-                this.logger.info(`🔏 XML firmado correctamente:`);
+            if (!voucherResponse || !voucherResponse.xml || !voucherResponse.accessKey) {
+                throw new Error("Error generating signed XML voucher.");
             }
 
+            // === 2. Firmar XML  ===
+            this.logger.debug(`2. Signing XML for invoice...`);
+            const company = await this._companyRepository.findById({ companyId });
 
-            if (voucherGenerated.status === VOUCHER_STATUS.SIGNED || voucherGenerated.status === VOUCHER_STATUS.REJECTED) {
-                // === 3. Validar XML firmado ===
-                this.logger.debug(`Validating XML for accessKey: ${voucherGenerated.accessKey}`);
+            if (!company) {
+                throw new Error(`Company with ID ${companyId} not found.`);
+            }
 
-                const signedXmlBuffer = await this._storageService.readSignedVoucher(companyId, voucherGenerated.accessKey || '');
+            const p12Buffer = await this._storageService.readCertificateP12(companyId);
+
+            // TO-DO: Retrieve password securely
+            const password = company.signaturePassword;
+
+            const signedXml: string = await this._xmlProccessService.signXML({
+                p12Buffer: p12Buffer,
+                password: password,
+                xmlBuffer: Buffer.from(voucherResponse.xml)
+            });
+
+            await this._storageService.writeSignedVoucher(
+                companyId,
+                voucherResponse.accessKey,
+                Buffer.from(signedXml)
+            );
 
 
-                const validationSriResult: SriValidationResult = await this._xmlProccessService.validateXML(
-                    env,
-                    signedXmlBuffer
-                );
+            // === 3. Validar XML firmado ===
+            this.logger.debug(`3. Validating XML for accessKey: ${voucherResponse.accessKey}`);
+            const validationSriResult: SriValidationResult = await this._xmlProccessService.validateXML(
+                env,
+                Buffer.from(signedXml)
+            );
+            if (!validationSriResult || validationSriResult.status !== 'RECIBIDA') {
 
-                if (!validationSriResult || validationSriResult.status !== 'RECIBIDA') {
-
-                    await this._voucherRepository.updateStatus(
-                        voucherKey,
-                        VOUCHER_STATUS.REJECTED,
-                        validationSriResult.status,
-                        validationSriResult.messages
-                    );
-
-
-                    return {
-                        accessKey: voucherGenerated.accessKey || '',
-                        status: VOUCHER_STATUS.REJECTED,
-                        errors: validationSriResult.messages || []
-                    } as AddVoucherResponse;
-
-                }
-
-                await this._voucherRepository.updateStatus(voucherKey,
-                    VOUCHER_STATUS.VALIDATED,
-                    validationSriResult.status,
-                    validationSriResult.messages
-                );
-                voucherGenerated.status = VOUCHER_STATUS.VALIDATED;
-
-                this.logger.info(`✅ XML validado correctamente:`);
+                return {
+                    accessKey: voucherResponse.accessKey || '',
+                    status: VOUCHER_STATUS.REJECTED,
+                    errors: validationSriResult.messages || []
+                } as AddVoucherResponse;
 
             }
 
-            if (voucherGenerated.status === VOUCHER_STATUS.VALIDATED || voucherGenerated.status === VOUCHER_STATUS.NOT_AUTHORIZED) {
-                // === 4. Autorizar comprobante ===
-                this.logger.debug(`Authorizing voucher for accessKey: ${voucherGenerated.accessKey}`);
+            // === 4. Autorizar comprobante ===
+            this.logger.debug(`4. Authorizing voucher for accessKey: ${voucherResponse.accessKey}`);
 
-                const authorizationResult: SriAuthorizationResult = await this._xmlProccessService.authorizeXML(
-                    env,
-                    voucherGenerated.accessKey || ''
-                );
+            const authorizationResult: SriAuthorizationResult = await this._xmlProccessService.authorizeXML(
+                env,
+                voucherResponse.accessKey || ''
+            );
 
+            if (!authorizationResult || authorizationResult.status !== 'AUTORIZADO') {
 
-                this.logger.debug(`authorizationResult response: ${JSON.stringify(authorizationResult)}`);
-
-                if (!authorizationResult || authorizationResult.status !== 'AUTORIZADO') {
-
-                    await this._voucherRepository.updateStatus(voucherKey,
-                        VOUCHER_STATUS.NOT_AUTHORIZED,
-                        authorizationResult.status,
-                        authorizationResult.messages);
-
-                    return {
-                        accessKey: voucherGenerated.accessKey || '',
-                        status: VOUCHER_STATUS.NOT_AUTHORIZED,
-                        errors: authorizationResult.messages || []
-                    }
-                }
-
-                await this._storageService.writeAuthorizedVoucher(companyId, voucherGenerated.accessKey || '', Buffer.from(authorizationResult.voucher));
-                await this._voucherRepository.updateStatus(voucherKey, VOUCHER_STATUS.AUTHORIZED,
-                    authorizationResult.status,
-                    authorizationResult.messages,
-                    authorizationResult.voucher);
-
-                this.logger.info(`🧾 Comprobante autorizado correctamente:`);
-
+                return {
+                    accessKey: voucherResponse.accessKey || '',
+                    status: VOUCHER_STATUS.NOT_AUTHORIZED,
+                    errors: authorizationResult.messages || []
+                } as AddVoucherResponse;
             }
+
+            await this._storageService.writeAuthorizedVoucher(
+                companyId, 
+                voucherResponse.accessKey, 
+                Buffer.from(authorizationResult.voucher));
+
+            voucherGenerated = await this._voucherRepository.insert({
+                companyId: companyId,
+                voucherId: `#${VOUCHER_TYPE.INVOICE}#${invoiceData.factura.estab}#${invoiceData.factura.ptoEmi}#${invoiceData.factura.secuencial}`,
+                accessKey: voucherResponse.accessKey,
+                xml: voucherResponse.xml,
+                status: VOUCHER_STATUS.AUTHORIZED,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+
 
             this.logger.info("🎉 Proceso completado con éxito.");
 
-            return { accessKey: voucherGenerated.accessKey || '', status: VOUCHER_STATUS.AUTHORIZED, errors: [] } as AddVoucherResponse;
+            return {
+                accessKey: voucherGenerated.accessKey,
+                status: voucherGenerated.status,
+                errors: []
+            } as AddVoucherResponse;
 
         } catch (error: any) {
             this.logger.error("❌ Error durante el proceso:", error);
@@ -204,8 +156,9 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
     }
 
-    async generateSignedInvoice(companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<string> {
+    async generateSignedInvoice(companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<VoucherResponse> {
         this.logger.debug(`Signing XML for invoice for companyId: ${companyId} environment: ${env}`);
+
         const voucherResponse: VoucherResponse = await this._xmlProccessService.generateInvoiceXML(companyId, env, invoiceData);
 
         const xml = voucherResponse.xml;
@@ -213,14 +166,22 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         this.logger.debug(`Generated XML: ${xml.substring(0, 100)}...`);
 
         const p12Buffer = await this._storageService.readCertificateP12(companyId);
-        const password = (await this._companyRepository.findById({ companyId }))?.signaturePassword || '';
+
+        const company = await this._companyRepository.findById({ companyId });
+
+        if (!company) {
+            throw new Error(`Company with ID ${companyId} not found.`);
+        }
+
+        // TO-DO: Retrieve password securely
+        const password = company.signaturePassword;
 
         const signedXml: string = await this._xmlProccessService.signXML({
             p12Buffer: p12Buffer,
             password: password,
             xmlBuffer: Buffer.from(xml)
         });
-        return signedXml;
+        return { xml: signedXml, accessKey: voucherResponse.accessKey, status: VOUCHER_STATUS.SIGNED, errors: [] } as VoucherResponse;
     }
 
     authorizeVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<AuthVoucherResponse> => {
