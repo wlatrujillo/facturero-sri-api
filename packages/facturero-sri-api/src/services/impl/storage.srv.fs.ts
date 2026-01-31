@@ -1,5 +1,7 @@
 import log4js from 'log4js';
 import { Buffer } from 'buffer';
+import { fileURLToPath } from 'url';
+import path from 'path';
 import * as fs from 'fs';
 
 import type { StorageService } from '../storage.srv.js';
@@ -21,7 +23,7 @@ export class FsStorageService implements StorageService {
     constructor(private readonly env: ENVIRONMENT_TYPE = ENVIRONMENT_TYPE.TEST) {
 
         this.baseVouchersDir = this.env === ENVIRONMENT_TYPE.TEST ? BASE_VOUCHERS_DIR_NAME_TEST : BASE_VOUCHERS_DIR_NAME;
-      
+
     }
 
     public async readCertificateP12(companyId: string): Promise<Buffer> {
@@ -112,8 +114,10 @@ export class FsStorageService implements StorageService {
         }
     }
 
-    private async writeFile(baseDir: string, folderName:string, fileName: string, fileContent: Buffer): Promise<void> {
-        const dirPath = `${baseDir}/${folderName}`;
+    private async writeFile(baseDir: string, folderName: string, fileName: string, fileContent: Buffer): Promise<void> {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const dirPath = path.join(__dirname, '..', '..', '..','..', '..', baseDir, folderName);
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true });
         }
@@ -121,8 +125,11 @@ export class FsStorageService implements StorageService {
         fs.writeFileSync(filePath, fileContent);
     }
 
-    private async readFile(baseDir:string,folderName:string, fileName: string): Promise<Buffer> {
-        const filePath = `${baseDir}/${folderName}/${fileName}`;
+    private async readFile(baseDir: string, folderName: string, fileName: string): Promise<Buffer> {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        logger.debug(`Reading file from path: ${__dirname}`);
+        const filePath = path.join(__dirname, '..', '..', '..', '..', '..', baseDir, folderName, fileName);
         if (!fs.existsSync(filePath)) {
             logger.error(`File not found at path: ${filePath}`);
             throw new Error("File not found");

@@ -1,7 +1,6 @@
 import {
     ComprobanteType,
     DetallesModel,
-    IDENTIFICATION_CODE_ENUM,
     ImpuestoDetalleModel,
     InfoAdicionalModel,
     InfoFacturaModel,
@@ -57,7 +56,7 @@ export class InvoiceMapperOsodreamer {
             fechaEmision: issueDate,
             dirEstablecimiento: data.dirEstablecimiento,
             // contribuyenteEspecial: "sd3",
-            tipoIdentificacionComprador: IDENTIFICATION_CODE_ENUM[data.tipoIdentificacionComprador as keyof typeof IDENTIFICATION_CODE_ENUM],
+            tipoIdentificacionComprador: data.tipoIdentificacionComprador,
             razonSocialComprador: data.razonSocialComprador,
             identificacionComprador: data.identificacionComprador,
             direccionComprador: data.direccionComprador,
@@ -84,7 +83,7 @@ export class InvoiceMapperOsodreamer {
                 descuento: detalle.descuento,
                 precioTotalSinImpuesto: detalle.precioTotalSinImpuesto,
                 impuestos: { impuesto: detalle.impuestos as ImpuestoDetalleModel[] || [] },
-                detallesAdicionales: detalle.detallesAdicionales || []
+                detallesAdicionales: { detAdicional: detalle.detallesAdicionales || [] }
             }))
         };
 

@@ -5,9 +5,7 @@
     "outDir": "./dist",
     "composite": true,
     "declarationDir": "./dist/types",
-    "paths": {
-      "facturero-sri-signer": ["../facturero-sri-signer/src/index.ts"]
-    }
+    "disableSourceOfProjectReferenceRedirect": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
