@@ -37,7 +37,7 @@ Parameters:
 
   ImageTag:
     Type: String
-    Default: 1.0.1
+    Default: 1.0.2
 
 Resources:
 
@@ -143,6 +143,8 @@ Resources:
               Value: !Ref AWS::Region
             - Name: LOG_LEVEL
               Value: DEBUG
+            - Name: TZ
+              Value: America/Guayaquil
           LogConfiguration:
             LogDriver: awslogs
             Options:
