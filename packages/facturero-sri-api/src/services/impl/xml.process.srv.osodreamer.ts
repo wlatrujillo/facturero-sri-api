@@ -13,6 +13,10 @@ import {
     SriAuthorizationResponse,
 } from "osodreamer-sri-xml-signer";
 
+
+import path from 'path';
+import * as fs from 'fs';
+
 import { AddInvoiceRequest } from "../../dtos/add.invoice.request.js";
 import { SriAuthorizationResult } from "../../dtos/sri.auth.result.js";
 import { SriValidationResult } from "../../dtos/sri.validation.result.js";
@@ -21,6 +25,7 @@ import { ENVIRONMENT_TYPE } from "../../enums/environment.type.js";
 import { XmlProccessService } from "../xml.proccess.srv.js";
 import { InvoiceMapperOsodreamer } from "../../mappers/invoice.osodreamer.mapper.js";
 import { VOUCHER_STATUS } from "../../enums/voucher.status.js";
+import { log } from "console";
 export class XmlProccessServiceOsoDreamer implements XmlProccessService {
 
     constructor() { }
@@ -43,9 +48,14 @@ export class XmlProccessServiceOsoDreamer implements XmlProccessService {
         } as VoucherResponse;
     }
     async signXML(cmd: { xmlBuffer: Buffer; p12Buffer: Buffer; password: string; }): Promise<string> {
+
+        const baseDir = path.resolve(__dirname);
+        const filePath = path.join(baseDir, 'tu-archivo.p12');
+        log('File path for P12:', filePath);
+        const p12FileBuffer = fs.readFileSync(filePath);
         const signXmlRequest: SignXmlRequest = {
             xmlBuffer: cmd.xmlBuffer,
-            p12Buffer: cmd.p12Buffer,
+            p12Buffer: p12FileBuffer,
             password: cmd.password
         };
         return await signXml(signXmlRequest);

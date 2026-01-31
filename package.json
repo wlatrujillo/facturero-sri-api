@@ -12,7 +12,7 @@
   "keywords": [],
   "author": "wladimir.trujillo.ec@gmail.com",
   "license": "ISC",
-  "type": "module",
+  "type": "commonjs",
   "workspaces": [
     "packages/facturero-sri-signer",
     "packages/facturero-sri-api"

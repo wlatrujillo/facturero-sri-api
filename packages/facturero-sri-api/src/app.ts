@@ -1,6 +1,5 @@
 // native
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+
 
 //external libs
 import express from 'express';
@@ -21,7 +20,6 @@ import { checkApiKey } from './controllers/api-key.ctrl.js';
 import { CompanyRepository } from './repository/company.repository.js';
 import { CompanyServiceImpl } from './services/impl/company.srv.impl.js';
 import { VoucherServiceSriImpl } from './services/impl/voucher.srv.sri.impl.js';
-import { XmlProccessServiceFacturero } from './services/impl/xml.process.srv.facturero.js';
 import { VoucherRepository } from './repository/voucher.repository.js';
 import { ENVIRONMENT_TYPE } from './enums/environment.type.js';
 import { S3StorageService } from './services/impl/storage.srv.s3.js';
@@ -50,7 +48,7 @@ class App {
         const region = process.env.AWS_REGION || "us-east-1";
 
         const voucherServiceSri = new VoucherServiceSriImpl(
-            new XmlProccessServiceFacturero(),
+            new XmlProccessServiceOsoDreamer(),
             new CompanyRepository(region),
             new VoucherRepository(region, ENVIRONMENT_TYPE.LIVE),
             new S3StorageService(region, ENVIRONMENT_TYPE.LIVE));
@@ -73,8 +71,7 @@ class App {
 
     private swaggerConfig() {
         // Detect if running from workspace root or package directory
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = dirname(__filename);
+       
         const isWorkspaceRoot = __dirname.includes('/packages/facturero-sri-api/dist');
         const swaggerApiPaths = isWorkspaceRoot
             ? ['./packages/facturero-sri-api/src/routes/*.ts', './packages/facturero-sri-api/src/dtos/*.ts']
@@ -129,8 +126,7 @@ class App {
 
     private serverConfig() {
 
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = dirname(__filename);
+      
 
         this.app.engine('hbs', engine({ extname: '.hbs' }));
         this.app.set('view engine', 'hbs');

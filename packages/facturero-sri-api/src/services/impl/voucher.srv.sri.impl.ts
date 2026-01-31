@@ -212,9 +212,12 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
         this.logger.debug(`Generated XML: ${xml.substring(0, 100)}...`);
 
+        const p12Buffer = await this._storageService.readCertificateP12(companyId);
+        const password = (await this._companyRepository.findById({ companyId }))?.signaturePassword || '';
+
         const signedXml: string = await this._xmlProccessService.signXML({
-            p12Buffer: await this._storageService.readCertificateP12(companyId),
-            password: (await this._companyRepository.findById({ companyId }))?.signaturePassword || '',
+            p12Buffer: p12Buffer,
+            password: password,
             xmlBuffer: Buffer.from(xml)
         });
         return signedXml;

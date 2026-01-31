@@ -1,6 +1,6 @@
 import log4js from 'log4js';
 import { Buffer } from 'buffer';
-import { fileURLToPath } from 'url';
+
 import path from 'path';
 import * as fs from 'fs';
 
@@ -115,8 +115,7 @@ export class FsStorageService implements StorageService {
     }
 
     private async writeFile(baseDir: string, folderName: string, fileName: string, fileContent: Buffer): Promise<void> {
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
+
         const dirPath = path.join(__dirname, '..', '..', '..','..', '..', baseDir, folderName);
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true });
@@ -126,8 +125,7 @@ export class FsStorageService implements StorageService {
     }
 
     private async readFile(baseDir: string, folderName: string, fileName: string): Promise<Buffer> {
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
+     
         logger.debug(`Reading file from path: ${__dirname}`);
         const filePath = path.join(__dirname, '..', '..', '..', '..', '..', baseDir, folderName, fileName);
         if (!fs.existsSync(filePath)) {
