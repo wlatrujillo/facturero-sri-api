@@ -35,7 +35,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
      * 4. Autorizar comprobante
      */
     executeInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse> => {
-        this.logger.info(`🚀 Iniciando proceso de facturación SRI para la empresa: ${companyId} en entorno ${env}`);
+   
         try {
 
             const voucherKey: IVoucherKey = {
@@ -51,12 +51,13 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             if (voucherGenerated && voucherGenerated.status === VOUCHER_STATUS.AUTHORIZED) {
                 this.logger.info(`El comprobante con clave de acceso ${voucherGenerated.accessKey} ya se encuentra autorizado.`);
                 return {
-                    accessKey: voucherGenerated.accessKey || '',
-                    status: VOUCHER_STATUS.AUTHORIZED,
-                    errors: []
+                    accessKey: voucherGenerated.accessKey,
+                    status: voucherGenerated.status,
+                    errors: ['El comprobante ya se encuentra autorizado.']
                 } as AddVoucherResponse;
             }
 
+            this.logger.info(`🚀 Iniciando proceso de facturación SRI para la empresa: ${companyId} en entorno ${env}`);
             // === 1. Generar XML  ===
             this.logger.debug(`1. Generating XML for invoice...`);
             const voucherResponse: VoucherResponse = await this._xmlProccessService.generateInvoiceXML(companyId, env, invoiceData);
@@ -100,7 +101,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             if (!validationSriResult || validationSriResult.status !== 'RECIBIDA') {
 
                 return {
-                    accessKey: voucherResponse.accessKey || '',
+                    accessKey: voucherResponse.accessKey,
                     status: VOUCHER_STATUS.REJECTED,
                     errors: validationSriResult.messages || []
                 } as AddVoucherResponse;

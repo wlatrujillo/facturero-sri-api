@@ -2,6 +2,7 @@
 import type { AddInvoiceRequest } from '../dtos/add.invoice.request.js';
 import type { AddVoucherResponse } from '../dtos/add.voucher.response.js';
 import type { AuthVoucherResponse } from '../dtos/auth.voucher.response.js';
+import { VoucherResponse } from '../dtos/voucher.response.js';
 import type { ENVIRONMENT_TYPE } from '../enums/environment.type.js';
 import type { VoucherServiceSri } from '../services/voucher.srv.sri.js';
 import type { Request, Response } from 'express';
@@ -23,7 +24,6 @@ export class SriController {
   }
 
   generateInvoice = async (req: Request, res: Response): Promise<Response> => {
-    logger.debug('generateInvoice called');
 
     try {
 
@@ -35,7 +35,7 @@ export class SriController {
 
       const invoiceData: AddInvoiceRequest = req.body;
 
-      logger.info(`Received invoice data for invoice generation for companyId: ${companyId} environment: ${environment}`);
+      logger.debug(`Received invoice data for invoice generation for companyId: ${companyId} environment: ${environment}`);
 
       const serviceResponse: AddVoucherResponse = await this.voucherServiceSri.executeInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
 
@@ -67,15 +67,11 @@ export class SriController {
 
       const environment = req.path.includes('/test/') ? 'TEST' : 'LIVE';
 
-      logger.info(`Received invoice data for signed invoice generation for companyId: ${companyId} environment: ${environment}`);
+      logger.debug(`Received invoice data for signed invoice generation for companyId: ${companyId} environment: ${environment}`);
 
       const invoiceData: AddInvoiceRequest = req.body;
 
-      const xmlSigned: string = await this.voucherServiceSri.generateSignedInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
-
-      const response = {
-        xmlSigned
-      };
+      const response: VoucherResponse = await this.voucherServiceSri.generateSignedInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
 
 
       return res.status(200).send(response);
@@ -129,9 +125,5 @@ export class SriController {
       });
     }
   }
-
-
-
-
 
 }
