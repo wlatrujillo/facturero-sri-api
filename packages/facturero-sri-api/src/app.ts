@@ -62,7 +62,7 @@ class App {
         const companyService = new CompanyServiceImpl(new CompanyRepository(region));
 
         this.app.get("/", (_req, res) => res.render("index", { layout: false, link: "https://facturero-digital.com" }));
-        this.app.get("/api/health", (_req, res) => res.status(200).send({currentTime: new Date(), status: "UP", TZ: Intl.DateTimeFormat().resolvedOptions().timeZone}));
+        this.app.get("/api/health", (_req, res) => res.status(200).send({currentTime: new Date().toString(), status: "UP", TZ: Intl.DateTimeFormat().resolvedOptions().timeZone}));
         this.app.use('/api/company', new CompanyRoutes(companyService).router);
         this.app.use('/api/sri', [checkApiKey], new SriRoutes(voucherServiceSri).router);
         this.app.use('/api/sri-test', [checkApiKey], new SriTestRoutes(voucherServiceSriTest).router);

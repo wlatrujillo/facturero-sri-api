@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -23,7 +23,11 @@ COPY packages/facturero-sri-signer/src ./packages/facturero-sri-signer/src
 RUN npm run build
 
 # Stage 2: Production
-FROM node:22-alpine
+FROM node:24-alpine
+
+# Set timezone to America/Guayaquil
+ENV TZ=America/Guayaquil
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Set working directory
 WORKDIR /app
