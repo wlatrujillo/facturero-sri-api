@@ -14,13 +14,11 @@ XML --> SYS: XML (unsigned)
 XML -> XML: Generate Clave de Acceso
 XML --> SYS: XML with Clave
 
-SYS -> DB: Save state = XML_GENERATED
-DB --> SYS: OK
 
 SYS -> SIGN: Sign XML (XAdES-BES)
 SIGN --> SYS: Signed XML
 
-SYS -> DB: Update state = SIGNED
+SYS -> DB: Save state = SIGNED
 DB --> SYS: OK
 
 SYS -> REC: Send signed XML (base64)

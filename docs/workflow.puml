@@ -7,8 +7,6 @@ start
 :Generate Access Key (Clave de Acceso);
 :Add Clave to XML;
 
-:Save state = XML_GENERATED\n(DynamoDB);
-
 :Sign XML (XAdES-BES);
 
 :Save state = SIGNED\n(DynamoDB);
