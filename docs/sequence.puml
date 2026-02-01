@@ -1,0 +1,59 @@
+@startuml
+title SRI Ecuador - Electronic Invoice Sequence with DynamoDB
+
+participant "Billing System" as SYS
+participant "XML Generator" as XML
+participant "Signature Service" as SIGN
+participant "SRI Recepción" as REC
+participant "SRI Autorización" as AUT
+database "DynamoDB\nVoucherTable" as DB
+
+SYS -> XML: Generate XML
+XML --> SYS: XML (unsigned)
+
+XML -> XML: Generate Clave de Acceso
+XML --> SYS: XML with Clave
+
+SYS -> DB: Save state = XML_GENERATED
+DB --> SYS: OK
+
+SYS -> SIGN: Sign XML (XAdES-BES)
+SIGN --> SYS: Signed XML
+
+SYS -> DB: Update state = SIGNED
+DB --> SYS: OK
+
+SYS -> REC: Send signed XML (base64)
+REC --> SYS: RECIBIDA / DEVUELTA
+
+alt RECIBIDA
+  SYS -> DB: Update state = RECEIVED_BY_SRI
+  DB --> SYS: OK
+
+  loop Retry until authorized
+    SYS -> AUT: Query authorization (clave)
+    AUT --> SYS: EN PROCESAMIENTO
+
+    SYS -> DB: Update state = PENDING_SRI\nattempt++
+    DB --> SYS: OK
+
+    SYS -> SYS: Wait 30-60 sec
+  end
+
+  SYS -> AUT: Query authorization
+  AUT --> SYS: AUTORIZADO / NO AUTORIZADO
+
+  alt AUTORIZADO
+    SYS -> DB: Update state = AUTHORIZED\nSave authorized XML
+    DB --> SYS: OK
+  else NO AUTORIZADO
+    SYS -> DB: Update state = REJECTED\nSave reason
+    DB --> SYS: OK
+  end
+
+else DEVUELTA
+  SYS -> DB: Update state = DEVUELTA\nSave errors
+  DB --> SYS: OK
+end
+
+@enduml

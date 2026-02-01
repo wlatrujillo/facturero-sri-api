@@ -1,0 +1,19 @@
+@startuml
+title SRI Authorization Retry (ID 70)
+
+participant System
+participant "SRI Autorización"
+
+System -> "SRI Autorización": Query authorization (clave)
+"SRI Autorización" --> System: EN PROCESAMIENTO (ID 70)
+
+loop max 5-10 attempts
+  System -> System: Wait 30-60 sec
+  System -> "SRI Autorización": Query authorization
+  "SRI Autorización" --> System: EN PROCESAMIENTO
+end
+
+System -> "SRI Autorización": Query authorization
+"SRI Autorización" --> System: AUTORIZADO / NO AUTORIZADO
+
+@enduml

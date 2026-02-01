@@ -1,0 +1,40 @@
+@startuml
+title SRI Ecuador - Electronic Invoice Flow with DynamoDB
+
+start
+
+:Generate XML (without signature);
+:Generate Access Key (Clave de Acceso);
+:Add Clave to XML;
+
+:Save state = XML_GENERATED\n(DynamoDB);
+
+:Sign XML (XAdES-BES);
+
+:Save state = SIGNED\n(DynamoDB);
+
+:Send XML to SRI (Recepción);
+
+if (Recepción response?) then (RECIBIDA)
+  :Save state = RECEIVED_BY_SRI\n(DynamoDB);
+  :Query Authorization;
+else (DEVUELTA)
+  :Save state = DEVUELTA\n+ errors\n(DynamoDB);
+  stop
+endif
+
+repeat
+  if (Authorization status?) then (AUTORIZADO)
+    :Save state = AUTHORIZED\n+ Authorized XML\n(DynamoDB);
+    :Send invoice to customer;
+    stop
+  elseif (NO AUTORIZADO)
+    :Save state = REJECTED\n+ reason\n(DynamoDB);
+    stop
+  else (EN PROCESAMIENTO)
+    :Save state = PENDING_SRI\nattempt++\n(DynamoDB);
+    :Wait 30-60 seconds;
+  endif
+repeat while (Still processing)
+
+@enduml
