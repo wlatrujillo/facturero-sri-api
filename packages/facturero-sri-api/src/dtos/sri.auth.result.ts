@@ -3,5 +3,9 @@ export interface SriAuthorizationResult {
     authorizationDate: string;
     environment: string;
     voucher: string;
+    sriMessage?: string;
+    sriStatus?: string;
+    sriErrorIdentifier?: string;
+    additionalInfo?: string;
     messages: string[];
 }
