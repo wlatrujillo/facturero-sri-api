@@ -49,11 +49,7 @@ export class VoucherRepository {
 
     }
 
-    update = async (companyId: string, voucherId: IVoucherId,
-        status: VOUCHER_STATUS,
-        sriStatus: string = '',
-        messages: string[] = [],
-        xml?: string): Promise<void> => {
+    update = async (companyId: string, voucherId: IVoucherId, voucher: IVoucher): Promise<void> => {
         // Implementation for updating a voucher status goes here
         // This is a placeholder implementation. Actual implementation may vary.
         this.logger.debug(`Updating voucher status for companyId: ${companyId}, voucherId: ${voucherId.sequence}`);
@@ -66,24 +62,41 @@ export class VoucherRepository {
         // Always update status, sriStatus, messages, and updatedAt
         updateExpressions.push('#status = :status');
         expressionAttributeNames['#status'] = 'status';
-        expressionAttributeValues[':status'] = status;
+        expressionAttributeValues[':status'] = voucher.status;
 
-        updateExpressions.push('#sriStatus = :sriStatus');
-        expressionAttributeNames['#sriStatus'] = 'sriStatus';
-        expressionAttributeValues[':sriStatus'] = sriStatus;
+        if (voucher.sriStatus && voucher.sriStatus.trim() !== '') {
+            updateExpressions.push('#sriStatus = :sriStatus');
+            expressionAttributeNames['#sriStatus'] = 'sriStatus';
+            expressionAttributeValues[':sriStatus'] = voucher.sriStatus;
+        }
 
-        updateExpressions.push('#messages = :messages');
-        expressionAttributeNames['#messages'] = 'messages';
-        expressionAttributeValues[':messages'] = messages;
+        if (voucher.messages && voucher.messages.length > 0) {
+            updateExpressions.push('#messages = :messages');
+            expressionAttributeNames['#messages'] = 'messages';
+            expressionAttributeValues[':messages'] = voucher.messages;
+        }
 
         updateExpressions.push('updatedAt = :updatedAt');
         expressionAttributeValues[':updatedAt'] = new Date().toISOString();
 
+
+        if (voucher.sriErrorIdentifier && voucher.sriErrorIdentifier.trim() !== '') {
+            updateExpressions.push('#sriErrorIdentifier = :sriErrorIdentifier');
+            expressionAttributeNames['#sriErrorIdentifier'] = 'sriErrorIdentifier';
+            expressionAttributeValues[':sriErrorIdentifier'] = voucher.sriErrorIdentifier;
+        }
+
         // Only add XML to update if it's provided and not empty
-        if (xml && xml.trim() !== '') {
+        if (voucher.xml && voucher.xml.trim() !== '') {
             updateExpressions.push('#xml = :xml');
             expressionAttributeNames['#xml'] = 'xml';
-            expressionAttributeValues[':xml'] = xml;
+            expressionAttributeValues[':xml'] = voucher.xml;
+        }
+
+        if (voucher.accessKey && voucher.accessKey.trim() !== '') {
+            updateExpressions.push('#accessKey = :accessKey');
+            expressionAttributeNames['#accessKey'] = 'accessKey';
+            expressionAttributeValues[':accessKey'] = voucher.accessKey;
         }
 
         const updateCommand = new UpdateCommand({

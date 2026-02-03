@@ -8,6 +8,7 @@ export interface IVoucher {
     xml: string;
     status: VOUCHER_STATUS;
     sriStatus?: string;
+    sriErrorIdentifier?: string;
     messages?: string[];
     createdAt: string;  
     updatedAt: string;
