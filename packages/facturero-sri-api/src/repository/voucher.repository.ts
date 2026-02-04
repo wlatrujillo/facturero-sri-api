@@ -3,7 +3,6 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand, type GetCommandOutput } from "@aws-sdk/lib-dynamodb";
 import type { IVoucher } from '../model/voucher.js';
 import { ENVIRONMENT_TYPE } from '../enums/environment.type.js';
-import { VOUCHER_STATUS } from '../enums/voucher.status.js';
 import type { IVoucherId } from '../model/voucher.id.js';
 
 const NODE_ENV = process.env.NODE_ENV || 'dev';

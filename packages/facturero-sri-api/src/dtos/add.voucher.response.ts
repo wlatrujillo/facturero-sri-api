@@ -11,11 +11,11 @@
  *         status:
  *           type: string
  *           description: Estado del comprobante (e.g., 'PENDING', 'VALIDATED', 'AUTHORIZED')
- *         errors:
+ *         messages:
  *           type: array
  */
 export interface AddVoucherResponse {
     accessKey: string;
     status: string;
-    errors: Array<string>;
+    messages: Array<string>;
 }

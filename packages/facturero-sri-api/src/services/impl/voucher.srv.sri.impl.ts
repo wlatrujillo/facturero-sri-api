@@ -51,7 +51,11 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
             if (voucherGenerated && voucherGenerated.status === VOUCHER_STATUS.AUTHORIZED) {
                 this.logger.info(`El comprobante con clave de acceso ${voucherGenerated.accessKey} ya se encuentra autorizado.`);
-                throw new AddVoucherException(`El comprobante con clave de acceso ${voucherGenerated.accessKey} ya se encuentra autorizado.`);
+                return {
+                    accessKey: voucherGenerated.accessKey,
+                    status: voucherGenerated.status,
+                    messages: ["El comprobante ya se encuentra autorizado."]
+                } as AddVoucherResponse;
             }
 
             this.logger.info(`🚀 Iniciando proceso de facturación SRI para la empresa: ${companyId} en entorno ${env}`);
@@ -249,7 +253,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             return {
                 accessKey: voucherGenerated.accessKey,
                 status: voucherGenerated.status,
-                errors: []
+                messages: []
             } as AddVoucherResponse;
 
         } catch (error: any) {
@@ -318,7 +322,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             await this._voucherRepository.update(companyId, voucherId, { status: VOUCHER_STATUS.AUTHORIZED } as IVoucher);
 
             this.logger.info(`🧾 Comprobante autorizado correctamente:`);
-            return { accessKey: accessKey, status: VOUCHER_STATUS.AUTHORIZED, errors: [] } as AuthVoucherResponse;
+            return { accessKey: accessKey, status: VOUCHER_STATUS.AUTHORIZED, messages: [] } as AuthVoucherResponse;
         } catch (error) {
             this.logger.error("❌ Error durante el proceso:", error);
             throw error;

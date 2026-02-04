@@ -40,21 +40,13 @@ export class SriController {
       const serviceResponse: AddVoucherResponse = await this.voucherServiceSri.executeInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
 
 
-      const response: AddVoucherResponse = {
-        accessKey: serviceResponse.accessKey,
-        status: serviceResponse.status,
-        errors: serviceResponse.errors
-      };
-
-
-      return res.status(200).send(response);
+      return res.status(200).send(serviceResponse);
 
     } catch (error: Error | any) {
       logger.error('Error in generateInvoice:', error);
       return res.status(500).send({
         status: "error",
-        message: error instanceof Error ? error.message : String(error),
-        errors: error.errors ? error.errors : undefined
+        message: error instanceof Error ? error.message : String(error)
       });
     }
   }
@@ -80,8 +72,7 @@ export class SriController {
       logger.error('Error in generateSignedInvoice:', error);
       return res.status(500).send({
         status: "error",
-        message: error instanceof Error ? error.message : String(error),
-        errors: error.errors ? error.errors : undefined
+        message: error instanceof Error ? error.message : String(error)
       });
     }
   }
@@ -96,32 +87,24 @@ export class SriController {
 
       const accessKey = req.body.accessKey;
 
+      const response : AuthVoucherResponse = {status: "ERROR", messages: ['Access Key is required']} as AuthVoucherResponse;
+
       if (!accessKey) {
-        res.status(400).send({
-          status: "error",
-          message: "Access key is required"
-        });
-        return res;
+        return res.status(400).send(response);  
       }
 
       logger.info(`Received invoice data for authorization for companyId: ${companyId}`);
 
       const serviceResponse: AuthVoucherResponse = await this.voucherServiceSri.authorizeVoucher(companyId, environment as ENVIRONMENT_TYPE, accessKey);
 
-      const response: AuthVoucherResponse = {
-        status: serviceResponse.status,
-        errors: serviceResponse.errors
-      };
-
-
-      return res.status(200).send(response);
+  
+      return res.status(200).send(serviceResponse);
 
     } catch (error: Error | any) {
       logger.error('Error in authorizeInvoice:', error);
       return res.status(500).send({
         status: "error",
-        message: error instanceof Error ? error.message : String(error),
-        errors: error.errors ? error.errors : undefined
+        message: error instanceof Error ? error.message : String(error)
       });
     }
   }

@@ -1,6 +1,6 @@
 export class ValidationVoucherException extends Error {
-    constructor(message: string, messages?: string[]) {
-        super(`ValidationVoucherException: ${messages ? message + ' Details: ' + messages.join(', ') : message}`);
+    constructor(message: string, errors?: string[]) {
+        super(`ValidationVoucherException: ${errors ? message + ' Details: ' + errors.join(', ') : message}`);
         this.name = 'ValidationVoucherException';
     } 
 }

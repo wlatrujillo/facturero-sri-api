@@ -8,10 +8,10 @@
  *         status:
  *           type: string
  *           description: Estado del comprobante (e.g., 'PENDING', 'AUTHORIZED')
- *         errors:
+ *         messages:
  *           type: array
  */
 export interface AuthVoucherResponse {
     status: string;
-    errors: Array<string>;
+    messages: Array<string>;
 }
