@@ -20,6 +20,7 @@ import { VoucherResponse } from '../../dtos/voucher.response.js';
 import { SigningVoucherException } from '../../exceptions/signing.voucher.exception.js';
 import { ValidationVoucherException } from '../../exceptions/validation.voucher.exception.js';
 import { AuthorizationVoucherException } from '../../exceptions/authorization.voucher.exception.js';
+import { GetVoucherResponse } from '../../dtos/get.voucher.response.js';
 export class VoucherServiceSriImpl implements VoucherServiceSri {
     private readonly logger = log4js.getLogger('VoucherServiceSriImpl');
     constructor(
@@ -263,7 +264,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
     }
 
-    async generateSignedInvoice(companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<VoucherResponse> {
+    generateSignedInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<VoucherResponse> => {
         this.logger.debug(`Signing XML for invoice for companyId: ${companyId} environment: ${env}`);
 
         const voucherResponse: VoucherResponse = await this._xmlProccessService.generateInvoiceXML(companyId, env, invoiceData);
@@ -328,6 +329,14 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             throw error;
         }
 
+    }
+
+    getVoucherStatusByVoucherId = async (companyId: string, voucherId: IVoucherId): Promise<GetVoucherResponse> => {
+        const voucher = await this._voucherRepository.findById(companyId, voucherId);
+        return {
+            accessKey: voucher?.accessKey || undefined,
+            status: voucher?.status || undefined,
+        } as GetVoucherResponse;
     }
 
     private getVoucherKeyFromAccessKey = (accessKey: string): IVoucherId => {
