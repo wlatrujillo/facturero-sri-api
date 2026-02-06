@@ -63,53 +63,6 @@ export class SriRoutes {
 
         /**
          * @swagger
-         * /api/sri/authorize:
-         *   put:
-         *     summary: Autoriza un comprobante electrónico en el SRI
-         *     description: Envía una solicitud de autorización para un comprobante electrónico previamente generado
-         *     tags:
-         *       - Authorize
-         *     parameters:
-         *       - in: header
-         *         name: X-API-Key
-         *         required: true
-         *         schema:
-         *           type: string
-         *         description: Clave de API para autenticación
-         *       - in: header
-         *         name: Content-Type
-         *         required: true
-         *         schema:
-         *           type: string
-         *         description: Tipo de contenido de la solicitud
-         *         example: application/json
-         *     requestBody:
-         *       required: true
-         *       content:
-         *         application/json:
-         *           schema:
-         *             $ref: '#/components/schemas/AuthVoucherRequest'
-         *     responses:
-         *       200:
-         *         description: Factura autorizada exitosamente
-         *         content:
-         *           application/json:
-         *             schema:
-         *               $ref: '#/components/schemas/AuthVoucherResponse'
-         *       400:
-         *         description: Datos de autorización inválidos
-         *       401:
-         *         description: API Key no válida o ausente
-         *       404:
-         *         description: Comprobante no encontrado
-         *       500:
-         *         description: Error interno del servidor
-         */
-        this.router.route('/authorize')
-            .put(this.ctrl.authorizeInvoice);
-
-                /**
-         * @swagger
          * /api/sri/voucher/{type}/{establishment}/{branch}/{number}/status:
          *   get:
          *     summary: Obtiene el estado de un comprobante electrónico por su ID en el ambiente de test del SRI

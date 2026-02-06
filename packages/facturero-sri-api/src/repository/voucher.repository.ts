@@ -51,7 +51,7 @@ export class VoucherRepository {
     update = async (companyId: string, voucherId: IVoucherId, voucher: IVoucher): Promise<void> => {
         // Implementation for updating a voucher status goes here
         // This is a placeholder implementation. Actual implementation may vary.
-        this.logger.debug(`Updating voucher status for companyId: ${companyId}, voucherId: ${voucherId.sequence}`);
+        this.logger.debug(`Updating voucher status for companyId: ${companyId}, voucherId: ${voucherId}`);
 
         // Build dynamic update expression
         const updateExpressions: string[] = [];
@@ -62,6 +62,9 @@ export class VoucherRepository {
         updateExpressions.push('#status = :status');
         expressionAttributeNames['#status'] = 'status';
         expressionAttributeValues[':status'] = voucher.status;
+
+        updateExpressions.push('updatedAt = :updatedAt');
+        expressionAttributeValues[':updatedAt'] = new Date().toISOString();
 
         if (voucher.sriStatus && voucher.sriStatus.trim() !== '') {
             updateExpressions.push('#sriStatus = :sriStatus');
@@ -74,10 +77,6 @@ export class VoucherRepository {
             expressionAttributeNames['#messages'] = 'messages';
             expressionAttributeValues[':messages'] = voucher.messages;
         }
-
-        updateExpressions.push('updatedAt = :updatedAt');
-        expressionAttributeValues[':updatedAt'] = new Date().toISOString();
-
 
         if (voucher.sriErrorIdentifier && voucher.sriErrorIdentifier.trim() !== '') {
             updateExpressions.push('#sriErrorIdentifier = :sriErrorIdentifier');
@@ -115,7 +114,7 @@ export class VoucherRepository {
 
     }
 
-    findById = async (companyId: string, voucherId: IVoucherId): Promise<IVoucher | undefined> => {
+    findById = async (companyId: string, voucherId: IVoucherId): Promise<IVoucher | null> => {
         // Implementation for finding a voucher by ID goes here
 
         const command = new GetCommand({
@@ -128,7 +127,7 @@ export class VoucherRepository {
 
         const result: GetCommandOutput = await this.docClient.send(command);
 
-        return result.Item as IVoucher | undefined;
+        return result.Item as IVoucher | null;
 
     }
 }

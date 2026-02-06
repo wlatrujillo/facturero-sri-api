@@ -1,4 +1,4 @@
-export interface VoucherResponse {
+export interface SriVoucherResult {
     xml: string;
     accessKey: string;
     status: string;

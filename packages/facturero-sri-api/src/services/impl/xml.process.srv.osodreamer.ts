@@ -19,7 +19,7 @@ import {
 import { AddInvoiceRequest } from "../../dtos/add.invoice.request.js";
 import { SriAuthorizationResult } from "../../dtos/sri.auth.result.js";
 import { SriValidationResult } from "../../dtos/sri.validation.result.js";
-import { VoucherResponse } from "../../dtos/voucher.response.js";
+import { SriVoucherResult } from "../../dtos/sri.voucher.result.js";
 import { ENVIRONMENT_TYPE } from "../../enums/environment.type.js";
 import { XmlProccessService } from "../xml.proccess.srv.js";
 import { InvoiceMapperOsodreamer } from "../../mappers/invoice.osodreamer.mapper.js";
@@ -31,7 +31,7 @@ export class XmlProccessServiceOsoDreamer implements XmlProccessService {
 
     constructor() { }
 
-    async generateInvoiceXML(companyId: string, env: ENVIRONMENT_TYPE, invoice: AddInvoiceRequest): Promise<VoucherResponse> {
+    async generateInvoiceXML(companyId: string, env: ENVIRONMENT_TYPE, invoice: AddInvoiceRequest): Promise<SriVoucherResult> {
 
 
         const invoiceModel: ComprobanteType = InvoiceMapperOsodreamer.toInvoiceSriModel(invoice);
@@ -46,7 +46,7 @@ export class XmlProccessServiceOsoDreamer implements XmlProccessService {
             accessKey: response.invoiceJson.factura.infoTributaria.claveAcceso,
             status: VOUCHER_STATUS.GENERATED,
             errors: []
-        } as VoucherResponse;
+        } as SriVoucherResult;
     }
     async signXML(cmd: { xmlBuffer: Buffer; p12Buffer: Buffer; password: string; }): Promise<string> {
 
@@ -104,7 +104,7 @@ export class XmlProccessServiceOsoDreamer implements XmlProccessService {
                 status: 'NO_AUTORIZADO',
                 authorizationDate: '',
                 environment: error?.ambiente || '',
-                errorIdentifier: error?.identificador || '',
+                sriErrorIdentifier: error?.identificador || '',
                 sriStatus: error?.estado || '',
                 sriMessage: error?.mensajeSri || '',
                 additionalInfo: error?.informacionAdicional || '',

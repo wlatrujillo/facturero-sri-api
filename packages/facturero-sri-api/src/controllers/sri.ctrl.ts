@@ -1,9 +1,7 @@
 
 import type { AddInvoiceRequest } from '../dtos/add.invoice.request.js';
 import type { AddVoucherResponse } from '../dtos/add.voucher.response.js';
-import type { AuthVoucherResponse } from '../dtos/auth.voucher.response.js';
 import { GetVoucherResponse } from '../dtos/get.voucher.response.js';
-import { VoucherResponse } from '../dtos/voucher.response.js';
 import type { ENVIRONMENT_TYPE } from '../enums/environment.type.js';
 import { IVoucherId } from '../model/voucher.id.js';
 import type { VoucherServiceSri } from '../services/voucher.srv.sri.js';
@@ -65,45 +63,12 @@ export class SriController {
 
       const invoiceData: AddInvoiceRequest = req.body;
 
-      const response: VoucherResponse = await this.voucherServiceSri.generateSignedInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
-
+      const response: AddVoucherResponse = await this.voucherServiceSri.generateSignedInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
 
       return res.status(200).send(response);
 
     } catch (error: Error | any) {
       logger.error('Error in generateSignedInvoice:', error);
-      return res.status(500).send({
-        status: "error",
-        message: error instanceof Error ? error.message : String(error)
-      });
-    }
-  }
-
-  authorizeInvoice = async (req: Request, res: Response): Promise<Response> => {
-    logger.debug('authorizeInvoice called');
-    try {
-
-      const companyId = res.locals.companyId;
-
-      const environment = req.path.includes('/sri-test/') ? 'TEST' : 'LIVE';
-
-      const accessKey = req.body.accessKey;
-
-      const response : AuthVoucherResponse = {status: "ERROR", messages: ['Access Key is required']} as AuthVoucherResponse;
-
-      if (!accessKey) {
-        return res.status(400).send(response);  
-      }
-
-      logger.info(`Received invoice data for authorization for companyId: ${companyId}`);
-
-      const serviceResponse: AuthVoucherResponse = await this.voucherServiceSri.authorizeVoucher(companyId, environment as ENVIRONMENT_TYPE, accessKey);
-
-  
-      return res.status(200).send(serviceResponse);
-
-    } catch (error: Error | any) {
-      logger.error('Error in authorizeInvoice:', error);
       return res.status(500).send({
         status: "error",
         message: error instanceof Error ? error.message : String(error)

@@ -1,4 +1,5 @@
 export enum VOUCHER_STATUS {
+    INITIAL = 'INITIAL',
     GENERATED = 'GENERATED',
     SIGNED = 'SIGNED',
     RECEIVED = 'RECEIVED',
