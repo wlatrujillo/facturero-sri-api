@@ -21,11 +21,11 @@ import { SriAuthorizationResult } from "../../dtos/sri.auth.result.js";
 import { SriValidationResult } from "../../dtos/sri.validation.result.js";
 import { SriVoucherResult } from "../../dtos/sri.voucher.result.js";
 import { ENVIRONMENT_TYPE } from "../../enums/environment.type.js";
-import { XmlProccessService } from "../xml.proccess.srv.js";
+import { SriProccessService } from "../sri.proccess.srv.js";
 import { InvoiceMapperOsodreamer } from "../../mappers/invoice.osodreamer.mapper.js";
 import { VOUCHER_STATUS } from "../../enums/voucher.status.js";
 
-export class XmlProccessServiceOsoDreamer implements XmlProccessService {
+export class XmlProccessServiceOsoDreamer implements SriProccessService {
 
     private readonly logger = log4js.getLogger('XmlProccessServiceOsoDreamer');
 

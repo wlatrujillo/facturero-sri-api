@@ -1,6 +1,6 @@
 import log4js from 'log4js';
 
-import { type XmlProccessService } from '../../services/xml.proccess.srv.js';
+import { type SriProccessService } from '../sri.proccess.srv.js';
 import type { VoucherServiceSri } from '../../services/voucher.srv.sri.js';
 import type { StorageService } from '../../services/storage.srv.js';
 import type { SriValidationResult } from '../../dtos/sri.validation.result.js';
@@ -23,7 +23,7 @@ import { GetVoucherResponse } from '../../dtos/get.voucher.response.js';
 export class VoucherServiceSriImpl implements VoucherServiceSri {
     private readonly logger = log4js.getLogger('VoucherServiceSriImpl');
     constructor(
-        private readonly _xmlProccessService: XmlProccessService,
+        private readonly _sriProccessService: SriProccessService,
         private readonly _companyRepository: CompanyRepository,
         private readonly _voucherRepository: VoucherRepository,
         private readonly _storageService: StorageService,
@@ -92,14 +92,14 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             // === 3. Validar XML firmado ===
             if (voucherGenerated.status == VOUCHER_STATUS.SIGNED) {
                 this.logger.debug(`3. Validating XML for accessKey: ${voucherGenerated.accessKey}`);
-                const validationResult: SriValidationResult = await this.validateSignedVoucher(companyId, env, voucherGenerated.accessKey || '');
+                const validationResult: SriValidationResult = await this.sendToSriSignedVoucher(companyId, env, voucherGenerated.accessKey || '');
                 voucherGenerated.status = VOUCHER_STATUS.RECEIVED;
                 voucherGenerated.messages = validationResult.messages || [];
             }
             // === 4. Autorizar comprobante ===
             if (voucherGenerated.status == VOUCHER_STATUS.RECEIVED || voucherGenerated.status == VOUCHER_STATUS.PROCESSING) {
                 this.logger.debug(`4. Authorizing voucher for accessKey: ${voucherGenerated.accessKey}`);
-                const authorizationResult : SriAuthorizationResult = await this.authorizeVoucher(companyId, env, voucherGenerated.accessKey || '');
+                const authorizationResult : SriAuthorizationResult = await this.sendToSriValidatedVoucher(companyId, env, voucherGenerated.accessKey || '');
                 voucherGenerated.status =  VOUCHER_STATUS.AUTHORIZED;
                 voucherGenerated.xml = authorizationResult.voucher;
                 voucherGenerated.messages = authorizationResult.messages || [];
@@ -129,7 +129,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
     generateSignedInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse> => {
         this.logger.debug(`Signing XML for invoice for companyId: ${companyId} environment: ${env}`);
 
-        const sriVoucherResult: SriVoucherResult = await this._xmlProccessService.generateInvoiceXML(companyId, env, invoiceData);
+        const sriVoucherResult: SriVoucherResult = await this._sriProccessService.generateInvoiceXML(companyId, env, invoiceData);
 
         const xml = sriVoucherResult.xml;
 
@@ -146,7 +146,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         // TO-DO: Retrieve password securely
         const password = company.signaturePassword;
 
-        const signedXml: string = await this._xmlProccessService.signXML({
+        const signedXml: string = await this._sriProccessService.signXML({
             p12Buffer: p12Buffer,
             password: password,
             xmlBuffer: Buffer.from(xml)
@@ -157,7 +157,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
     private generateInvoiceXML = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<SriVoucherResult> => {
         this.logger.debug(`Generating XML for invoice for companyId: ${companyId} environment: ${env}`);
         try {
-            const voucherResponse = await this._xmlProccessService.generateInvoiceXML(companyId, env, invoiceData);
+            const voucherResponse = await this._sriProccessService.generateInvoiceXML(companyId, env, invoiceData);
 
             if (!voucherResponse || !voucherResponse.xml || !voucherResponse.accessKey) {
                 throw new SigningVoucherException("Error generating signed XML voucher.");
@@ -215,7 +215,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             // TO-DO: Retrieve password securely
             const password = company.signaturePassword;
 
-            const signedXml: string = await this._xmlProccessService.signXML({
+            const signedXml: string = await this._sriProccessService.signXML({
                 p12Buffer: p12Buffer,
                 password: password,
                 xmlBuffer: xmlBuffer
@@ -245,7 +245,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         }
     }
 
-    private validateSignedVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<SriValidationResult> => {
+    private sendToSriSignedVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<SriValidationResult> => {
         this.logger.debug(`Validating signed XML for voucher with accessKey: ${accessKey}`);
 
         try {
@@ -256,7 +256,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                 accessKey
             );
 
-            const validationSriResult: SriValidationResult = await this._xmlProccessService.validateXML(
+            const validationSriResult: SriValidationResult = await this._sriProccessService.validateXML(
                 env,
                 signedXml
             );
@@ -314,7 +314,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         }
     }
 
-    private authorizeVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<SriAuthorizationResult> => {
+    private sendToSriValidatedVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<SriAuthorizationResult> => {
         this.logger.info(`🚀 Iniciando proceso de autorización SRI para la empresa: ${companyId} en entorno ${env} con clave de acceso: ${accessKey}`);
         try {
 
@@ -324,7 +324,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             const voucherId: IVoucherId = this.getVoucherKeyFromAccessKey(accessKey);
 
             // === 4. Autorizar comprobante ===
-            const authorizationResult: SriAuthorizationResult = await this._xmlProccessService.authorizeXML(
+            const authorizationResult: SriAuthorizationResult = await this._sriProccessService.authorizeXML(
                 env,
                 accessKey
             );
