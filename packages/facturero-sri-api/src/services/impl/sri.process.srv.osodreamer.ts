@@ -21,13 +21,13 @@ import { SriAuthorizationResult } from "../../dtos/sri.auth.result.js";
 import { SriValidationResult } from "../../dtos/sri.validation.result.js";
 import { SriVoucherResult } from "../../dtos/sri.voucher.result.js";
 import { ENVIRONMENT_TYPE } from "../../enums/environment.type.js";
-import { SriProccessService } from "../sri.proccess.srv.js";
+import { ISriProccessService } from "../sri.proccess.srv.js";
 import { InvoiceMapperOsodreamer } from "../../mappers/invoice.osodreamer.mapper.js";
 import { VOUCHER_STATUS } from "../../enums/voucher.status.js";
 
-export class XmlProccessServiceOsoDreamer implements SriProccessService {
+export class SriProccessServiceOsoDreamer implements ISriProccessService {
 
-    private readonly logger = log4js.getLogger('XmlProccessServiceOsoDreamer');
+    private readonly logger = log4js.getLogger('SriProccessServiceOsoDreamer');
 
     constructor() { }
 
@@ -100,8 +100,14 @@ export class XmlProccessServiceOsoDreamer implements SriProccessService {
             }
         } catch (error: SRIAutorizacionError | any) {
             this.logger.error("❌ Error durante la autorización SRI:", error);
+
+            let status = 'NOT_AUTHORIZED';
+            if(error.message?.includes('No se encontró <autorizacion> en la respuesta SOAP')) {
+                status = 'PROCESSING';
+            }
+            
             return {
-                status: 'NO_AUTORIZADO',
+                status: status,
                 authorizationDate: '',
                 environment: error?.ambiente || '',
                 sriErrorIdentifier: error?.identificador || '',

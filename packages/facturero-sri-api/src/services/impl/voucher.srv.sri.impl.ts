@@ -1,6 +1,6 @@
 import log4js from 'log4js';
 
-import { type SriProccessService } from '../sri.proccess.srv.js';
+import { type ISriProccessService } from '../sri.proccess.srv.js';
 import type { VoucherServiceSri } from '../../services/voucher.srv.sri.js';
 import type { StorageService } from '../../services/storage.srv.js';
 import type { SriValidationResult } from '../../dtos/sri.validation.result.js';
@@ -17,17 +17,24 @@ import type { SriAuthorizationResult } from '../../dtos/sri.auth.result.js';
 import { IVoucher } from '../../model/voucher.js';
 import { SriVoucherResult } from '../../dtos/sri.voucher.result.js';
 import { SigningVoucherException } from '../../exceptions/signing.voucher.exception.js';
-import { ValidationVoucherException } from '../../exceptions/validation.voucher.exception.js';
+import { ReceptionVoucherException } from '../../exceptions/reception.voucher.exception.js';
 import { AuthorizationVoucherException } from '../../exceptions/authorization.voucher.exception.js';
 import { GetVoucherResponse } from '../../dtos/get.voucher.response.js';
+import { SriProcessService } from './sri.process.srv.impl.js';
 export class VoucherServiceSriImpl implements VoucherServiceSri {
     private readonly logger = log4js.getLogger('VoucherServiceSriImpl');
+
+    
+    private readonly factureroSriProccessService: ISriProccessService;
+
     constructor(
-        private readonly _sriProccessService: SriProccessService,
+        private readonly _sriProccessService: ISriProccessService,
         private readonly _companyRepository: CompanyRepository,
         private readonly _voucherRepository: VoucherRepository,
         private readonly _storageService: StorageService,
-    ) { }
+    ) {
+        this.factureroSriProccessService = new SriProcessService();
+     }
 
     /**
      * Ejecuta el flujo completo:
@@ -309,7 +316,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
                 this.logger.error(`❌ Error de validación:`, validationSriResult);
 
-                throw new ValidationVoucherException(`Voucher validation failed`, validationSriResult.messages);
+                throw new ReceptionVoucherException(`Voucher validation failed`, validationSriResult.messages);
             }
 
             if (!validationSriResult || validationSriResult.status !== 'RECIBIDA') {
@@ -325,7 +332,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                     } as IVoucher
                 );
 
-                throw new ValidationVoucherException(`Voucher validation failed`, validationSriResult.messages);
+                throw new ReceptionVoucherException(`Voucher validation failed`, validationSriResult.messages);
 
             }
 
@@ -357,12 +364,17 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             const voucherId: IVoucherId = this.getVoucherKeyFromAccessKey(accessKey);
 
             // === 4. Autorizar comprobante ===
-            const authorizationResult: SriAuthorizationResult = await this._sriProccessService.authorizeXML(
+            const authorizationResult: SriAuthorizationResult = await this.factureroSriProccessService.authorizeXML(
                 env,
                 accessKey
             );
 
             this.logger.debug(`authorization response: ${JSON.stringify(authorizationResult)}`);
+            
+
+            if(authorizationResult && authorizationResult.status === 'PROCESSING') {
+                throw new AuthorizationVoucherException(`Voucher authorization without response`, authorizationResult.messages);
+            }
 
             if (!authorizationResult || authorizationResult.status !== 'AUTORIZADO') {
                 this._voucherRepository.update(

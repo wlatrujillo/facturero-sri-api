@@ -1,6 +1,6 @@
 export class AuthorizationVoucherException extends Error {
-    constructor(message: string, errors?: string[]) {
-        super(`AuthorizationVoucherException: ${errors ? message + ' Details: ' + errors.join(', ') : message}`);
+    constructor(message: string, public readonly errors?: string[]) {
+        super(`AuthorizationVoucherException:  ${message}`);
         this.name = 'AuthorizationVoucherException';
     } 
 }

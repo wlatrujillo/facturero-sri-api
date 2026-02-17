@@ -13,3 +13,6 @@
 *.log
 *.tmp
 **/*.p12
+**/**/tsconfig.tsbuildinfo
+**/packages/facturero-sri-api/tsconfig.tsbuildinfo
+**/packages/facturero-sri-signer/tsconfig.tsbuildinfo
