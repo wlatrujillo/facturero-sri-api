@@ -99,8 +99,8 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             // === 4. Autorizar comprobante ===
             if (voucherGenerated.status == VOUCHER_STATUS.RECEIVED || voucherGenerated.status == VOUCHER_STATUS.PROCESSING) {
                 this.logger.debug(`4. Authorizing voucher for accessKey: ${voucherGenerated.accessKey}`);
-                const authorizationResult : SriAuthorizationResult = await this.sendToSriValidatedVoucher(companyId, env, voucherGenerated.accessKey || '');
-                voucherGenerated.status =  VOUCHER_STATUS.AUTHORIZED;
+                const authorizationResult: SriAuthorizationResult = await this.sendToSriValidatedVoucher(companyId, env, voucherGenerated.accessKey || '');
+                voucherGenerated.status = VOUCHER_STATUS.AUTHORIZED;
                 voucherGenerated.xml = authorizationResult.voucher;
                 voucherGenerated.messages = authorizationResult.messages || [];
             }
@@ -112,6 +112,39 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                 messages: voucherGenerated.messages || [],
                 xml: voucherGenerated.xml
             } as AddVoucherResponse;
+
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    executeValidationVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<SriValidationResult> => {
+
+        try {
+            const voucherId: IVoucherId = this.getVoucherKeyFromAccessKey(accessKey);
+            let voucherGenerated: IVoucher = await this._voucherRepository.findById(companyId, voucherId) as IVoucher;
+
+            if (!voucherGenerated) {
+                throw new Error(`Voucher with accessKey ${accessKey} not found for companyId ${companyId}.`);
+            }
+
+            if (voucherGenerated.status == VOUCHER_STATUS.RECEIVED || voucherGenerated.status == VOUCHER_STATUS.PROCESSING) {
+
+
+                const authorizationResult: SriAuthorizationResult = await this.sendToSriValidatedVoucher(companyId, env, voucherGenerated.accessKey || '');
+
+                voucherGenerated.status = VOUCHER_STATUS.AUTHORIZED;
+                voucherGenerated.xml = authorizationResult.voucher;
+                voucherGenerated.messages = authorizationResult.messages || [];
+            }
+
+            return {
+                accessKey: accessKey,
+                status: voucherGenerated.status,
+                messages: voucherGenerated.messages || [],
+                xml: voucherGenerated.xml
+            } as AddVoucherResponse;
+
 
         } catch (error: any) {
             throw error;
@@ -331,7 +364,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
             this.logger.debug(`authorization response: ${JSON.stringify(authorizationResult)}`);
 
-            if (authorizationResult && authorizationResult.sriErrorIdentifier == '56') {
+            if (!authorizationResult || authorizationResult.status !== 'AUTORIZADO') {
                 this._voucherRepository.update(
                     companyId,
                     voucherId,
@@ -348,13 +381,6 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                 throw new AuthorizationVoucherException(`Voucher authorization failed`, authorizationResult.messages);
             }
 
-
-            if (!authorizationResult || authorizationResult.status !== 'AUTORIZADO') {
-
-                this.logger.error(`❌ Error de autorización:`, authorizationResult);
-
-                throw new AuthorizationVoucherException(`Voucher authorization failed`, authorizationResult.messages);
-            }
 
             await this._storageService.writeAuthorizedVoucher(
                 companyId,
