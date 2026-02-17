@@ -42,11 +42,11 @@ export class SriController {
 
       return res.status(200).send(serviceResponse);
 
-    } catch (error: Error | any) {
+    } catch (error: any) {
       logger.error('Error in generateInvoice:', error);
       return res.status(500).send({
-        status: "error",
-        message: error instanceof Error ? error.message : String(error)
+        message: error instanceof Error ? error.message : String(error),
+        errors: error.errors ? error.errors : [String(error)]
       });
     }
   }
@@ -89,7 +89,7 @@ export class SriController {
         sequence: req.params.number instanceof Array ? req.params.number[0] : req.params.number
       } as IVoucherId;
 
-      if(!voucherId.voucherType || !voucherId.establishment || !voucherId.branch || !voucherId.sequence) {
+      if (!voucherId.voucherType || !voucherId.establishment || !voucherId.branch || !voucherId.sequence) {
         return res.status(400).send({
           status: "error",
           message: "Invalid voucher ID"
@@ -101,7 +101,7 @@ export class SriController {
       const serviceResponse: GetVoucherResponse = await this.voucherServiceSri.getVoucherStatusByVoucherId(companyId, voucherId);
 
 
-      if(!serviceResponse || !serviceResponse.accessKey) {
+      if (!serviceResponse || !serviceResponse.accessKey) {
         return res.status(404).send({
           status: "error",
           message: "Voucher not found"

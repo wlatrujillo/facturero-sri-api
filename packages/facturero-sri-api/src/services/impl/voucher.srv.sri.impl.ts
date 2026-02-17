@@ -221,9 +221,9 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
             return voucherResponse;
 
-        } catch (error: any) {
-            this.logger.error(`Error generating XML for invoice for companyId: ${companyId} environment: ${env}`, error);
-            throw new AddVoucherException(`Error generating XML for invoice: ${error.message}`);
+        } catch (error: Error | any) {
+            this.logger.error(`Error generating XML invoice for companyId: ${companyId} environment: ${env}`, error);
+            throw new AddVoucherException(`Error generating XML invoice: ${error.message}`, error.errors);
 
         }
     }
