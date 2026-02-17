@@ -313,6 +313,8 @@ Resources:
           KeyType: HASH
         - AttributeName: voucherId
           KeyType: RANGE
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
       Tags:
         - Key: "GROUP"
           Value: !Sub "${AWS::StackName}"
@@ -336,6 +338,8 @@ Resources:
           KeyType: HASH
         - AttributeName: voucherId
           KeyType: RANGE
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
       Tags:
         - Key: "GROUP"
           Value: !Sub "${AWS::StackName}"
