@@ -1,6 +1,8 @@
+import { ENVIRONMENT_ENUM } from "../enums";
+
 export interface InfoTributaria {
 
-    ambiente: number;
+    ambiente: ENVIRONMENT_ENUM;
     tipoEmision: number;
     razonSocial: string;
     nombreComercial: string;

@@ -1,4 +1,4 @@
-export enum VOUCHER_TYPE {
+export enum VOUCHER_TYPE_ENUM {
     FACTURA = '01',
     NOTA_CREDITO = '04',
     NOTA_DEBITO = '05',

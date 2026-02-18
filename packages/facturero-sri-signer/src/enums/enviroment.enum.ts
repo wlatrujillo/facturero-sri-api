@@ -1,4 +1,4 @@
-export enum ENVIRONMENT {
+export enum ENVIRONMENT_ENUM {
   PRUEBAS = 1,
   PRODUCCION = 2,
 }

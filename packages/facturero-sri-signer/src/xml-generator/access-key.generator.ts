@@ -5,11 +5,11 @@ export class AccessKeyGenerator {
     fechaEmision: Date,
     codDoc: string,
     ruc: string,
-    ambiente: number,
+    ambiente: 1|2 = 1,
     estab: string,
     ptoEmi: string,
     secuencial: string,
-    tipoEmision: number,
+    tipoEmision: number = 1,
   ): string {
     const PAD_FILLER = "0";
 
@@ -54,16 +54,16 @@ export class AccessKeyGenerator {
       const sequential = this.padLeft(secuencial, 9, PAD_FILLER);
 
 
-      const codigoNumerico =
-        String(fechaEmision.getDate()).padStart(2, "0") +
-        String(fechaEmision.getMonth() + 1).padStart(2, "0") +
-        this.randomNumericString().padStart(4, "0");
+      const codigoNumerico8Digits =
+        DateFormat.formatDateDDMM(fechaEmision) +
+        sequential.slice(-2) +
+        this.randomNumericString(2);
 
       const emissionType = this.padLeft(tipoEmision, 1, PAD_FILLER);
 
-      const rawKey = `${issueDate}${documentType}${identification}${env}${establishment}${branch}${sequential}${codigoNumerico}${emissionType}`;
+      const rawKey = `${issueDate}${documentType}${identification}${env}${establishment}${branch}${sequential}${codigoNumerico8Digits}${emissionType}`;
 
-      const digitVerifier = this.calculateDigitVerifierModulo11(rawKey);
+      const digitVerifier = this.getModule11VerifierDigit(rawKey);
 
       return rawKey + digitVerifier;
 
@@ -87,11 +87,11 @@ export class AccessKeyGenerator {
     return strValue;
   }
 
-  private static randomNumericString(): string {
-    return Math.floor(Math.random() * 9000).toString();
+  private static randomNumericString(digits: number): string {
+    return Math.floor(Math.random() * Math.pow(10, digits)).toString().padStart(digits, "0");
   }
 
-  private static calculateDigitVerifierModulo11(rawKey: string): string {
+  private static getModule11VerifierDigit(rawKey: string): string {
     // calcular digito modulo 11 segun reglas del SRI
 
     if (!/^\d{48}$/.test(rawKey)) return "-1";

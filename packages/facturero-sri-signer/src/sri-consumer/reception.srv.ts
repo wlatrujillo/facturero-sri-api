@@ -1,14 +1,14 @@
 import { Client, createClientAsync } from 'soap';
 
-import { ENVIRONMENT } from '../enums/index.js';
+import { ENVIRONMENT_ENUM } from '../enums/index.js';
 import { SRI_ENDPOINTS } from '../utils/sri.endpoints.js';
 
 
 export class ReceptionService {
 
-    async validateXml(env: ENVIRONMENT, xml: Buffer): Promise<any> {
+    async validateXml(env: ENVIRONMENT_ENUM, xml: Buffer): Promise<any> {
 
-        const URL_SRI_WSDL = env == ENVIRONMENT.PRUEBAS ?
+        const URL_SRI_WSDL = env == ENVIRONMENT_ENUM.PRUEBAS ?
             SRI_ENDPOINTS['PRUEBAS'].RECEPTION :
             SRI_ENDPOINTS['PRODUCCION'].RECEPTION;
 

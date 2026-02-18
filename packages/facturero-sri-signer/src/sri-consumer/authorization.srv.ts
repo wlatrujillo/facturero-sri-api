@@ -1,13 +1,13 @@
 import { Client, createClientAsync } from 'soap';
 
-import { ENVIRONMENT } from '../enums/index.js';
+import { ENVIRONMENT_ENUM } from '../enums/index.js';
 import { SRI_ENDPOINTS } from '../utils/sri.endpoints.js';
 import { SriAuthResponse } from '../dtos/sri.auth.response.js';
 export class AuthorizationService {
 
-    async authorizeXml(env: ENVIRONMENT, accessKey: string): Promise<SriAuthResponse> {
+    async authorizeXml(env: ENVIRONMENT_ENUM, accessKey: string): Promise<SriAuthResponse> {
 
-        const URL_SRI_WSDL = env == ENVIRONMENT.PRUEBAS ?
+        const URL_SRI_WSDL = env == ENVIRONMENT_ENUM.PRUEBAS ?
             SRI_ENDPOINTS['PRUEBAS'].AUTHORIZATION :
             SRI_ENDPOINTS['PRODUCCION'].AUTHORIZATION;
         let result: any, rawResponse: any;

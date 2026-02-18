@@ -1,4 +1,4 @@
-export enum IDENTIFICATION {
+export enum IDENTIFICATION_ENUM {
   RUC = "04",
   CEDULA = "05",
   PASAPORTE = "06",

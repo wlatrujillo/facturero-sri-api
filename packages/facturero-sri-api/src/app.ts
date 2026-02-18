@@ -24,7 +24,6 @@ import { VoucherRepository } from './repository/voucher.repository.js';
 import { ENVIRONMENT_TYPE } from './enums/environment.type.js';
 import { S3StorageService } from './services/impl/storage.srv.s3.js';
 import { SriTestRoutes } from './routes/sri.test.route.js';
-import { SriProccessServiceOsoDreamer } from './services/impl/sri.process.srv.osodreamer.js';
 
 
 
@@ -48,13 +47,11 @@ class App {
         const region = process.env.AWS_REGION || "us-east-1";
 
         const voucherServiceSri = new VoucherServiceSriImpl(
-            new SriProccessServiceOsoDreamer(),
             new CompanyRepository(region),
             new VoucherRepository(region, ENVIRONMENT_TYPE.LIVE),
             new S3StorageService(region, ENVIRONMENT_TYPE.LIVE));
 
         const voucherServiceSriTest = new VoucherServiceSriImpl(
-            new SriProccessServiceOsoDreamer(),
             new CompanyRepository(region),
             new VoucherRepository(region, ENVIRONMENT_TYPE.TEST),
             new S3StorageService(region, ENVIRONMENT_TYPE.TEST));

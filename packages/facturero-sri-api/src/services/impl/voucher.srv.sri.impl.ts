@@ -17,24 +17,26 @@ import type { SriAuthorizationResult } from '../../dtos/sri.auth.result.js';
 import { IVoucher } from '../../model/voucher.js';
 import { SriVoucherResult } from '../../dtos/sri.voucher.result.js';
 import { SigningVoucherException } from '../../exceptions/signing.voucher.exception.js';
-import { ReceptionVoucherException } from '../../exceptions/reception.voucher.exception.js';
 import { AuthorizationVoucherException } from '../../exceptions/authorization.voucher.exception.js';
 import { GetVoucherResponse } from '../../dtos/get.voucher.response.js';
 import { SriProcessService } from './sri.process.srv.impl.js';
+import { SriProccessServiceOsoDreamer } from './sri.process.srv.osodreamer.js';
+import { ReceptionVoucherException } from '../../exceptions/reception.voucher.exception.js';
 export class VoucherServiceSriImpl implements VoucherServiceSri {
     private readonly logger = log4js.getLogger('VoucherServiceSriImpl');
 
-    
+
     private readonly factureroSriProccessService: ISriProccessService;
+    private readonly osodreamerSriProccessService: ISriProccessService;
 
     constructor(
-        private readonly _sriProccessService: ISriProccessService,
         private readonly _companyRepository: CompanyRepository,
         private readonly _voucherRepository: VoucherRepository,
         private readonly _storageService: StorageService,
     ) {
         this.factureroSriProccessService = new SriProcessService();
-     }
+        this.osodreamerSriProccessService = new SriProccessServiceOsoDreamer();
+    }
 
     /**
      * Ejecuta el flujo completo:
@@ -169,7 +171,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
     generateSignedInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse> => {
         this.logger.debug(`Signing XML for invoice for companyId: ${companyId} environment: ${env}`);
 
-        const sriVoucherResult: SriVoucherResult = await this._sriProccessService.generateInvoiceXML(companyId, env, invoiceData);
+        const sriVoucherResult: SriVoucherResult = await this.osodreamerSriProccessService.generateInvoiceXML(companyId, env, invoiceData);
 
         const xml = sriVoucherResult.xml;
 
@@ -186,7 +188,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         // TO-DO: Retrieve password securely
         const password = company.signaturePassword;
 
-        const signedXml: string = await this._sriProccessService.signXML({
+        const signedXml: string = await this.osodreamerSriProccessService.signXML({
             p12Buffer: p12Buffer,
             password: password,
             xmlBuffer: Buffer.from(xml)
@@ -197,7 +199,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
     private generateInvoiceXML = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<SriVoucherResult> => {
         this.logger.debug(`Generating XML for invoice for companyId: ${companyId} environment: ${env}`);
         try {
-            const voucherResponse = await this._sriProccessService.generateInvoiceXML(companyId, env, invoiceData);
+            const voucherResponse = await this.factureroSriProccessService.generateInvoiceXML(companyId, env, invoiceData);
 
             if (!voucherResponse || !voucherResponse.xml || !voucherResponse.accessKey) {
                 throw new SigningVoucherException("Error generating signed XML voucher.");
@@ -255,7 +257,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             // TO-DO: Retrieve password securely
             const password = company.signaturePassword;
 
-            const signedXml: string = await this._sriProccessService.signXML({
+            const signedXml: string = await this.osodreamerSriProccessService.signXML({
                 p12Buffer: p12Buffer,
                 password: password,
                 xmlBuffer: xmlBuffer
@@ -296,7 +298,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                 accessKey
             );
 
-            const validationSriResult: SriValidationResult = await this._sriProccessService.validateXML(
+            const validationSriResult: SriValidationResult = await this.osodreamerSriProccessService.validateXML(
                 env,
                 signedXml
             );
@@ -370,9 +372,9 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             );
 
             this.logger.debug(`authorization response: ${JSON.stringify(authorizationResult)}`);
-            
 
-            if(authorizationResult && authorizationResult.status === 'PROCESSING') {
+
+            if (authorizationResult && authorizationResult.status === 'PROCESSING') {
                 throw new AuthorizationVoucherException(`Voucher authorization without response`, authorizationResult.messages);
             }
 

@@ -27,6 +27,4 @@ export class DateFormat {
         return date.toLocaleDateString('en-GB', options);
     }
 
-
-
 }

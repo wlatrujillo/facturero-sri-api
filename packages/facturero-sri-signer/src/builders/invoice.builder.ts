@@ -6,7 +6,8 @@ import type { Impuesto } from "../models/impuesto.js";
 import type { Pago } from "../models/pago.js";
 import { DateFormat } from "../utils/date.format.js";
 import type { Detalle } from "../models/detalle.js";
-import { ENVIRONMENT, VOUCHER_TYPE } from "../enums/index.js";
+import { ENVIRONMENT_ENUM } from "../enums/enviroment.enum.js";
+import { VOUCHER_TYPE_ENUM } from "../enums/voucher.enum.js";
 
 export class InvoiceBuilder {
 
@@ -20,13 +21,13 @@ export class InvoiceBuilder {
     withInfoTributaria(data: InfoTributaria): this {
 
         this.infoTributaria = {
-            ambiente: data.ambiente || ENVIRONMENT.PRUEBAS,
+            ambiente: data.ambiente || ENVIRONMENT_ENUM.PRUEBAS,
             tipoEmision: data.tipoEmision || 1,
             razonSocial: data.razonSocial,
             nombreComercial: data.nombreComercial,
             ruc: data.ruc,
             claveAcceso: data.claveAcceso,
-            codDoc: VOUCHER_TYPE.FACTURA,
+            codDoc: VOUCHER_TYPE_ENUM.FACTURA,
             estab: data.estab,
             ptoEmi: data.ptoEmi,
             secuencial: data.secuencial,
@@ -80,7 +81,7 @@ export class InvoiceBuilder {
             totalSinImpuestos: data.totalSinImpuestos,
             totalDescuento: data.totalDescuento,
             totalConImpuestos: totalConImpuestos,
-            propina: data.propina,
+            propina: data.propina || 0.00,
             importeTotal: data.importeTotal,
             moneda: data.moneda,
             pagos: pagos,
@@ -105,7 +106,7 @@ export class InvoiceBuilder {
                     descripcion: detalle.descripcion,
                     cantidad: detalle.cantidad,
                     precioUnitario: detalle.precioUnitario,
-                    descuento: detalle.descuento,
+                    descuento: detalle.descuento || 0.00,
                     precioTotalSinImpuesto: detalle.precioTotalSinImpuesto,
                     detallesAdicionales: detalle.detallesAdicionales
                         .map((adicional: { nombre: string; valor: string }) => ({

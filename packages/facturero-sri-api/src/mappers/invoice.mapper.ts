@@ -1,4 +1,4 @@
-import { IDENTIFICATION } from "facturero-sri-signer";
+import { IDENTIFICATION_ENUM } from "facturero-sri-signer";
 import type { Invoice, Impuesto } from "facturero-sri-signer";
 
 import type { AddInvoiceRequest } from "../dtos/add.invoice.request.js";
@@ -48,15 +48,15 @@ export class InvoiceMapper {
             fechaEmision: issueDate,
             dirEstablecimiento: data.dirEstablecimiento,
             // contribuyenteEspecial: "sd3",
-            obligadoContabilidad: "NO",
-            tipoIdentificacionComprador: IDENTIFICATION.CEDULA,
+            obligadoContabilidad: data.obligadoContabilidad || "NO",
+            tipoIdentificacionComprador: data.tipoIdentificacionComprador as IDENTIFICATION_ENUM,
             razonSocialComprador: data.razonSocialComprador,
             identificacionComprador: data.identificacionComprador,
             direccionComprador: data.direccionComprador,
             totalSinImpuestos: data.totalSinImpuestos,
             totalDescuento: data.totalDescuento,
             totalConImpuestos: data.totalConImpuestos,
-            propina: 0.0,
+            propina: data.propina || 0.0,
             importeTotal: data.importeTotal,
             moneda: data.moneda,
             pagos: data.pagos,
@@ -65,7 +65,7 @@ export class InvoiceMapper {
         };
     }
 
-    static toDetalles(detalles: any): any {
+    static toDetalles(detalles: any[]): any {
 
         return detalles.map((detalle: any) => ({
             codigoPrincipal: detalle.codigoPrincipal,
