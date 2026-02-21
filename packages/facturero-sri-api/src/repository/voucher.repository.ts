@@ -2,12 +2,10 @@ import log4js from 'log4js';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand, type GetCommandOutput } from "@aws-sdk/lib-dynamodb";
 import type { IVoucher } from '../model/voucher.js';
-import { ENVIRONMENT_TYPE } from '../enums/environment.type.js';
 import type { IVoucherId } from '../model/voucher.id.js';
 
 const NODE_ENV = process.env.NODE_ENV || 'dev';
 const TABLE_NAME = `${NODE_ENV}-facturero-sri-vouchers`;
-const TABLE_NAME_TEST = `${NODE_ENV}-facturero-sri-vouchers-test`;
 
 export class VoucherRepository {
     // Repository methods will be defined here
@@ -16,17 +14,18 @@ export class VoucherRepository {
     private docClient;
     private tableName: string;
 
-    constructor(private readonly region: string = "us-east-1", private readonly env: ENVIRONMENT_TYPE) {
+    constructor(private readonly region: string = "us-east-1") {
         this.client = new DynamoDBClient({ region: this.region });
         this.docClient = DynamoDBDocumentClient.from(this.client);
-        this.tableName = this.env === ENVIRONMENT_TYPE.TEST ? TABLE_NAME_TEST : TABLE_NAME;
+        this.tableName = TABLE_NAME;
     }
 
     insert = async (voucher: IVoucher): Promise<IVoucher> => {
         // Implementation for inserting a voucher goes here   
+        const { voucherType, environment, establishment, branch, sequence } = voucher.voucherId;
         const persistentVoucher = {
             companyId: voucher.companyId,
-            voucherId: `#${voucher.voucherId.voucherType}#${voucher.voucherId.establishment}#${voucher.voucherId.branch}#${voucher.voucherId.sequence}`,
+            voucherId: `#${voucherType}#${environment}#${establishment}#${branch}#${sequence}`,
             accessKey: voucher.accessKey,
             xml: voucher.xml,
             status: voucher.status,
@@ -52,6 +51,8 @@ export class VoucherRepository {
         // Implementation for updating a voucher status goes here
         // This is a placeholder implementation. Actual implementation may vary.
         this.logger.debug(`Updating voucher status for companyId: ${companyId}, voucherId: ${voucherId}`);
+
+        const {voucherType, environment, establishment, branch, sequence} = voucherId;
 
         // Build dynamic update expression
         const updateExpressions: string[] = [];
@@ -101,7 +102,7 @@ export class VoucherRepository {
             TableName: this.tableName,
             Key: {
                 companyId: companyId,
-                voucherId: `#${voucherId.voucherType}#${voucherId.establishment}#${voucherId.branch}#${voucherId.sequence}`
+                voucherId: `#${voucherType}#${environment}#${establishment}#${branch}#${sequence}`
             },
             UpdateExpression: `SET ${updateExpressions.join(', ')}`,
             ConditionExpression: "attribute_exists(companyId)",
@@ -117,11 +118,13 @@ export class VoucherRepository {
     findById = async (companyId: string, voucherId: IVoucherId): Promise<IVoucher | null> => {
         // Implementation for finding a voucher by ID goes here
 
+        const {voucherType, environment, establishment, branch, sequence} = voucherId;
+
         const command = new GetCommand({
             TableName: this.tableName,
             Key: {
                 companyId: companyId,
-                voucherId: `#${voucherId.voucherType}#${voucherId.establishment}#${voucherId.branch}#${voucherId.sequence}`
+                voucherId: `#${voucherType}#${environment}#${establishment}#${branch}#${sequence}`
             }
         });
 

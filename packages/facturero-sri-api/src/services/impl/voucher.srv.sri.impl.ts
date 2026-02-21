@@ -51,6 +51,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
             const voucherId: IVoucherId = {
                 voucherType: VOUCHER_TYPE.INVOICE,
+                environment: env,
                 establishment: invoiceData.factura.estab,
                 branch: invoiceData.factura.ptoEmi,
                 sequence: invoiceData.factura.secuencial
@@ -213,6 +214,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
             const voucherId: IVoucherId = {
                 voucherType: VOUCHER_TYPE.INVOICE,
+                environment: env,
                 establishment: invoiceData.factura.estab,
                 branch: invoiceData.factura.ptoEmi,
                 sequence: invoiceData.factura.secuencial

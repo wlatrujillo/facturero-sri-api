@@ -1,4 +1,4 @@
 export enum ENVIRONMENT_TYPE {
-    LIVE = "prod",
-    TEST = "test"
+    TEST = "1",
+    LIVE = "2"
 }

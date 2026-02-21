@@ -21,7 +21,6 @@ import { CompanyRepository } from './repository/company.repository.js';
 import { CompanyServiceImpl } from './services/impl/company.srv.impl.js';
 import { VoucherServiceSriImpl } from './services/impl/voucher.srv.sri.impl.js';
 import { VoucherRepository } from './repository/voucher.repository.js';
-import { ENVIRONMENT_TYPE } from './enums/environment.type.js';
 import { S3StorageService } from './services/impl/storage.srv.s3.js';
 import { SriTestRoutes } from './routes/sri.test.route.js';
 
@@ -48,27 +47,22 @@ class App {
 
         const voucherServiceSri = new VoucherServiceSriImpl(
             new CompanyRepository(region),
-            new VoucherRepository(region, ENVIRONMENT_TYPE.LIVE),
-            new S3StorageService(region, ENVIRONMENT_TYPE.LIVE));
-
-        const voucherServiceSriTest = new VoucherServiceSriImpl(
-            new CompanyRepository(region),
-            new VoucherRepository(region, ENVIRONMENT_TYPE.TEST),
-            new S3StorageService(region, ENVIRONMENT_TYPE.TEST));
+            new VoucherRepository(region),
+            new S3StorageService(region));
 
         const companyService = new CompanyServiceImpl(new CompanyRepository(region));
 
         this.app.get("/", (_req, res) => res.render("index", { layout: false, link: "https://facturero-digital.com" }));
-        this.app.get("/api/health", (_req, res) => res.status(200).send({currentTime: new Date().toString(), status: "UP", TZ: Intl.DateTimeFormat().resolvedOptions().timeZone}));
+        this.app.get("/api/health", (_req, res) => res.status(200).send({ currentTime: new Date().toString(), status: "UP", TZ: Intl.DateTimeFormat().resolvedOptions().timeZone }));
         this.app.use('/api/company', new CompanyRoutes(companyService).router);
         this.app.use('/api/sri', [checkApiKey], new SriRoutes(voucherServiceSri).router);
-        this.app.use('/api/sri-test', [checkApiKey], new SriTestRoutes(voucherServiceSriTest).router);
+        this.app.use('/api/sri-test', [checkApiKey], new SriTestRoutes(voucherServiceSri).router);
 
     }
 
-    private swaggerConfig() { 
+    private swaggerConfig() {
         // Detect if running from workspace root or package directory
-       
+
         const isWorkspaceRoot = __dirname.includes('/packages/facturero-sri-api/dist');
         const swaggerApiPaths = isWorkspaceRoot
             ? ['./packages/facturero-sri-api/src/routes/*.ts', './packages/facturero-sri-api/src/dtos/*.ts']
@@ -123,7 +117,7 @@ class App {
 
     private serverConfig() {
 
-      
+
 
         this.app.engine('hbs', engine({ extname: '.hbs' }));
         this.app.set('view engine', 'hbs');

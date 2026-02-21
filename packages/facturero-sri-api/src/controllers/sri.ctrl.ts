@@ -2,7 +2,7 @@
 import type { AddInvoiceRequest } from '../dtos/add.invoice.request.js';
 import type { AddVoucherResponse } from '../dtos/add.voucher.response.js';
 import { GetVoucherResponse } from '../dtos/get.voucher.response.js';
-import type { ENVIRONMENT_TYPE } from '../enums/environment.type.js';
+import { ENVIRONMENT_TYPE } from '../enums/environment.type.js';
 import { IVoucherId } from '../model/voucher.id.js';
 import type { VoucherServiceSri } from '../services/voucher.srv.sri.js';
 import type { Request, Response } from 'express';
@@ -31,7 +31,7 @@ export class SriController {
 
 
 
-      const environment = req.path.includes('/test/') ? 'TEST' : 'LIVE';
+      const environment = req.path.includes('/test/') ? ENVIRONMENT_TYPE.TEST : ENVIRONMENT_TYPE.LIVE;
 
       const invoiceData: AddInvoiceRequest = req.body;
 
@@ -57,7 +57,7 @@ export class SriController {
 
       const companyId = res.locals.companyId;
 
-      const environment = req.path.includes('/test/') ? 'TEST' : 'LIVE';
+      const environment = req.path.includes('/test/') ? ENVIRONMENT_TYPE.TEST : ENVIRONMENT_TYPE.LIVE;
 
       logger.debug(`Received invoice data for signed invoice generation for companyId: ${companyId} environment: ${environment}`);
 
