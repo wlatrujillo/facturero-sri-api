@@ -6,10 +6,10 @@ import { IVoucherId } from "../model/voucher.id.js";
 
 export interface VoucherServiceSri {
 
-    executeInvoice(companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse>;
+    executeSendInvoice(companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse>;
 
     generateSignedInvoice(companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse>;
 
-    getVoucherStatusByVoucherId(companyId: string, voucherId: IVoucherId): Promise<GetVoucherResponse>;
+    getStatusByVoucherId(companyId: string, voucherId: IVoucherId): Promise<GetVoucherResponse>;
 
 }

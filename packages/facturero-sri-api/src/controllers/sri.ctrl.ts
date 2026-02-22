@@ -1,5 +1,5 @@
 
-import e from 'express';
+
 import type { AddInvoiceRequest } from '../dtos/add.invoice.request.js';
 import type { AddVoucherResponse } from '../dtos/add.voucher.response.js';
 import { GetVoucherResponse } from '../dtos/get.voucher.response.js';
@@ -38,7 +38,7 @@ export class SriController {
 
       logger.debug(`Received invoice data for invoice generation for companyId: ${companyId} environment: ${environment}`);
 
-      const serviceResponse: AddVoucherResponse = await this.voucherServiceSri.executeInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
+      const serviceResponse: AddVoucherResponse = await this.voucherServiceSri.executeSendInvoice(companyId, environment as ENVIRONMENT_TYPE, invoiceData);
 
 
       return res.status(200).send(serviceResponse);
@@ -102,7 +102,7 @@ export class SriController {
 
       logger.info(`Received request for voucher status for companyId: ${companyId}, voucherId: ${JSON.stringify(voucherId)}`);
 
-      const serviceResponse: GetVoucherResponse = await this.voucherServiceSri.getVoucherStatusByVoucherId(companyId, voucherId);
+      const serviceResponse: GetVoucherResponse = await this.voucherServiceSri.getStatusByVoucherId(companyId, voucherId);
 
 
       if (!serviceResponse || !serviceResponse.accessKey) {
