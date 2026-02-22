@@ -1,4 +1,5 @@
 
+import e from 'express';
 import type { AddInvoiceRequest } from '../dtos/add.invoice.request.js';
 import type { AddVoucherResponse } from '../dtos/add.voucher.response.js';
 import { GetVoucherResponse } from '../dtos/get.voucher.response.js';
@@ -82,14 +83,17 @@ export class SriController {
 
       const companyId = res.locals.companyId;
 
+      const environment = req.path.includes('/test/') ? ENVIRONMENT_TYPE.TEST : ENVIRONMENT_TYPE.LIVE;
+
       const voucherId = {
         voucherType: req.params.type instanceof Array ? req.params.type[0] : req.params.type,
+        environment: environment,
         establishment: req.params.establishment instanceof Array ? req.params.establishment[0] : req.params.establishment,
         branch: req.params.branch instanceof Array ? req.params.branch[0] : req.params.branch,
         sequence: req.params.number instanceof Array ? req.params.number[0] : req.params.number
       } as IVoucherId;
 
-      if (!voucherId.voucherType || !voucherId.establishment || !voucherId.branch || !voucherId.sequence) {
+      if (!voucherId.voucherType || !voucherId.environment || !voucherId.establishment || !voucherId.branch || !voucherId.sequence) {
         return res.status(400).send({
           status: "error",
           message: "Invalid voucher ID"

@@ -425,16 +425,18 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
     private getVoucherKeyFromAccessKey = (accessKey: string): IVoucherId => {
 
-        const voucherTypeCode = accessKey.substring(8, 10);
-        const estab = accessKey.substring(24, 27);
-        const ptoEmi = accessKey.substring(27, 30);
-        const secuencial = accessKey.substring(30, 39);
+        const voucherType = accessKey.substring(8, 10);
+        const environment = accessKey.substring(10, 11);
+        const establishment = accessKey.substring(24, 27);
+        const branch = accessKey.substring(27, 30);
+        const sequence = accessKey.substring(30, 39);
 
         return {
-            voucherType: voucherTypeCode,
-            establishment: estab,
-            branch: ptoEmi,
-            sequence: secuencial
+            voucherType,
+            environment,
+            establishment,
+            branch,
+            sequence
         } as IVoucherId;
     }
 
