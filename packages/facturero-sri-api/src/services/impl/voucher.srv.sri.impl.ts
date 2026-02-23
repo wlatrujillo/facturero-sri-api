@@ -11,7 +11,6 @@ import { VoucherRepository } from '../../repository/voucher.repository.js';
 import { VOUCHER_STATUS } from '../../enums/voucher.status.js';
 import { VOUCHER_TYPE } from '../../enums/voucher.type.js';
 import type { IVoucherId } from '../../model/voucher.id.js';
-import { AddVoucherException } from '../../exceptions/add.voucher.exception.js';
 import type { AddVoucherResponse } from '../../dtos/add.voucher.response.js';
 import type { SriAuthorizationResult } from '../../dtos/sri.auth.result.js';
 import { IVoucher } from '../../model/voucher.js';
@@ -39,12 +38,10 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
     }
 
     /**
-     * Ejecuta el flujo completo:
-     * 1. Generar XML
-     * 2. Firmar XML
-     * 3. Validar XML
+     * 1. Generar y Firmar XML
+     * 2. Validar XML
      */
-    executeSendInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse> => {
+    public executeSendInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse> => {
 
         try {
 
@@ -112,7 +109,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         }
     }
 
-    executeAuthorizationVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<SriValidationResult> => {
+    public executeAuthorizationVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<SriValidationResult> => {
 
         try {
             const voucherId: IVoucherId = this.getVoucherKeyFromAccessKey(accessKey);
@@ -145,7 +142,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         }
     }
 
-    getStatusByVoucherId = async (companyId: string, voucherId: IVoucherId): Promise<GetVoucherResponse> => {
+    public getStatusByVoucherId = async (companyId: string, voucherId: IVoucherId): Promise<GetVoucherResponse> => {
         const voucher = await this._voucherRepository.findById(companyId, voucherId);
         return {
             accessKey: voucher?.accessKey || undefined,
@@ -153,7 +150,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         } as GetVoucherResponse;
     }
 
-    generateSignedInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse> => {
+    public generateSignedInvoice = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<AddVoucherResponse> => {
         this.logger.debug(`Signing XML for invoice for companyId: ${companyId} environment: ${env}`);
 
         const sriVoucherResult: SriVoucherResult = await this.osodreamerSriProccessService.generateInvoiceXML(companyId, env, invoiceData);
@@ -181,15 +178,14 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         return { xml: signedXml, accessKey: sriVoucherResult.accessKey, status: VOUCHER_STATUS.SIGNED, messages: [] } as AddVoucherResponse;
     }
 
-
-    private signVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<SriVoucherResult> => {
+    private readonly signVoucher = async (companyId: string, env: ENVIRONMENT_TYPE, invoiceData: AddInvoiceRequest): Promise<SriVoucherResult> => {
         this.logger.debug(`Signing XML voucher for companyId: ${companyId}`);
 
         try {
 
             const voucherResponse: SriVoucherResult = await this.factureroSriProccessService.generateInvoiceXML(companyId, env, invoiceData);
 
-            if (!voucherResponse || !voucherResponse.xml || !voucherResponse.accessKey) {
+            if (!voucherResponse?.xml || !voucherResponse.accessKey) {
                 throw new SigningVoucherException("Error generating signed XML voucher.");
             }
 
@@ -235,7 +231,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         }
     }
 
-    private sendSriValidationVoucherRequest = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<SriValidationResult> => {
+    private readonly sendSriValidationVoucherRequest = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<SriValidationResult> => {
         this.logger.debug(`Validating signed XML for voucher with accessKey: ${accessKey}`);
 
         try {
@@ -253,7 +249,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
             const voucherId: IVoucherId = this.getVoucherKeyFromAccessKey(accessKey);
 
-            if (validationSriResult && validationSriResult.sriErrorIdentifier == '70') {
+            if (validationSriResult?.sriErrorIdentifier == '70') {
 
                 await this._voucherRepository.update(
                     companyId,
@@ -271,7 +267,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                 throw new ReceptionVoucherException(`Voucher validation failed`, validationSriResult.messages);
             }
 
-            if (!validationSriResult || validationSriResult.status !== 'RECIBIDA') {
+            if (validationSriResult?.status !== 'RECIBIDA') {
 
                 await this._voucherRepository.update(
                     companyId,
@@ -306,7 +302,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
         }
     }
 
-    private sendSriAuthorizationVoucherRequest = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<SriAuthorizationResult> => {
+    private readonly sendSriAuthorizationVoucherRequest = async (companyId: string, env: ENVIRONMENT_TYPE, accessKey: string): Promise<SriAuthorizationResult> => {
         this.logger.info(`🚀 Iniciando proceso de autorización SRI para la empresa: ${companyId} en entorno ${env} con clave de acceso: ${accessKey}`);
         try {
 
@@ -324,11 +320,11 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             this.logger.debug(`authorization response: ${JSON.stringify(authorizationResult)}`);
 
 
-            if (authorizationResult && authorizationResult.status === 'PROCESSING') {
+            if (authorizationResult?.status === 'PROCESSING') {
                 throw new AuthorizationVoucherException(`Voucher authorization without response`, authorizationResult.messages);
             }
 
-            if (!authorizationResult || authorizationResult.status !== 'AUTORIZADO') {
+            if (authorizationResult?.status !== 'AUTORIZADO') {
                 this._voucherRepository.update(
                     companyId,
                     voucherId,
@@ -371,7 +367,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
 
     }
 
-    private getVoucherKeyFromAccessKey = (accessKey: string): IVoucherId => {
+    private readonly getVoucherKeyFromAccessKey = (accessKey: string): IVoucherId => {
 
         const voucherType = accessKey.substring(8, 10);
         const environment = accessKey.substring(10, 11);
@@ -387,6 +383,5 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
             sequence
         } as IVoucherId;
     }
-
 
 }
