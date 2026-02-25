@@ -219,6 +219,7 @@ export class VoucherServiceSriImpl implements VoucherServiceSri {
                 voucherId,
                 {
                     status: VOUCHER_STATUS.SIGNED,
+                    accessKey: voucherResponse.accessKey,
                     xml: signedXml
                 } as IVoucher
             );
