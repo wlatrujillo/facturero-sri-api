@@ -1,0 +1,116 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.1 Chrome/142.0.7444.265 Electron/39.8.0 Safari/537.36" version="29.6.1">
+  <diagram name="Page-1" id="WidICuH_0eGahi0Qgu6d">
+    <mxGraphModel dx="1018" dy="781" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="HltT9s_WMstV1-0kS9uH-17" edge="1" parent="1" source="HltT9s_WMstV1-0kS9uH-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;" target="HltT9s_WMstV1-0kS9uH-7" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="438" y="351.25" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-1" parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.sqs;fillColor=#D9A741;gradientColor=none;" value="AWS SQS" vertex="1">
+          <mxGeometry height="70" width="59.25" x="408.44" y="369.75" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-24" edge="1" parent="1" source="HltT9s_WMstV1-0kS9uH-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="HltT9s_WMstV1-0kS9uH-8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-2" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#C925D1;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.dynamodb_standard_access_table_class;" value="sri-vouchers" vertex="1">
+          <mxGeometry height="60" width="57.69" x="574.09" y="491.25" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-3" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#7AA116;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.bucket;" value="sri-vouchers" vertex="1">
+          <mxGeometry height="52.5" width="50.48" x="577.69" y="211.25" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-4" parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.email;fillColor=#D9A741;gradientColor=none;" value="AWS SES" vertex="1">
+          <mxGeometry height="51.5" width="44" x="750" y="591.25" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-5" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#7AA116;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.bucket;" value="sri-companies" vertex="1">
+          <mxGeometry height="52.5" width="50.48" x="255.68999999999994" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-6" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#C925D1;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.dynamodb_standard_access_table_class;" value="sri-companies" vertex="1">
+          <mxGeometry height="60" width="57.69" x="252.09000000000003" y="491.25" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-18" edge="1" parent="1" source="HltT9s_WMstV1-0kS9uH-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="HltT9s_WMstV1-0kS9uH-11" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-21" edge="1" parent="1" source="HltT9s_WMstV1-0kS9uH-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="HltT9s_WMstV1-0kS9uH-3" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-25" edge="1" parent="1" source="HltT9s_WMstV1-0kS9uH-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="HltT9s_WMstV1-0kS9uH-2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-7" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.lambda_function;" value="sri-authorizer" vertex="1">
+          <mxGeometry height="48" width="48" x="578.9300000000001" y="328" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-19" edge="1" parent="1" source="HltT9s_WMstV1-0kS9uH-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="HltT9s_WMstV1-0kS9uH-4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-8" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.lambda_function;" value="sri-notifier" vertex="1">
+          <mxGeometry height="48" width="48" x="578.93" y="593" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-20" edge="1" parent="1" source="HltT9s_WMstV1-0kS9uH-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="HltT9s_WMstV1-0kS9uH-10" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-9" parent="1" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#E7157B;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.endpoint;" value="API" vertex="1">
+          <mxGeometry height="58" width="58" x="130" y="376" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-13" edge="1" parent="1" source="HltT9s_WMstV1-0kS9uH-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="HltT9s_WMstV1-0kS9uH-6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-14" edge="1" parent="1" source="HltT9s_WMstV1-0kS9uH-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="HltT9s_WMstV1-0kS9uH-5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-15" edge="1" parent="1" source="HltT9s_WMstV1-0kS9uH-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="HltT9s_WMstV1-0kS9uH-1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-10" parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.ecs;fillColor=#F58534;gradientColor=none;" value="AWS ECS" vertex="1">
+          <mxGeometry height="57.5" width="52" x="255.69" y="376" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-22" edge="1" parent="1" source="HltT9s_WMstV1-0kS9uH-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="HltT9s_WMstV1-0kS9uH-7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-11" parent="1" style="sketch=0;html=1;pointerEvents=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.cisco.misc.6700_series;" value="SRI" vertex="1">
+          <mxGeometry height="46" width="44" x="750" y="329" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-23" edge="1" parent="1" source="HltT9s_WMstV1-0kS9uH-7" style="endArrow=classic;html=1;rounded=0;entryX=1;entryY=0.79;entryDx=0;entryDy=0;entryPerimeter=0;" target="HltT9s_WMstV1-0kS9uH-1" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <Array as="points">
+              <mxPoint x="570" y="425.25" />
+            </Array>
+            <mxPoint x="600" y="381.25" as="sourcePoint" />
+            <mxPoint x="550" y="431.25" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-26" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Facturación SRI&lt;/h1&gt;&lt;p&gt;1. Generar XML&lt;/p&gt;&lt;p&gt;2. Firmar XML&lt;/p&gt;&lt;p&gt;3. Enviar XML&lt;/p&gt;&lt;p&gt;4. Authorizar XML&lt;/p&gt;" vertex="1">
+          <mxGeometry height="170" width="190" x="10" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-27" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Reitentos" vertex="1">
+          <mxGeometry height="30" width="60" x="480" y="369.75" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-28" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Authorized" vertex="1">
+          <mxGeometry height="30" width="60" x="610.0000000000001" y="434" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-29" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Enviar email" vertex="1">
+          <mxGeometry height="30" width="60" x="650.0000000000001" y="651.25" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-30" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Processing&lt;div&gt;Authorized&lt;/div&gt;&lt;div&gt;Not Authorized&lt;/div&gt;" vertex="1">
+          <mxGeometry height="51.5" width="90" x="640" y="359" as="geometry" />
+        </mxCell>
+        <mxCell id="HltT9s_WMstV1-0kS9uH-31" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Processing" vertex="1">
+          <mxGeometry height="30" width="60" x="500" y="434" as="geometry" />
+        </mxCell>
+        <mxCell id="hsBxmpHQnYfypIuNC_cf-1" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;SRI SOAP Services&lt;/h1&gt;&lt;p&gt;https://cel.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;https://cel.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="110" width="500.22" x="340" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="hsBxmpHQnYfypIuNC_cf-3" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="firma_electronica.p12" vertex="1">
+          <mxGeometry height="30" width="60" x="340" y="221.25" as="geometry" />
+        </mxCell>
+        <mxCell id="hsBxmpHQnYfypIuNC_cf-4" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;div&gt;1. Datos empresa&lt;/div&gt;&lt;div&gt;2. Password firma electrónica&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="161.56" x="230" y="590" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

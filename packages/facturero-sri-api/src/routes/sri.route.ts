@@ -65,7 +65,7 @@ export class SriRoutes {
          * @swagger
          * /api/sri/voucher/{type}/{establishment}/{branch}/{number}/status:
          *   get:
-         *     summary: Obtiene el estado de un comprobante electrónico por su ID en el ambiente de test del SRI
+         *     summary: Obtiene el estado de un comprobante electrónico por su ID en el SRI
          *     description: Recupera el estado, clave de acceso y XML de un comprobante electrónico utilizando su ID único
          *     tags:
          *       - Voucher Status

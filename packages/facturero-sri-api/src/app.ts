@@ -80,9 +80,6 @@ class App {
                 servers: [
                     {
                         url: 'https://sri.facturero-digital.com',
-                    },
-                    {
-                        url: 'http://localhost:8080',
                     }
                 ],
             },
